@@ -25,12 +25,12 @@ import java.util.function.Supplier;
 import org.apache.commons.io.FileUtils;
 
 /**
- * Simple {@link JsonFileCache} which uses json to store element from a {@link Supplier} within a given {@link File}
+ * Simple {@link JsonFileElementCache} which uses json to store element from a {@link Supplier} within a given {@link File}
  *
  * @author Omnaest
  * @param <T>
  */
-public class JsonFileCache<T> implements Supplier<T>
+public class JsonFileElementCache<T> implements Supplier<T>
 {
 	private static final String UTF_8 = "utf-8";
 
@@ -38,7 +38,7 @@ public class JsonFileCache<T> implements Supplier<T>
 	private Class<? super T>	type;
 	private File				cacheFile;
 
-	public JsonFileCache(File cacheFile, Supplier<T> supplier, Class<? super T> type)
+	public JsonFileElementCache(File cacheFile, Supplier<T> supplier, Class<? super T> type)
 	{
 		super();
 		this.cacheFile = cacheFile;

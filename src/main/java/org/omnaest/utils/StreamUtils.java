@@ -18,6 +18,7 @@
 */
 package org.omnaest.utils;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
@@ -27,6 +28,14 @@ import java.util.stream.StreamSupport;
 
 public class StreamUtils
 {
+
+	@SafeVarargs
+	public static <E> Stream<E> concat(Stream<E>... streams)
+	{
+		return concat(Arrays.asList(streams)
+							.stream());
+	}
+
 	public static <E> Stream<E> concat(Stream<Stream<E>> streams)
 	{
 		return streams	.reduce(Stream::concat)

@@ -89,4 +89,12 @@ public class StreamUtilsTest
 		assertEquals(Arrays.asList("1", "2", "3", "4"), collect);
 	}
 
+	@Test
+	public void testReverse() throws Exception
+	{
+		assertEquals(Arrays.asList("c", "b", "a"), StreamUtils	.reverse(Arrays	.asList("a", "b", "c")
+																				.stream())
+																.collect(Collectors.toList()));
+	}
+
 }

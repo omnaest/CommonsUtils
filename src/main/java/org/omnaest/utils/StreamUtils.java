@@ -19,10 +19,14 @@
 package org.omnaest.utils;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -74,5 +78,21 @@ public class StreamUtils
 			}
 		}).filter(terminateMatcher.negate());
 
+	}
+
+	/**
+	 * Reverses the order of the given {@link Stream}. Be aware that this will terminate the given {@link Stream} and returns a new {@link Stream}, which makes
+	 * this a TERMINAL operation!!
+	 *
+	 * @param stream
+	 * @return
+	 */
+	public static <E> Stream<E> reverse(Stream<E> stream)
+	{
+		List<E> list = Optional	.ofNullable(stream)
+								.orElse(Stream.empty())
+								.collect(Collectors.toList());
+		Collections.reverse(list);
+		return list.stream();
 	}
 }

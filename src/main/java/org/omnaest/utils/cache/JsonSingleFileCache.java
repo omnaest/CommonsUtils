@@ -124,8 +124,11 @@ public class JsonSingleFileCache extends AbstractCache
 														.computeIfAbsent(key, (id) ->
 														{
 															V value = supplier.get();
-															t	.getTypes()
-																.put(key, value.getClass());
+															if (value != null)
+															{
+																t	.getTypes()
+																	.put(key, value.getClass());
+															}
 															return this.convertToJsonNode(value);
 														});
 													return t;

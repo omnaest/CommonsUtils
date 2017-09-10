@@ -74,7 +74,8 @@ public class CacheUtilsTest
 		File tempFile = File.createTempFile("testCache", "json"); // new File("C:/Temp/cacheTest.json");
 		Supplier<Cache> supplier1 = () -> new ConcurrentHashMapCache();
 		Supplier<Cache> supplier2 = () -> new JsonSingleFileCache(tempFile);
-		return Arrays	.<Supplier<Cache>>asList(supplier1, supplier2)
+		Supplier<Cache> supplier3 = () -> new JsonFolderFilesCache(tempFile.getParentFile());
+		return Arrays	.<Supplier<Cache>>asList(supplier1, supplier2, supplier3)
 						.stream()
 						.skip(0)
 						.collect(Collectors.toList());

@@ -38,6 +38,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 /**
  * {@link Cache} which uses {@link JSONHelper} to store the cache content within a single json {@link File}
  *
+ * @see JsonFolderFilesCache
  * @author Omnaest
  * @param <V>
  */

@@ -36,6 +36,8 @@ import org.omnaest.utils.JSONHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * {@link Cache} which uses {@link JSONHelper} to store the cache content within multiple json {@link File}s
  *
@@ -74,9 +76,20 @@ public class JsonFolderFilesCache extends AbstractCache
 			return this.types;
 		}
 
-		public Long getIndexAndIncrement()
+		public AtomicLong getIndex()
 		{
-			return this.index.getAndIncrement();
+			return this.index;
+		}
+
+		public void setIndex(long index)
+		{
+			this.index.set(index);
+		}
+
+		@JsonIgnore
+		public Long getNextIndex()
+		{
+			return this.index.incrementAndGet();
 		}
 
 	}
@@ -125,8 +138,8 @@ public class JsonFolderFilesCache extends AbstractCache
 
 	private Long writeToFileAndGetIndex(Object value)
 	{
-		Long index = this.root	.get()
-								.getIndexAndIncrement();
+		Long index = this	.getOrCreateRoot()
+							.getNextIndex();
 		this.writeToSingleCacheFile(value, index);
 		return index;
 	}
@@ -198,8 +211,6 @@ public class JsonFolderFilesCache extends AbstractCache
 						Long tindex = this.writeToFileAndGetIndex(value);
 						t	.getData()
 							.put(key, tindex);
-						t	.getTypes()
-							.put(key, value.getClass());
 
 						return tindex;
 					});
@@ -265,11 +276,12 @@ public class JsonFolderFilesCache extends AbstractCache
 	private DataRoot readFromRootCacheFile()
 	{
 		DataRoot retval = null;
-		if (this.cacheDirectory.exists() && this.cacheDirectory.isFile())
+		File rootCacheFile = this.determineRootCacheFile();
+		if (rootCacheFile.exists() && rootCacheFile.isFile())
 		{
 			try
 			{
-				String json = FileUtils.readFileToString(this.determineRootCacheFile(), UTF_8);
+				String json = FileUtils.readFileToString(rootCacheFile, UTF_8);
 				retval = StringUtils.isBlank(json) ? null : JSONHelper.readFromString(json, DataRoot.class);
 			}
 			catch (Exception e)

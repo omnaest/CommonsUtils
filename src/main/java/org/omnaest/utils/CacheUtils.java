@@ -16,9 +16,14 @@
 
 
 */
-package org.omnaest.utils.cache;
+package org.omnaest.utils;
 
 import java.io.File;
+
+import org.omnaest.utils.cache.Cache;
+import org.omnaest.utils.cache.ConcurrentHashMapCache;
+import org.omnaest.utils.cache.JsonFolderFilesCache;
+import org.omnaest.utils.cache.JsonSingleFileCache;
 
 /**
  * @see Cache

@@ -21,6 +21,8 @@ package org.omnaest.utils.cache;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import org.omnaest.utils.CacheUtils;
+
 /**
  * @see UnaryCache
  * @see CacheUtils

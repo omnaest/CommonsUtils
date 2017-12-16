@@ -16,7 +16,7 @@
 
 
 */
-package org.omnaest.utils.cache;
+package org.omnaest.utils;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -32,6 +32,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.omnaest.utils.cache.Cache;
+import org.omnaest.utils.cache.CacheToUnaryCacheAdapter;
+import org.omnaest.utils.cache.ConcurrentHashMapCache;
+import org.omnaest.utils.cache.JsonFolderFilesCache;
+import org.omnaest.utils.cache.JsonSingleFileCache;
+import org.omnaest.utils.cache.UnaryCache;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 

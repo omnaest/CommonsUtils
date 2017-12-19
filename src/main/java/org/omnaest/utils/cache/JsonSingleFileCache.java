@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
@@ -30,6 +31,7 @@ import java.util.function.UnaryOperator;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.omnaest.utils.JSONHelper;
+import org.omnaest.utils.RetryHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -190,10 +192,12 @@ public class JsonSingleFileCache extends AbstractCache
 		{
 			try
 			{
-				String json = FileUtils.readFileToString(this.cacheFile, UTF_8);
-				retval = StringUtils.isBlank(json) ? null : JSONHelper.readFromString(json, DataRoot.class);
-			}
-			catch (Exception e)
+				retval = RetryHelper.retry(5 * 10, 100, TimeUnit.MILLISECONDS, () ->
+				{
+					String json = FileUtils.readFileToString(this.cacheFile, UTF_8);
+					return StringUtils.isBlank(json) ? null : JSONHelper.readFromString(json, DataRoot.class);
+				});
+			} catch (Exception e)
 			{
 				LOG.error("Exception reading file cache: " + this.cacheFile, e);
 				retval = null;
@@ -208,8 +212,7 @@ public class JsonSingleFileCache extends AbstractCache
 		{
 			String json = JSONHelper.prettyPrint(this.root.get());
 			FileUtils.writeStringToFile(this.cacheFile, json, UTF_8);
-		}
-		catch (Exception e)
+		} catch (Exception e)
 		{
 			LOG.error("Exception writing json to cache file: " + this.cacheFile, e);
 		}

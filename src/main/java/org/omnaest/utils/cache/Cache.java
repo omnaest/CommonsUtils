@@ -24,6 +24,15 @@ import java.util.function.Supplier;
 import org.omnaest.utils.CacheUtils;
 
 /**
+ * Defines a {@link Cache} API.
+ * <br>
+ * <br>
+ * Example:<br>
+ * 
+ * <pre>
+ * CacheUtils.newConcurrentInMemoryCache()
+ * </pre>
+ * 
  * @see UnaryCache
  * @see CacheUtils
  * @see CacheUtils#newConcurrentInMemoryCache()
@@ -33,23 +42,23 @@ import org.omnaest.utils.CacheUtils;
  */
 public interface Cache
 {
-	public <V> V get(String key, Class<V> type);
+    public <V> V get(String key, Class<V> type);
 
-	public <V> Class<V> getType(String key);
+    public <V> Class<V> getType(String key);
 
-	public <V> Supplier<V> getSupplier(String key, Class<V> type);
+    public <V> Supplier<V> getSupplier(String key, Class<V> type);
 
-	public void put(String key, Object value);
+    public void put(String key, Object value);
 
-	public <V> V computeIfAbsent(String key, Supplier<V> supplier, Class<V> type);
+    public <V> V computeIfAbsent(String key, Supplier<V> supplier, Class<V> type);
 
-	public void remove(String key);
+    public void remove(String key);
 
-	public Set<String> keySet();
+    public Set<String> keySet();
 
-	public boolean isEmpty();
+    public boolean isEmpty();
 
-	public int size();
+    public int size();
 
-	public void clear();
+    public void clear();
 }

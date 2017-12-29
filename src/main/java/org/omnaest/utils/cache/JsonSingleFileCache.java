@@ -28,8 +28,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
+import org.omnaest.utils.FileUtils;
 import org.omnaest.utils.JSONHelper;
 import org.omnaest.utils.RetryHelper;
 import org.slf4j.Logger;
@@ -46,204 +45,205 @@ import com.fasterxml.jackson.databind.JsonNode;
  */
 public class JsonSingleFileCache extends AbstractCache
 {
-	private static final String	UTF_8	= "utf-8";
-	private static final Logger	LOG		= LoggerFactory.getLogger(JsonSingleFileCache.class);
+    private static final String UTF_8 = "utf-8";
+    private static final Logger LOG   = LoggerFactory.getLogger(JsonSingleFileCache.class);
 
-	private File cacheFile;
+    private File cacheFile;
 
-	private AtomicReference<DataRoot> root = new AtomicReference<>();
+    private AtomicReference<DataRoot> root = new AtomicReference<>();
 
-	protected static class DataRoot
-	{
-		private LinkedHashMap<String, JsonNode>	data	= new LinkedHashMap<>();
-		private LinkedHashMap<String, Class<?>>	types	= new LinkedHashMap<>();
+    protected static class DataRoot
+    {
+        private LinkedHashMap<String, JsonNode> data  = new LinkedHashMap<>();
+        private LinkedHashMap<String, Class<?>> types = new LinkedHashMap<>();
 
-		public DataRoot()
-		{
-			super();
+        public DataRoot()
+        {
+            super();
 
-		}
+        }
 
-		public LinkedHashMap<String, JsonNode> getData()
-		{
-			return this.data;
-		}
+        public LinkedHashMap<String, JsonNode> getData()
+        {
+            return this.data;
+        }
 
-		public LinkedHashMap<String, Class<?>> getTypes()
-		{
-			return this.types;
-		}
+        public LinkedHashMap<String, Class<?>> getTypes()
+        {
+            return this.types;
+        }
 
-	}
+    }
 
-	public JsonSingleFileCache(File cacheFile)
-	{
-		super();
-		this.cacheFile = cacheFile;
-	}
+    public JsonSingleFileCache(File cacheFile)
+    {
+        super();
+        this.cacheFile = cacheFile;
+    }
 
-	@Override
-	public <V> V get(String key, Class<V> type)
-	{
-		return this.readFromJsonNode(	this.getOrCreateRoot()
-											.getData()
-											.get(key),
-										type);
-	}
+    @Override
+    public <V> V get(String key, Class<V> type)
+    {
+        return this.readFromJsonNode(this.getOrCreateRoot()
+                                         .getData()
+                                         .get(key),
+                                     type);
+    }
 
-	private <V> V readFromJsonNode(JsonNode jsonNode, Class<V> type)
-	{
-		return JSONHelper.readFromString(JSONHelper.prettyPrint(jsonNode), type);
-	}
+    private <V> V readFromJsonNode(JsonNode jsonNode, Class<V> type)
+    {
+        return JSONHelper.readFromString(JSONHelper.prettyPrint(jsonNode), type);
+    }
 
-	private JsonNode convertToJsonNode(Object value)
-	{
-		return JSONHelper.readFromString(JSONHelper.prettyPrint(value), JsonNode.class);
-	}
+    private JsonNode convertToJsonNode(Object value)
+    {
+        return JSONHelper.readFromString(JSONHelper.prettyPrint(value), JsonNode.class);
+    }
 
-	@Override
-	public void put(String key, Object value)
-	{
-		this.operateOnRootAndGet(t ->
-		{
-			t	.getData()
-				.put(key, this.convertToJsonNode(value));
-			t	.getTypes()
-				.put(key, value.getClass());
-			return t;
-		});
+    @Override
+    public void put(String key, Object value)
+    {
+        this.operateOnRootAndGet(t ->
+        {
+            t.getData()
+             .put(key, this.convertToJsonNode(value));
+            t.getTypes()
+             .put(key, value.getClass());
+            return t;
+        });
 
-	}
+    }
 
-	@Override
-	public <V> V computeIfAbsent(String key, Supplier<V> supplier, Class<V> type)
-	{
-		return this.readFromJsonNode(	Optional.ofNullable(this.getOrCreateRoot()
-																.getData()
-																.get(key))
-												.orElseGet(() -> this	.operateOnRootAndGet(t ->
-												{
-													t	.getData()
-														.computeIfAbsent(key, (id) ->
-														{
-															V value = supplier.get();
-															if (value != null)
-															{
-																t	.getTypes()
-																	.put(key, value.getClass());
-															}
-															return this.convertToJsonNode(value);
-														});
-													return t;
-												})
-																		.getData()
-																		.get(key)),
-										type);
+    @Override
+    public <V> V computeIfAbsent(String key, Supplier<V> supplier, Class<V> type)
+    {
+        return this.readFromJsonNode(Optional.ofNullable(this.getOrCreateRoot()
+                                                             .getData()
+                                                             .get(key))
+                                             .orElseGet(() -> this.operateOnRootAndGet(t ->
+                                             {
+                                                 t.getData()
+                                                  .computeIfAbsent(key, (id) ->
+                                                  {
+                                                      V value = supplier.get();
+                                                      if (value != null)
+                                                      {
+                                                          t.getTypes()
+                                                           .put(key, value.getClass());
+                                                      }
+                                                      return this.convertToJsonNode(value);
+                                                  });
+                                                 return t;
+                                             })
+                                                                  .getData()
+                                                                  .get(key)),
+                                     type);
 
-	}
+    }
 
-	@Override
-	public Set<String> keySet()
-	{
-		return new HashSet<>(this	.getOrCreateRoot()
-									.getData()
-									.keySet());
-	}
+    @Override
+    public Set<String> keySet()
+    {
+        return new HashSet<>(this.getOrCreateRoot()
+                                 .getData()
+                                 .keySet());
+    }
 
-	protected DataRoot getOrCreateRoot()
-	{
-		DataRoot retmap = this.root.get();
+    protected DataRoot getOrCreateRoot()
+    {
+        DataRoot retmap = this.root.get();
 
-		if (retmap == null)
-		{
-			this.operateOnRootAndGet(r -> r == null ? this.loadRoot() : null, () -> this.root.get());
-			retmap = this.root.get();
-		}
+        if (retmap == null)
+        {
+            this.operateOnRootAndGet(r -> r == null ? this.loadRoot() : null, () -> this.root.get());
+            retmap = this.root.get();
+        }
 
-		return retmap;
-	}
+        return retmap;
+    }
 
-	public DataRoot operateOnRootAndGet(UnaryOperator<DataRoot> updateFunction)
-	{
-		return this.operateOnRootAndGet(updateFunction, () -> this.getOrCreateRoot());
-	}
+    public DataRoot operateOnRootAndGet(UnaryOperator<DataRoot> updateFunction)
+    {
+        return this.operateOnRootAndGet(updateFunction, () -> this.getOrCreateRoot());
+    }
 
-	public DataRoot operateOnRootAndGet(UnaryOperator<DataRoot> updateFunction, Supplier<DataRoot> initialDataRoot)
-	{
-		synchronized (this.root)
-		{
-			this.root.set(updateFunction.apply(initialDataRoot.get()));
-			this.writeCacheFile();
-		}
-		return this.root.get();
-	}
+    public DataRoot operateOnRootAndGet(UnaryOperator<DataRoot> updateFunction, Supplier<DataRoot> initialDataRoot)
+    {
+        synchronized (this.root)
+        {
+            this.root.set(updateFunction.apply(initialDataRoot.get()));
+            this.writeCacheFile();
+        }
+        return this.root.get();
+    }
 
-	private DataRoot loadRoot()
-	{
-		return Optional	.ofNullable(this.readFromCacheFile())
-						.orElseGet(() -> new DataRoot());
+    private DataRoot loadRoot()
+    {
+        return Optional.ofNullable(this.readFromCacheFile())
+                       .orElseGet(() -> new DataRoot());
 
-	}
+    }
 
-	private DataRoot readFromCacheFile()
-	{
-		DataRoot retval = null;
-		if (this.cacheFile.exists() && this.cacheFile.isFile())
-		{
-			try
-			{
-				retval = RetryHelper.retry(5 * 10, 100, TimeUnit.MILLISECONDS, () ->
-				{
-					String json = FileUtils.readFileToString(this.cacheFile, UTF_8);
-					return StringUtils.isBlank(json) ? null : JSONHelper.readFromString(json, DataRoot.class);
-				});
-			} catch (Exception e)
-			{
-				LOG.error("Exception reading file cache: " + this.cacheFile, e);
-				retval = null;
-			}
-		}
-		return retval;
-	}
+    private DataRoot readFromCacheFile()
+    {
+        DataRoot retval = null;
+        if (this.cacheFile.exists() && this.cacheFile.isFile())
+        {
+            try
+            {
+                retval = RetryHelper.retry(5 * 10, 100, TimeUnit.MILLISECONDS, () ->
+                {
+                    //                    String json = FileUtils.readFileToString(this.cacheFile, UTF_8);
+                    //                    return StringUtils.isBlank(json) ? null : JSONHelper.readFromString(json, DataRoot.class);
 
-	private void writeCacheFile()
-	{
-		try
-		{
-			String json = JSONHelper.prettyPrint(this.root.get());
-			FileUtils.writeStringToFile(this.cacheFile, json, UTF_8);
-		} catch (Exception e)
-		{
-			LOG.error("Exception writing json to cache file: " + this.cacheFile, e);
-		}
-	}
+                    return FileUtils.readFrom(this.cacheFile, JSONHelper.prepareAsReaderToObjectFunction(DataRoot.class));
+                });
+            } catch (Exception e)
+            {
+                LOG.error("Exception reading file cache: " + this.cacheFile, e);
+                retval = null;
+            }
+        }
+        return retval;
+    }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public <V> Class<V> getType(String key)
-	{
-		return (Class<V>) this	.getOrCreateRoot()
-								.getTypes()
-								.get(key);
-	}
+    private void writeCacheFile()
+    {
+        try
+        {
+            FileUtils.writeTo(this.cacheFile, JSONHelper.prepareAsPrettyPrintWriterConsumer(this.root.get()));
+        } catch (Exception e)
+        {
+            LOG.error("Exception writing json to cache file: " + this.cacheFile, e);
+        }
+    }
 
-	@Override
-	public void remove(String key)
-	{
-		if (this.getOrCreateRoot()
-				.getData()
-				.containsKey(key))
-		{
-			this.operateOnRootAndGet(r ->
-			{
-				r	.getData()
-					.remove(key);
-				r	.getTypes()
-					.remove(key);
-				return r;
-			});
-		}
+    @SuppressWarnings("unchecked")
+    @Override
+    public <V> Class<V> getType(String key)
+    {
+        return (Class<V>) this.getOrCreateRoot()
+                              .getTypes()
+                              .get(key);
+    }
 
-	}
+    @Override
+    public void remove(String key)
+    {
+        if (this.getOrCreateRoot()
+                .getData()
+                .containsKey(key))
+        {
+            this.operateOnRootAndGet(r ->
+            {
+                r.getData()
+                 .remove(key);
+                r.getTypes()
+                 .remove(key);
+                return r;
+            });
+        }
+
+    }
 
 }

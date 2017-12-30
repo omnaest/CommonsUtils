@@ -1,6 +1,7 @@
 package org.omnaest.utils.cyclic;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -15,6 +16,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.omnaest.utils.RetryHelper;
@@ -32,8 +34,7 @@ public class DefaultCycleProcessor<I, W> implements CycleProcessor<I, W>
     private ExecutorService operationsExecutorService = Executors.newCachedThreadPool();
     private ExecutorService mainExecutorService       = Executors.newSingleThreadExecutor();
 
-    private Map<I, WindowLockManager<W>> windowIndexToLock      = new ConcurrentHashMap<>();
-    private NewOperationsSignaling       newOperationsSignaling = new NewOperationsSignaling();
+    private KeyLockingRepository<I, WindowCollector<W>> windowIndexToCollector = new KeyLockingRepository<>();
 
     private static class NewOperationsSignaling
     {
@@ -46,7 +47,6 @@ public class DefaultCycleProcessor<I, W> implements CycleProcessor<I, W>
             try
             {
                 this.condition.await(1000, TimeUnit.MILLISECONDS);
-
             }
             catch (InterruptedException e)
             {
@@ -73,24 +73,139 @@ public class DefaultCycleProcessor<I, W> implements CycleProcessor<I, W>
 
     }
 
-    private static class WindowLockManager<W>
+    private static class KeyLockingRepository<K, V>
     {
-        private Lock      windowLock;
-        private Condition windowReadyCondition;
-        private Condition operationsFinishedCondition;
-        private Condition windowWrittenCondition;
+        private Map<K, Lock>          keyToLock          = new ConcurrentHashMap<>();
+        private Map<K, Condition>     keyToReadSignal    = new ConcurrentHashMap<>();
+        private Map<K, Condition>     keyToLoadedSignal  = new ConcurrentHashMap<>();
+        private Map<K, Condition>     keyToRemovedSignal = new ConcurrentHashMap<>();
+        private Map<K, AtomicInteger> keyToReadCounter   = new ConcurrentHashMap<>();
+        private Map<K, V>             keyToValue         = new ConcurrentHashMap<>();
 
-        private AtomicInteger waitingOperationsCounter = new AtomicInteger();
+        private NewOperationsSignaling newOperationsSignaling = new NewOperationsSignaling();
+
+        public void computeIfAbsentOperation(K key, Consumer<V> consumer, Supplier<V> supplier)
+        {
+            //
+            this.newOperationsSignaling.signal();
+
+            boolean consumed = false;
+            do
+            {
+                Lock lock = this.keyToLock.computeIfAbsent(key, k -> new ReentrantLock());
+                lock.lock();
+                try
+                {
+                    if (lock.equals(this.keyToLock.get(key))) //ensure the removal operation has not yet been run
+                    {
+
+                        //
+                        this.keyToReadCounter.computeIfAbsent(key, k -> new AtomicInteger())
+                                             .incrementAndGet();
+
+                        this.keyToLoadedSignal.computeIfAbsent(key, k -> lock.newCondition())
+                                              .awaitUninterruptibly();
+
+                        consumer.accept(this.keyToValue.computeIfAbsent(key, k -> supplier.get()));
+
+                        //signal the window write
+                        int counter = this.keyToReadCounter.computeIfAbsent(key, k -> new AtomicInteger())
+                                                           .decrementAndGet();
+                        if (counter <= 0)
+                        {
+                            this.keyToReadSignal.computeIfAbsent(key, k -> lock.newCondition())
+                                                .signal();
+                        }
+
+                        //wait for window to write
+                        this.keyToRemovedSignal.computeIfAbsent(key, k -> lock.newCondition())
+                                               .awaitUninterruptibly();
+
+                        //
+                        consumed = true;
+                    }
+                }
+                finally
+                {
+                    lock.unlock();
+                }
+            } while (!consumed);
+        }
+
+        public void removalOperation(K key, Consumer<V> preConsumer, Consumer<V> postConsumer)
+        {
+            boolean consumed = false;
+            do
+            {
+                Lock lock = this.keyToLock.computeIfAbsent(key, k -> new ReentrantLock());
+                lock.lock();
+                try
+                {
+                    if (lock.equals(this.keyToLock.get(key))) //ensure the removal operation has not yet been run
+                    {
+                        //
+                        V value = this.keyToValue.remove(key);
+                        preConsumer.accept(value);
+
+                        //wait for read threads to stage
+                        while (this.keyToReadCounter.computeIfAbsent(key, k -> new AtomicInteger())
+                                                    .get() > 0)
+                        {
+                            //
+                            this.keyToLoadedSignal.computeIfAbsent(key, k -> lock.newCondition())
+                                                  .signalAll();
+
+                            //
+                            try
+                            {
+                                this.keyToReadSignal.computeIfAbsent(key, k -> lock.newCondition())
+                                                    .await(100, TimeUnit.MILLISECONDS);
+                            }
+                            catch (InterruptedException e)
+                            {
+                                //do nothing
+                            }
+                        }
+
+                        //
+                        postConsumer.accept(value);
+
+                        //Release read threads
+                        this.keyToRemovedSignal.computeIfAbsent(key, k -> lock.newCondition())
+                                               .signalAll();
+
+                        //
+                        consumed = true;
+                    }
+                }
+                finally
+                {
+                    if (consumed)
+                    {
+                        this.keyToLock.remove(key);
+                    }
+                    lock.unlock();
+                }
+            } while (!consumed);
+        }
+
+        public Set<K> keySet()
+        {
+            this.newOperationsSignaling.awaitSignal();
+            return this.keyToValue.keySet();
+        }
+
+    }
+
+    private static class WindowCollector<W>
+    {
 
         private AtomicReference<W> window = new AtomicReference<>();
 
-        public WindowLockManager()
+        public WindowCollector()
         {
             super();
-            this.windowLock = new ReentrantLock();
-            this.windowReadyCondition = this.windowLock.newCondition();
-            this.operationsFinishedCondition = this.windowLock.newCondition();
-            this.windowWrittenCondition = this.windowLock.newCondition();
+
         }
 
         public W getWindow()
@@ -103,93 +218,10 @@ public class DefaultCycleProcessor<I, W> implements CycleProcessor<I, W>
             this.window.set(window);
         }
 
-        public AtomicInteger getWaitingOperationsCounter()
-        {
-            return this.waitingOperationsCounter;
-        }
-
-        public Condition getWindowReadyCondition()
-        {
-            return this.windowReadyCondition;
-        }
-
-        public Condition getOperationsFinishedCondition()
-        {
-            return this.operationsFinishedCondition;
-        }
-
-        public void markOneMoreOperationAsFinished()
-        {
-            int counter = this.waitingOperationsCounter.decrementAndGet();
-            if (counter <= 0)
-            {
-                LOG.info("Sent all operations finished signal");
-                this.windowLock.lock();
-                this.operationsFinishedCondition.signal();
-                this.windowLock.unlock();
-            }
-        }
-
         @Override
         public String toString()
         {
-            return "LockAndCondition [waitingOperationsCounter=" + this.waitingOperationsCounter + "]";
-        }
-
-        public W executeReadOperation(NewOperationsSignaling newOperationsSignaling)
-        {
-            Lock lock = this.windowLock;
-            lock.lock();
-            try
-            {
-                //
-                newOperationsSignaling.signal();
-
-                //
-                return this.window.getAndUpdate(w ->
-                {
-                    if (w == null)
-                    {
-                        this.windowReadyCondition.awaitUninterruptibly();
-                    }
-                    return w;
-                });
-            }
-            finally
-            {
-                lock.unlock();
-            }
-        }
-
-        public void executeWriteOperation(Runnable operation)
-        {
-            Lock lock = this.windowLock;
-            lock.lock();
-            try
-            {
-                operation.run();
-
-                this.windowWrittenCondition.signalAll();
-            }
-            finally
-            {
-                lock.unlock();
-            }
-
-        }
-
-        public void awaitWindowWriteFinished()
-        {
-            Lock lock = this.windowLock;
-            lock.lock();
-            try
-            {
-                this.windowWrittenCondition.awaitUninterruptibly();
-            }
-            finally
-            {
-                lock.unlock();
-            }
+            return "WindowCollector [window=" + this.window + "]";
         }
 
     }
@@ -204,25 +236,13 @@ public class DefaultCycleProcessor<I, W> implements CycleProcessor<I, W>
 
     private void executeWithWindowIndexLock(I index, Consumer<W> operation)
     {
-        WindowLockManager<W> lockAndCondition = this.windowIndexToLock.computeIfAbsent(index, i -> new WindowLockManager<>());
-
         LOG.info("Operation waiting for window: " + index);
-
-        lockAndCondition.getWaitingOperationsCounter()
-                        .incrementAndGet();
-
-        W window = lockAndCondition.executeReadOperation(this.newOperationsSignaling);
-        if (window != null)
+        this.windowIndexToCollector.computeIfAbsentOperation(index, windowCollector ->
         {
             LOG.info("Execution operation for window: " + index);
-            operation.accept(lockAndCondition.getWindow());
+            operation.accept(windowCollector.getWindow());
             LOG.info("Operation finished for window: " + index);
-        }
-
-        //
-        lockAndCondition.markOneMoreOperationAsFinished();
-
-        lockAndCondition.awaitWindowWriteFinished();
+        }, () -> new WindowCollector<>());
     }
 
     @Override
@@ -263,60 +283,21 @@ public class DefaultCycleProcessor<I, W> implements CycleProcessor<I, W>
         {
             StreamUtils.fromStreamSupplier(() ->
             {
-                if (this.windowIndexToLock.isEmpty())
-                {
-                    this.newOperationsSignaling.awaitSignal();
-                }
-                return this.windowIndexToLock.keySet()
-                                             .stream()
-                                             .collect(Collectors.toList())
-                                             .stream();
+                return this.windowIndexToCollector.keySet()
+                                                  .stream()
+                                                  .collect(Collectors.toList())
+                                                  .stream();
             })
                        .forEach(index ->
                        {
                            //
-                           WindowLockManager<W> lockAndCondition = this.windowIndexToLock.remove(index);
-
-                           lockAndCondition.executeWriteOperation(() ->
-                           {
-                               // read window
-                               this.readWindow(index, lockAndCondition);
-
-                               // signal all waiting operations and wait for operations to finish
-                               this.signalWaitingOperationsToRun(index, lockAndCondition);
-
-                               // write window
-                               this.writeWindow(index, lockAndCondition);
-
-                           });
+                           this.windowIndexToCollector.removalOperation(index, lockAndCondition -> this.readWindow(index, lockAndCondition),
+                                                                        lockAndCondition -> this.writeWindow(index, lockAndCondition));
                        });
         });
     }
 
-    private void signalWaitingOperationsToRun(I index, WindowLockManager<W> lockAndCondition)
-    {
-        LOG.info("Signal operations that window " + index + " is ready");
-        while (lockAndCondition.getWaitingOperationsCounter()
-                               .get() > 0)
-        {
-            LOG.info("Number of waiting operations: " + lockAndCondition.getWaitingOperationsCounter()
-                                                                        .get());
-            //
-            lockAndCondition.getWindowReadyCondition()
-                            .signalAll();
-            try
-            {
-                lockAndCondition.getOperationsFinishedCondition()
-                                .await(10, TimeUnit.MILLISECONDS);
-            }
-            catch (InterruptedException e)
-            {
-                LOG.info("Waiting for too long...");
-            }
-        }
-    }
-
-    private void writeWindow(I index, WindowLockManager<W> lockAndCondition)
+    private void writeWindow(I index, WindowCollector<W> lockAndCondition)
     {
         LOG.info("Writing window: " + index);
 
@@ -337,7 +318,7 @@ public class DefaultCycleProcessor<I, W> implements CycleProcessor<I, W>
         });
     }
 
-    private void readWindow(I index, WindowLockManager<W> lockAndCondition)
+    private void readWindow(I index, WindowCollector<W> lockAndCondition)
     {
         LOG.info("Reading window: " + index);
         RetryHelper.retryUnlimited(100, TimeUnit.MILLISECONDS, () ->

@@ -30,7 +30,7 @@ public class CyclicHashMap<K, V> extends MapDecorator<K, V>
 
     public CyclicHashMap(int numberOfCycleBlocks, Function<Integer, Map<K, V>> windowReaderFunction, BiConsumer<Integer, Map<K, V>> windowWriter)
     {
-        super(null);
+        super(() -> null);
         this.numberOfCycleBlocks = numberOfCycleBlocks;
 
         this.processor = CycleProcessor.builder()
@@ -39,7 +39,8 @@ public class CyclicHashMap<K, V> extends MapDecorator<K, V>
                                        .build();
 
         CRUDMap<K, V> crudMap = this.newCRUDMapInstance();
-        this.map = MapUtils.toMap(crudMap);
+        Map<K, V> map = MapUtils.toMap(crudMap);
+        this.map = () -> map;
 
     }
 

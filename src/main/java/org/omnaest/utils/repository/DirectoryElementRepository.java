@@ -33,7 +33,8 @@ public class DirectoryElementRepository<D> implements ElementRepository<Long, D>
 
     private File determineFileName(long fileIndex)
     {
-        return new File(this.directory, fileIndex + ".json");
+        File subDirectory = new File(this.directory, String.valueOf(fileIndex / 10000));
+        return new File(subDirectory, fileIndex + ".json");
     }
 
     @Override

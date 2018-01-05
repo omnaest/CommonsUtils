@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.omnaest.utils.FileUtils;
 import org.omnaest.utils.JSONHelper;
+import org.omnaest.utils.NumberUtils;
 
 /**
  * {@link ElementRepository} based on a {@link File} directory structure and json serializer/deserializer
@@ -65,13 +66,18 @@ public class DirectoryElementRepository<D> implements ElementRepository<Long, D>
 
         List<String> subDirectoryTokens = new ArrayList<>();
         int divider = 10000;
+        int digits = (int) Math.round(Math.log10(Long.MAX_VALUE));
         long counter = Long.MAX_VALUE;
         long fileIndexCounter = fileIndex;
         while (counter > divider)
         {
+            digits -= (int) Math.round(Math.log10(divider));
             fileIndexCounter /= divider;
             counter /= divider;
-            subDirectoryTokens.add(String.valueOf(fileIndexCounter));
+            subDirectoryTokens.add(NumberUtils.formatter()
+                                              .withMinimumIntegerDigits(digits)
+                                              .withMaximumFractionDigits(0)
+                                              .format(fileIndexCounter));
         }
         Collections.reverse(subDirectoryTokens);
         for (String token : subDirectoryTokens)

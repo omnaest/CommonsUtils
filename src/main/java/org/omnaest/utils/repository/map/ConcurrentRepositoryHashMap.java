@@ -16,7 +16,9 @@ public class ConcurrentRepositoryHashMap<K, V> extends AbstractRepositoryMap<K, 
 {
     public ConcurrentRepositoryHashMap(ElementRepository<Long, K> keyElementRepository, ElementRepository<Long, V> valueElementRepository)
     {
-        super(MapUtils.newConcurrentHashSupplierMap(s -> new SupplierWrappingResolver<K>(s), s -> new SupplierWrappingResolver<V>(s)), keyElementRepository,
-                valueElementRepository);
+        super(MapUtils.newConcurrentHashSupplierMap(s -> (Resolver<K>) new SupplierWrappingResolver<K>(s),
+                                                    s -> (Resolver<V>) new SupplierWrappingResolver<V>(s))
+                      .useSoftReferenceCache(),
+                keyElementRepository, valueElementRepository);
     }
 }

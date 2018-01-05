@@ -22,12 +22,12 @@ public class DirectoryElementRepositoryTest
             }
 
         };
-        assertEquals("C:\\Temp\\0\\0\\0\\0\\10.json", repository.determineFile(10)
-                                                                .getCanonicalPath());
-        assertEquals("C:\\Temp\\0\\0\\0\\1\\10001.json", repository.determineFile(10001)
-                                                                   .getCanonicalPath());
-        assertEquals("C:\\Temp\\0\\0\\1\\10000\\100000001.json", repository.determineFile(100000001)
-                                                                           .getCanonicalPath());
+        assertEquals("C:\\Temp\\000\\0000000\\00000000000\\000000000000000\\10.json", repository.determineFile(10)
+                                                                                                .getCanonicalPath());
+        assertEquals("C:\\Temp\\000\\0000000\\00000000000\\000000000000001\\10001.json", repository.determineFile(10001)
+                                                                                                   .getCanonicalPath());
+        assertEquals("C:\\Temp\\000\\0000000\\00000000001\\000000000010000\\100000001.json", repository.determineFile(100000001)
+                                                                                                       .getCanonicalPath());
     }
 
 }

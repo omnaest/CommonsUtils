@@ -33,7 +33,6 @@ public class ConcurrentRepositoryHashMapTest
             repositoryMap.put(this.generateKey(ii), this.generateValue(ii));
             assertEquals(this.generateValue(ii), repositoryMap.get(this.generateKey(ii)));
         }
-
     }
 
     @Test

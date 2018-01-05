@@ -99,6 +99,30 @@ public class AbstractRepositoryMap<K, V> extends MappingMapDecorator<K, Resolver
 
     }
 
+    protected static class SupplierWrappingResolver<E> implements Resolver<E>
+    {
+        private Supplier<E> supplier;
+
+        public SupplierWrappingResolver(Supplier<E> supplier)
+        {
+            super();
+            this.supplier = supplier;
+        }
+
+        @Override
+        public E get()
+        {
+            return ObjectUtils.getIfNotNull(this.supplier, () -> this.supplier.get());
+        }
+
+        @Override
+        public Resolver<E> withRepository(ElementRepository<Long, E> repository)
+        {
+            return this;
+        }
+
+    }
+
     public AbstractRepositoryMap(Map<Resolver<K>, Resolver<V>> sourceMap, ElementRepository<Long, K> keyElementRepository,
                                  ElementRepository<Long, V> valueElementRepository)
     {

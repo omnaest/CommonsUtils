@@ -1,6 +1,7 @@
 package org.omnaest.utils.repository;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -39,11 +40,56 @@ public class DirectoryElementRepository<D> implements ElementRepository<Long, D>
     public DirectoryElementRepository<D> setDeleteFilesOnExit(boolean deleteFilesOnExit)
     {
         this.deleteFilesOnExit = deleteFilesOnExit;
+
+        if (this.deleteFilesOnExit)
+        {
+            try
+            {
+                org.apache.commons.io.FileUtils.forceDeleteOnExit(this.directory);
+            }
+            catch (IOException e)
+            {
+                //do nothing
+            }
+        }
+
         return this;
     }
 
     @Override
-    public Long put(D element)
+    public void update(Long id, D element)
+    {
+        File file = this.determineFile(id);
+        FileUtils.toConsumer(file)
+                 .accept(JSONHelper.serializer(this.type)
+                                   .apply(element));
+
+        if (this.deleteFilesOnExit)
+        {
+            file.deleteOnExit();
+        }
+    }
+
+    @Override
+    public void delete(Long id)
+    {
+        try
+        {
+            File file = this.determineFile(id);
+            if (file.exists())
+            {
+                org.apache.commons.io.FileUtils.forceDelete(file);
+            }
+        }
+        catch (IOException e)
+        {
+            throw new IllegalStateException(e);
+        }
+
+    }
+
+    @Override
+    public Long add(D element)
     {
         long fileIndex = this.counter.incrementAndGet();
 
@@ -60,7 +106,7 @@ public class DirectoryElementRepository<D> implements ElementRepository<Long, D>
         return fileIndex;
     }
 
-    protected File determineFile(long fileIndex)
+    protected File determineFile(long id)
     {
         File subDirectory = this.directory;
 
@@ -68,7 +114,7 @@ public class DirectoryElementRepository<D> implements ElementRepository<Long, D>
         int divider = 10000;
         int digits = (int) Math.round(Math.log10(Long.MAX_VALUE));
         long counter = Long.MAX_VALUE;
-        long fileIndexCounter = fileIndex;
+        long fileIndexCounter = id;
         while (counter > divider)
         {
             digits -= (int) Math.round(Math.log10(divider));
@@ -85,7 +131,7 @@ public class DirectoryElementRepository<D> implements ElementRepository<Long, D>
             subDirectory = new File(subDirectory, token);
         }
 
-        return new File(subDirectory, fileIndex + ".json");
+        return new File(subDirectory, id + ".json");
     }
 
     @Override

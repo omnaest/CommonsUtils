@@ -134,9 +134,9 @@ public class AbstractRepositoryMap<K, V> extends MappingMapDecorator<K, Resolver
         this.valueFromSourceMapper = vs -> ObjectUtils.getIfNotNull(vs, () -> vs.withRepository(this.valueElementRepository)
                                                                                 .get());
         this.keyToReadableSourceMapper = k -> new ReadableResolver<K>(k);
-        this.keyToWritableSourceMapper = k -> new WritableResolver<K>(this.keyElementRepository.put(k)).withRepository(keyElementRepository);
+        this.keyToWritableSourceMapper = k -> new WritableResolver<K>(this.keyElementRepository.add(k)).withRepository(keyElementRepository);
         this.valueToReadableSourceMapper = v -> new ReadableResolver<V>(v);
-        this.valueToWritableSourceMapper = v -> new WritableResolver<V>(this.valueElementRepository.put(v)).withRepository(valueElementRepository);
+        this.valueToWritableSourceMapper = v -> new WritableResolver<V>(this.valueElementRepository.add(v)).withRepository(valueElementRepository);
     }
 
 }

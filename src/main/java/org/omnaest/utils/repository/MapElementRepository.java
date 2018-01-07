@@ -23,34 +23,46 @@ import java.util.function.Supplier;
 
 public class MapElementRepository<I, D> implements ElementRepository<I, D>
 {
-	private Map<I, D>	map;
-	private Supplier<I>	idSupplier;
+    private Map<I, D>   map;
+    private Supplier<I> idSupplier;
 
-	public MapElementRepository(Map<I, D> map, Supplier<I> idSupplier)
-	{
-		super();
-		this.map = map;
-		this.idSupplier = idSupplier;
-	}
+    public MapElementRepository(Map<I, D> map, Supplier<I> idSupplier)
+    {
+        super();
+        this.map = map;
+        this.idSupplier = idSupplier;
+    }
 
-	@Override
-	public D get(I id)
-	{
-		return this.map.get(id);
-	}
+    @Override
+    public D get(I id)
+    {
+        return this.map.get(id);
+    }
 
-	@Override
-	public I put(D entry)
-	{
-		I id = this.idSupplier.get();
-		this.map.put(id, entry);
-		return id;
-	}
+    @Override
+    public void update(I id, D element)
+    {
+        this.map.put(id, element);
+    }
 
-	@Override
-	public String toString()
-	{
-		return "MapElementRepository [map=" + this.map + ", idSupplier=" + this.idSupplier + "]";
-	}
+    @Override
+    public void delete(I id)
+    {
+        this.map.remove(id);
+    }
+
+    @Override
+    public I add(D entry)
+    {
+        I id = this.idSupplier.get();
+        this.map.put(id, entry);
+        return id;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "MapElementRepository [map=" + this.map + ", idSupplier=" + this.idSupplier + "]";
+    }
 
 }

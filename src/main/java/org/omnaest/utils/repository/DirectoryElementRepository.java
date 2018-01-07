@@ -10,6 +10,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.omnaest.utils.FileUtils;
 import org.omnaest.utils.JSONHelper;
 import org.omnaest.utils.NumberUtils;
+import org.omnaest.utils.ObjectUtils;
+import org.omnaest.utils.functional.Accessor;
 
 /**
  * {@link ElementRepository} based on a {@link File} directory structure and json serializer/deserializer
@@ -19,16 +21,22 @@ import org.omnaest.utils.NumberUtils;
  */
 public class DirectoryElementRepository<D> implements ElementRepository<Long, D>
 {
-    private AtomicLong counter           = new AtomicLong();
-    private File       directory;
-    private Class<D>   type;
-    private boolean    deleteFilesOnExit = false;
+    private AtomicLong     counter;
+    private File           directory;
+    private Class<D>       type;
+    private boolean        deleteFilesOnExit = false;
+    private Accessor<Long> counterFileAccessor;
 
     public DirectoryElementRepository(File directory, Class<D> type)
     {
         super();
         this.directory = directory;
         this.type = type;
+
+        this.counterFileAccessor = FileUtils.toAccessor(new File(this.directory, "counter.json"))
+                                            .with(JSONHelper.serializer(Long.class), JSONHelper.deserializer(Long.class));
+
+        this.counter = new AtomicLong(ObjectUtils.defaultIfNull(this.counterFileAccessor.get(), 0l));
     }
 
     /**
@@ -91,7 +99,8 @@ public class DirectoryElementRepository<D> implements ElementRepository<Long, D>
     @Override
     public Long add(D element)
     {
-        long fileIndex = this.counter.incrementAndGet();
+        long fileIndex = this.counter.getAndIncrement();
+        this.counterFileAccessor.accept(fileIndex);
 
         File file = this.determineFile(fileIndex);
         FileUtils.toConsumer(file)
@@ -104,6 +113,12 @@ public class DirectoryElementRepository<D> implements ElementRepository<Long, D>
         }
 
         return fileIndex;
+    }
+
+    @Override
+    public Long peekNextId()
+    {
+        return this.counter.get() + 1;
     }
 
     protected File determineFile(long id)
@@ -132,6 +147,21 @@ public class DirectoryElementRepository<D> implements ElementRepository<Long, D>
         }
 
         return new File(subDirectory, id + ".json");
+    }
+
+    @Override
+    public ElementRepository<Long, D> clear()
+    {
+        try
+        {
+            org.apache.commons.io.FileUtils.deleteDirectory(this.directory);
+            this.counter.set(0);
+        }
+        catch (IOException e)
+        {
+            throw new IllegalStateException(e);
+        }
+        return this;
     }
 
     @Override

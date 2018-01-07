@@ -67,6 +67,21 @@ public interface ElementRepository<I, D>
     public D get(I id);
 
     /**
+     * Returns the next id the {@link ElementRepository} would return for a new element
+     * 
+     * @see #add(Object)
+     * @return
+     */
+    public I peekNextId();
+
+    /**
+     * Clears the {@link ElementRepository}
+     * 
+     * @return this
+     */
+    public ElementRepository<I, D> clear();
+
+    /**
      * Returns a new {@link ElementRepository} based on the given {@link Map} and {@link Supplier} of reference ids
      * 
      * @param map

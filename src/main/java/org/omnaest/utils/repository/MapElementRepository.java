@@ -21,16 +21,18 @@ package org.omnaest.utils.repository;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import org.omnaest.utils.element.cached.CachedElement;
+
 public class MapElementRepository<I, D> implements ElementRepository<I, D>
 {
-    private Map<I, D>   map;
-    private Supplier<I> idSupplier;
+    private Map<I, D>        map;
+    private CachedElement<I> idSupplier;
 
     public MapElementRepository(Map<I, D> map, Supplier<I> idSupplier)
     {
         super();
         this.map = map;
-        this.idSupplier = idSupplier;
+        this.idSupplier = CachedElement.of(idSupplier);
     }
 
     @Override
@@ -54,9 +56,22 @@ public class MapElementRepository<I, D> implements ElementRepository<I, D>
     @Override
     public I add(D entry)
     {
-        I id = this.idSupplier.get();
+        I id = this.idSupplier.getAndReset();
         this.map.put(id, entry);
         return id;
+    }
+
+    @Override
+    public I peekNextId()
+    {
+        return this.idSupplier.get();
+    }
+
+    @Override
+    public ElementRepository<I, D> clear()
+    {
+        this.map.clear();
+        return this;
     }
 
     @Override

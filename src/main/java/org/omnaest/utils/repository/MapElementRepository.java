@@ -23,6 +23,13 @@ import java.util.function.Supplier;
 
 import org.omnaest.utils.element.cached.CachedElement;
 
+/**
+ * {@link ElementRepository} using a given {@link Map} and {@link Supplier} for ids
+ * 
+ * @author omnaest
+ * @param <I>
+ * @param <D>
+ */
 public class MapElementRepository<I, D> implements ElementRepository<I, D>
 {
     private Map<I, D>        map;

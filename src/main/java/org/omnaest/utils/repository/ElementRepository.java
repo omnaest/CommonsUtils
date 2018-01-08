@@ -19,12 +19,15 @@
 package org.omnaest.utils.repository;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.function.Supplier;
 
 /**
  * {@link ElementRepository} does define accessors for a data element with a reference identifier
  * 
+ * @see #asWeakCached()
+ * @see #asSynchronized()
  * @author omnaest
  * @param <I>
  *            reference identifier
@@ -80,6 +83,26 @@ public interface ElementRepository<I, D>
      * @return this
      */
     public ElementRepository<I, D> clear();
+
+    /**
+     * Returns a new {@link ElementRepository} wrapping the current one into a {@link WeakReference} cached structure
+     * 
+     * @return
+     */
+    public default ElementRepository<I, D> asWeakCached()
+    {
+        return new WeakHashMapDecoratingElementRepository<>(this);
+    }
+
+    /**
+     * Returns a synchronized {@link ElementRepository} wrapping the current one
+     * 
+     * @return
+     */
+    public default ElementRepository<I, D> asSynchronized()
+    {
+        return new SynchronizedElementRepository<>(this);
+    }
 
     /**
      * Returns a new {@link ElementRepository} based on the given {@link Map} and {@link Supplier} of reference ids

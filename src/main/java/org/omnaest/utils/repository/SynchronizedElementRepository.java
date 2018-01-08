@@ -45,4 +45,10 @@ public class SynchronizedElementRepository<I, D> extends ElementRepositoryDecora
         return super.clear();
     }
 
+    @Override
+    public String toString()
+    {
+        return "SynchronizedElementRepository []";
+    }
+
 }

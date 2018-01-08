@@ -15,25 +15,22 @@ public class WeakHashMapDecoratingElementRepository<I, D> extends ElementReposit
     @Override
     public I add(D element)
     {
-        return super.add(element);
+        I id = super.add(element);
+        this.cache.put(id, element);
+        return id;
     }
 
     @Override
     public void update(I id, D element)
     {
-        this.clearCacheFor(id);
+        this.cache.put(id, element);
         super.update(id, element);
-    }
-
-    private void clearCacheFor(I id)
-    {
-        this.cache.remove(id);
     }
 
     @Override
     public void delete(I id)
     {
-        this.clearCacheFor(id);
+        this.cache.remove(id);
         super.delete(id);
     }
 
@@ -56,6 +53,12 @@ public class WeakHashMapDecoratingElementRepository<I, D> extends ElementReposit
     {
         this.cache.clear();
         return super.clear();
+    }
+
+    @Override
+    public String toString()
+    {
+        return "WeakHashMapDecoratingElementRepository [cache=" + this.cache + "]";
     }
 
 }

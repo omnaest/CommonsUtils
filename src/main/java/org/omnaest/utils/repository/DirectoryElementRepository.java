@@ -173,4 +173,11 @@ public class DirectoryElementRepository<D> implements ElementRepository<Long, D>
         return element;
     }
 
+    @Override
+    public String toString()
+    {
+        return "DirectoryElementRepository [counter=" + this.counter + ", directory=" + this.directory + ", type=" + this.type + ", deleteFilesOnExit="
+                + this.deleteFilesOnExit + "]";
+    }
+
 }

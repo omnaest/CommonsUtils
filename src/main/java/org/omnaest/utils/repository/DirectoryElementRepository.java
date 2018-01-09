@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.LongStream;
 
 import org.omnaest.utils.FileUtils;
 import org.omnaest.utils.JSONHelper;
@@ -14,12 +15,12 @@ import org.omnaest.utils.ObjectUtils;
 import org.omnaest.utils.functional.Accessor;
 
 /**
- * {@link ElementRepository} based on a {@link File} directory structure and json serializer/deserializer
+ * {@link IndexElementRepository} based on a {@link File} directory structure and json serializer/deserializer
  * 
  * @author omnaest
  * @param <D>
  */
-public class DirectoryElementRepository<D> implements ElementRepository<Long, D>
+public class DirectoryElementRepository<D> implements IndexElementRepository<D>
 {
     private AtomicLong     counter;
     private File           directory;
@@ -116,7 +117,7 @@ public class DirectoryElementRepository<D> implements ElementRepository<Long, D>
     }
 
     @Override
-    public Long peekNextId()
+    public long size()
     {
         return this.counter.get() + 1;
     }
@@ -150,7 +151,7 @@ public class DirectoryElementRepository<D> implements ElementRepository<Long, D>
     }
 
     @Override
-    public ElementRepository<Long, D> clear()
+    public IndexElementRepository<D> clear()
     {
         try
         {
@@ -171,6 +172,14 @@ public class DirectoryElementRepository<D> implements ElementRepository<Long, D>
                               .apply(FileUtils.toSupplier(this.determineFile(id))
                                               .get());
         return element;
+    }
+
+    @Override
+    public LongStream ids()
+    {
+        return LongStream.range(0, this.size())
+                         .filter(id -> this.determineFile(id)
+                                           .exists());
     }
 
     @Override

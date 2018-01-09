@@ -26,8 +26,11 @@ import java.util.function.Supplier;
 /**
  * {@link ElementRepository} does define accessors for a data element with a reference identifier
  * 
+ * @see #of(Map, Supplier)
+ * @see #of(File, Class)
  * @see #asWeakCached()
  * @see #asSynchronized()
+ * @see IndexElementRepository
  * @author omnaest
  * @param <I>
  *            reference identifier
@@ -68,14 +71,6 @@ public interface ElementRepository<I, D>
      * @return
      */
     public D get(I id);
-
-    /**
-     * Returns the next id the {@link ElementRepository} would return for a new element
-     * 
-     * @see #add(Object)
-     * @return
-     */
-    public I peekNextId();
 
     /**
      * Clears the {@link ElementRepository}
@@ -123,7 +118,7 @@ public interface ElementRepository<I, D>
      * @param type
      * @return
      */
-    public static <D> ElementRepository<Long, D> of(File directory, Class<D> type)
+    public static <D> IndexElementRepository<D> of(File directory, Class<D> type)
     {
         return new DirectoryElementRepository<D>(directory, type);
     }

@@ -41,12 +41,6 @@ public abstract class ElementRepositoryDecorator<I, D> implements ElementReposit
     }
 
     @Override
-    public I peekNextId()
-    {
-        return this.elementRepository.peekNextId();
-    }
-
-    @Override
     public ElementRepository<I, D> clear()
     {
         return this.elementRepository.clear();

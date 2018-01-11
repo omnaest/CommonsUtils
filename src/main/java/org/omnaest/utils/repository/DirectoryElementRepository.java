@@ -189,4 +189,11 @@ public class DirectoryElementRepository<D> implements IndexElementRepository<D>
                 + this.deleteFilesOnExit + "]";
     }
 
+    @Override
+    public IndexElementRepository<D> close()
+    {
+        //do nothing
+        return this;
+    }
+
 }

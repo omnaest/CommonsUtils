@@ -48,4 +48,11 @@ public interface IndexElementRepository<D> extends ElementRepository<Long, D>
     @Override
     public IndexElementRepository<D> clear();
 
+    /**
+     * Closes the {@link IndexElementRepository}
+     * 
+     * @return
+     */
+    public IndexElementRepository<D> close();
+
 }

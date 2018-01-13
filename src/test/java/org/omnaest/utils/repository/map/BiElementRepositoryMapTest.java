@@ -16,7 +16,7 @@ import org.omnaest.utils.repository.ElementRepository;
  */
 public class BiElementRepositoryMapTest
 {
-    private ElementRepositoryMap<Object, Object> repositoryMap = new BiElementRepositoryMap<>(ElementRepository.of(new LinkedHashMap<>()),
+    private ElementRepositoryMap<String, String> repositoryMap = new BiElementRepositoryMap<>(ElementRepository.of(new LinkedHashMap<>()),
                                                                                               ElementRepository.of(new LinkedHashMap<>()));
 
     @Test

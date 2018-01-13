@@ -19,6 +19,9 @@ import org.omnaest.utils.repository.ElementRepository;
  */
 public class BiElementRepositoryMap<K, V> extends MapDecorator<K, V> implements ElementRepositoryMap<K, V>
 {
+    private ElementRepository<?, K> keyRepository;
+    private ElementRepository<?, V> valueRepository;
+
     private static class ElementSupplier<K> implements Supplier<K>
     {
         private Supplier<K> supplier;
@@ -73,7 +76,7 @@ public class BiElementRepositoryMap<K, V> extends MapDecorator<K, V> implements 
 
     }
 
-    public <I> BiElementRepositoryMap(ElementRepository<I, K> keyRepository, ElementRepository<I, V> valueRepository)
+    public <I1, I2> BiElementRepositoryMap(ElementRepository<I1, K> keyRepository, ElementRepository<I2, V> valueRepository)
     {
         super(MapUtils.toMediatedMap(new ConcurrentHashMap<>(), new BidirectionalFunction<K, ElementSupplier<K>>()
         {
@@ -131,6 +134,17 @@ public class BiElementRepositoryMap<K, V> extends MapDecorator<K, V> implements 
             }
         }));
 
+        //
+        this.keyRepository = keyRepository;
+        this.valueRepository = valueRepository;
+
+    }
+
+    @Override
+    public void close()
+    {
+        this.keyRepository.close();
+        this.valueRepository.close();
     }
 
 }

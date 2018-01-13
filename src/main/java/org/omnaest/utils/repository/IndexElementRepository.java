@@ -50,13 +50,6 @@ public interface IndexElementRepository<D> extends ElementRepository<Long, D>
     public IndexElementRepository<D> clear();
 
     /**
-     * Closes the {@link IndexElementRepository}
-     * 
-     * @return
-     */
-    public IndexElementRepository<D> close();
-
-    /**
      * Returns a {@link IndexElementRepository} for the given {@link ElementRepository} which has {@link Long} as identifier {@link Class} type
      * 
      * @param elementRepository

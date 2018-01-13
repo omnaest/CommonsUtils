@@ -74,6 +74,14 @@ public interface ElementRepository<I, D>
     public D get(I id);
 
     /**
+     * Closes the underlying repository. This is an optional method.
+     */
+    public default void close()
+    {
+        //do nothing
+    }
+
+    /**
      * Clears the {@link ElementRepository}
      * 
      * @return this

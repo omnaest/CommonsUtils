@@ -68,9 +68,9 @@ public class ElementRepositoryToIndexElementRepositoryAdapter<D> implements Inde
     }
 
     @Override
-    public IndexElementRepository<D> close()
+    public void close()
     {
-        throw new UnsupportedOperationException();
+        this.elementRepository.close();
     }
 
 }

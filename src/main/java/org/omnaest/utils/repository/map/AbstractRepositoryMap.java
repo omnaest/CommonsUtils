@@ -12,12 +12,12 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
- * @see RepositoryMap
+ * @see ElementRepositoryMap
  * @author omnaest
  * @param <K>
  * @param <V>
  */
-public class AbstractRepositoryMap<K, V> extends MappingMapDecorator<K, Resolver<K>, V, Resolver<V>> implements RepositoryMap<K, V>
+public class AbstractRepositoryMap<K, V> extends MappingMapDecorator<K, Resolver<K>, V, Resolver<V>> implements ElementRepositoryMap<K, V>
 {
     protected ElementRepository<Long, K> keyElementRepository;
     protected ElementRepository<Long, V> valueElementRepository;

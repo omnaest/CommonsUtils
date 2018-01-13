@@ -21,6 +21,7 @@ package org.omnaest.utils.repository;
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 
 /**
@@ -112,6 +113,26 @@ public interface ElementRepository<I, D>
     }
 
     /**
+     * Returns an {@link IndexElementRepository} based on the given {@link Map} using a {@link Long} id {@link Supplier}
+     * 
+     * @param map
+     * @return
+     */
+    public static <D> IndexElementRepository<D> of(Map<Long, D> map)
+    {
+        return IndexElementRepository.of(new MapElementRepository<>(map, new Supplier<Long>()
+        {
+            private AtomicLong counter = new AtomicLong();
+
+            @Override
+            public Long get()
+            {
+                return counter.getAndIncrement();
+            }
+        }));
+    }
+
+    /**
      * Returns a new {@link ElementRepository} based on the folder structure of the given {@link File} directory
      * 
      * @param directory
@@ -120,7 +141,8 @@ public interface ElementRepository<I, D>
      */
     public static <D> IndexElementRepository<D> of(File directory, Class<D> type)
     {
-        return new DirectoryElementRepository<D>(directory, type);
+        return IndexElementRepository.of(directory, type);
+
     }
 
 }

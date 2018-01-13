@@ -26,7 +26,7 @@ import org.omnaest.utils.map.JSONFileSynchronizedMap;
 import org.omnaest.utils.repository.DirectoryElementRepository;
 import org.omnaest.utils.repository.ElementRepository;
 import org.omnaest.utils.repository.map.ConcurrentRepositoryHashMap;
-import org.omnaest.utils.repository.map.RepositoryMap;
+import org.omnaest.utils.repository.map.ElementRepositoryMap;
 
 /**
  * Extension of {@link MapUtils} for {@link Map}s with underlying {@link File} operations
@@ -53,7 +53,7 @@ public class FileMapUtils
      * @param valueType
      * @return
      */
-    public static <K, V> RepositoryMap<K, V> toConcurrentRepositoryHashMap(File directory, Class<K> keyType, Class<V> valueType)
+    public static <K, V> ElementRepositoryMap<K, V> toConcurrentRepositoryHashMap(File directory, Class<K> keyType, Class<V> valueType)
     {
         File keyDirectory = new File(directory, "key");
         File valueDirectory = new File(directory, "value");

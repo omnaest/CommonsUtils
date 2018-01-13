@@ -6,7 +6,7 @@ import org.omnaest.utils.MapUtils;
 import org.omnaest.utils.repository.ElementRepository;
 
 /**
- * {@link RepositoryMap} which is based upon a {@link ConcurrentHashMap}
+ * {@link ElementRepositoryMap} which is based upon a {@link ConcurrentHashMap}
  * 
  * @author omnaest
  * @param <K>

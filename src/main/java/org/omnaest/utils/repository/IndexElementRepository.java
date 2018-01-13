@@ -1,5 +1,6 @@
 package org.omnaest.utils.repository;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
@@ -54,5 +55,28 @@ public interface IndexElementRepository<D> extends ElementRepository<Long, D>
      * @return
      */
     public IndexElementRepository<D> close();
+
+    /**
+     * Returns a {@link IndexElementRepository} for the given {@link ElementRepository} which has {@link Long} as identifier {@link Class} type
+     * 
+     * @param elementRepository
+     * @return
+     */
+    public static <D> IndexElementRepository<D> of(ElementRepository<Long, D> elementRepository)
+    {
+        return new ElementRepositoryToIndexElementRepositoryAdapter<>(elementRepository);
+    }
+
+    /**
+     * Returns a new {@link IndexElementRepository} based on the folder structure of the given {@link File} directory
+     * 
+     * @param directory
+     * @param type
+     * @return
+     */
+    public static <D> IndexElementRepository<D> of(File directory, Class<D> type)
+    {
+        return new DirectoryElementRepository<D>(directory, type);
+    }
 
 }

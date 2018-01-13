@@ -29,8 +29,33 @@ public interface ElementRepositoryMap<K, V> extends Map<K, V>
         return new BiElementRepositoryMap<>(keyRepository, valueRepository);
     }
 
+    public static <K, V, I> ElementRepositoryMap<K, V> ofKeyRepository(ElementRepository<I, K> keyRepository)
+    {
+        return new KeyElementRepositoryMap<>(keyRepository);
+    }
+
+    public static <K, V, I> ElementRepositoryMap<K, V> ofValueRepository(ElementRepository<I, V> valueRepository)
+    {
+        return new ValueElementRepositoryMap<>(valueRepository);
+    }
+
     /**
      * Calls {@link ElementRepository#close()} on both underlying {@link ElementRepository}s
      */
     public void close();
+
+    /**
+     * Copies the current {@link ElementRepositoryMap} entries into another given {@link Map}
+     * 
+     * @param map
+     * @return the given map
+     */
+    public default <M extends Map<K, V>> M copyInto(M map)
+    {
+        if (map != null)
+        {
+            map.putAll(this);
+        }
+        return map;
+    }
 }

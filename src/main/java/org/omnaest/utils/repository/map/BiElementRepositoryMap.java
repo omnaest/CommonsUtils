@@ -1,5 +1,6 @@
 package org.omnaest.utils.repository.map;
 
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -22,11 +23,11 @@ public class BiElementRepositoryMap<K, V> extends MapDecorator<K, V> implements 
     private ElementRepository<?, K> keyRepository;
     private ElementRepository<?, V> valueRepository;
 
-    private static class ElementSupplier<K> implements Supplier<K>
+    private static class ElementSupplier<E> implements Supplier<E>
     {
-        private Supplier<K> supplier;
+        private Supplier<E> supplier;
 
-        public ElementSupplier(Supplier<K> supplier)
+        public ElementSupplier(Supplier<E> supplier)
         {
             super();
             this.supplier = supplier;
@@ -35,23 +36,29 @@ public class BiElementRepositoryMap<K, V> extends MapDecorator<K, V> implements 
         @Override
         public int hashCode()
         {
-            return this.supplier.get()
-                                .hashCode();
+            E element = this.supplier.get();
+            return element != null ? element.hashCode() : 0;
         }
 
         @SuppressWarnings("unchecked")
         @Override
         public boolean equals(Object obj)
         {
-            return obj instanceof ElementSupplier ? ((ElementSupplier<K>) obj).get()
+            return obj instanceof ElementSupplier ? ((ElementSupplier<E>) obj).get()
                                                                               .equals(this.get())
                     : false;
         }
 
         @Override
-        public K get()
+        public E get()
         {
             return this.supplier.get();
+        }
+
+        @Override
+        public String toString()
+        {
+            return Objects.toString(this.get());
         }
 
     }
@@ -72,6 +79,12 @@ public class BiElementRepositoryMap<K, V> extends MapDecorator<K, V> implements 
         public D get()
         {
             return this.repository.get(this.id);
+        }
+
+        @Override
+        public String toString()
+        {
+            return "IdAndRepository [id=" + this.id + ", repository=" + this.repository + "]";
         }
 
     }

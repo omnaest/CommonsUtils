@@ -6,6 +6,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.LinkedHashMap;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.junit.Test;
 import org.omnaest.utils.repository.ElementRepository;
@@ -30,6 +32,10 @@ public class BiElementRepositoryMapTest
         }
 
         assertEquals(10000, this.repositoryMap.size());
+        assertEquals(10000, this.repositoryMap.keySet()
+                                              .size());
+        assertEquals(10000, this.repositoryMap.values()
+                                              .size());
         assertFalse(this.repositoryMap.isEmpty());
 
         //
@@ -39,5 +45,18 @@ public class BiElementRepositoryMapTest
         //
         this.repositoryMap.clear();
         assertTrue(this.repositoryMap.isEmpty());
+
+    }
+
+    @Test
+    public void testCopyInto()
+    {
+        for (int ii = 0; ii < 100; ii++)
+        {
+            this.repositoryMap.put("key" + ii, "value" + ii);
+        }
+
+        SortedMap<String, String> sortedMap = this.repositoryMap.copyInto(new TreeMap<>());
+        assertEquals(100, sortedMap.size());
     }
 }

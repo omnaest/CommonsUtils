@@ -45,8 +45,7 @@ import com.fasterxml.jackson.databind.JsonNode;
  */
 public class JsonSingleFileCache extends AbstractCache
 {
-    private static final String UTF_8 = "utf-8";
-    private static final Logger LOG   = LoggerFactory.getLogger(JsonSingleFileCache.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JsonSingleFileCache.class);
 
     private File cacheFile;
 
@@ -189,19 +188,20 @@ public class JsonSingleFileCache extends AbstractCache
         DataRoot retval = null;
         if (this.cacheFile.exists() && this.cacheFile.isFile())
         {
-            try
+            synchronized (this.cacheFile)
             {
-                retval = RetryHelper.retry(5 * 10, 100, TimeUnit.MILLISECONDS, () ->
+                try
                 {
-                    //                    String json = FileUtils.readFileToString(this.cacheFile, UTF_8);
-                    //                    return StringUtils.isBlank(json) ? null : JSONHelper.readFromString(json, DataRoot.class);
-
-                    return FileUtils.readFrom(this.cacheFile, JSONHelper.prepareAsReaderToObjectFunction(DataRoot.class));
-                });
-            } catch (Exception e)
-            {
-                LOG.error("Exception reading file cache: " + this.cacheFile, e);
-                retval = null;
+                    retval = RetryHelper.retry(5 * 10, 100, TimeUnit.MILLISECONDS, () ->
+                    {
+                        return FileUtils.readFrom(this.cacheFile, JSONHelper.prepareAsReaderToObjectFunction(DataRoot.class));
+                    });
+                }
+                catch (Exception e)
+                {
+                    LOG.error("Exception reading file cache: " + this.cacheFile, e);
+                    retval = null;
+                }
             }
         }
         return retval;
@@ -211,8 +211,12 @@ public class JsonSingleFileCache extends AbstractCache
     {
         try
         {
-            FileUtils.writeTo(this.cacheFile, JSONHelper.prepareAsPrettyPrintWriterConsumer(this.root.get()));
-        } catch (Exception e)
+            synchronized (this.cacheFile)
+            {
+                FileUtils.writeTo(this.cacheFile, JSONHelper.prepareAsPrettyPrintWriterConsumer(this.root.get()));
+            }
+        }
+        catch (Exception e)
         {
             LOG.error("Exception writing json to cache file: " + this.cacheFile, e);
         }

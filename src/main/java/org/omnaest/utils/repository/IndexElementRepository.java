@@ -72,4 +72,16 @@ public interface IndexElementRepository<D> extends ElementRepository<Long, D>
         return new DirectoryElementRepository<D>(directory, type);
     }
 
+    @Override
+    public default IndexElementRepository<D> asWeakCached()
+    {
+        return of(ElementRepository.super.asWeakCached());
+    }
+
+    @Override
+    public default IndexElementRepository<D> asSynchronized()
+    {
+        return of(ElementRepository.super.asSynchronized());
+    }
+
 }

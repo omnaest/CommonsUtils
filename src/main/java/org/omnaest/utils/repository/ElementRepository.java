@@ -21,7 +21,6 @@ package org.omnaest.utils.repository;
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 
 /**
@@ -72,6 +71,24 @@ public interface ElementRepository<I, D>
      * @return
      */
     public D get(I id);
+
+    /**
+     * Returns the size of the {@link ElementRepository}
+     * 
+     * @see #add(Object)
+     * @return
+     */
+    public long size();
+
+    /**
+     * Returns true if this {@link IndexElementRepository} is empty
+     * 
+     * @return
+     */
+    public default boolean isEmpty()
+    {
+        return this.size() == 0;
+    }
 
     /**
      * Closes the underlying repository. This is an optional method.
@@ -128,16 +145,7 @@ public interface ElementRepository<I, D>
      */
     public static <D> IndexElementRepository<D> of(Map<Long, D> map)
     {
-        return IndexElementRepository.of(new MapElementRepository<>(map, new Supplier<Long>()
-        {
-            private AtomicLong counter = new AtomicLong();
-
-            @Override
-            public Long get()
-            {
-                return counter.getAndIncrement();
-            }
-        }));
+        return IndexElementRepository.of(map);
     }
 
     /**

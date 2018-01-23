@@ -46,4 +46,10 @@ public abstract class ElementRepositoryDecorator<I, D> implements ElementReposit
         return this.elementRepository.clear();
     }
 
+    @Override
+    public long size()
+    {
+        return this.elementRepository.size();
+    }
+
 }

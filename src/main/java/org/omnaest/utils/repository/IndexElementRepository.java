@@ -2,6 +2,9 @@ package org.omnaest.utils.repository;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Supplier;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
@@ -13,13 +16,6 @@ import java.util.stream.Stream;
  */
 public interface IndexElementRepository<D> extends ElementRepository<Long, D>
 {
-    /**
-     * Returns the next id the {@link IndexElementRepository} would return for a new element
-     * 
-     * @see #add(Object)
-     * @return
-     */
-    public long size();
 
     /**
      * Returns a {@link LongStream} of available ids
@@ -61,6 +57,26 @@ public interface IndexElementRepository<D> extends ElementRepository<Long, D>
     }
 
     /**
+     * Returns an {@link IndexElementRepository} based on the given {@link Map} using a {@link Long} id {@link Supplier}
+     * 
+     * @param map
+     * @return
+     */
+    public static <D> IndexElementRepository<D> of(Map<Long, D> map)
+    {
+        return IndexElementRepository.of(new MapElementRepository<>(map, new Supplier<Long>()
+        {
+            private AtomicLong counter = new AtomicLong();
+
+            @Override
+            public Long get()
+            {
+                return counter.getAndIncrement();
+            }
+        }));
+    }
+
+    /**
      * Returns a new {@link IndexElementRepository} based on the folder structure of the given {@link File} directory
      * 
      * @param directory
@@ -70,6 +86,19 @@ public interface IndexElementRepository<D> extends ElementRepository<Long, D>
     public static <D> IndexElementRepository<D> of(File directory, Class<D> type)
     {
         return new DirectoryElementRepository<D>(directory, type);
+    }
+
+    /**
+     * Returns a new {@link IndexElementRepository} which uses the given {@link Supplier} factory to create new repositories if the given repositories exceed
+     * the given upperSize limit.
+     * 
+     * @param repositoryFactory
+     * @param upperSize
+     * @return
+     */
+    public static <D> IndexElementRepository<D> of(Supplier<IndexElementRepository<D>> repositoryFactory, long upperSize)
+    {
+        return new DispatchingIndexElementRepository<>(repositoryFactory, upperSize);
     }
 
     @Override

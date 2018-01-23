@@ -74,6 +74,12 @@ public class MapElementRepository<I, D> implements ElementRepository<I, D>
     }
 
     @Override
+    public long size()
+    {
+        return this.map.size();
+    }
+
+    @Override
     public String toString()
     {
         return "MapElementRepository [map=" + this.map + ", idSupplier=" + this.idSupplier + "]";

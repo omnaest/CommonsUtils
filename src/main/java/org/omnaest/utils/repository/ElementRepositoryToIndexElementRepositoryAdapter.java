@@ -58,7 +58,7 @@ public class ElementRepositoryToIndexElementRepositoryAdapter<D> implements Inde
     @Override
     public long size()
     {
-        throw new UnsupportedOperationException();
+        return this.elementRepository.size();
     }
 
     @Override

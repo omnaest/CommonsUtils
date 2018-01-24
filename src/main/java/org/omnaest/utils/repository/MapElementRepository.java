@@ -20,6 +20,7 @@ package org.omnaest.utils.repository;
 
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 /**
  * {@link ElementRepository} using a given {@link Map} and {@link Supplier} for ids
@@ -77,6 +78,13 @@ public class MapElementRepository<I, D> implements ElementRepository<I, D>
     public long size()
     {
         return this.map.size();
+    }
+
+    @Override
+    public Stream<I> ids()
+    {
+        return this.map.keySet()
+                       .stream();
     }
 
     @Override

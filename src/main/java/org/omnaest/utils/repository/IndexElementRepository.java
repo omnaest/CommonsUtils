@@ -22,7 +22,8 @@ public interface IndexElementRepository<D> extends ElementRepository<Long, D>
      * 
      * @return
      */
-    public LongStream ids();
+    @Override
+    public Stream<Long> ids();
 
     /**
      * Adds multiple elements

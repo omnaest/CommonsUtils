@@ -7,9 +7,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 import org.omnaest.utils.FileUtils;
 import org.omnaest.utils.JSONHelper;
+import org.omnaest.utils.MapperUtils;
 import org.omnaest.utils.NumberUtils;
 import org.omnaest.utils.ObjectUtils;
 import org.omnaest.utils.functional.Accessor;
@@ -175,11 +177,12 @@ public class DirectoryElementRepository<D> implements IndexElementRepository<D>
     }
 
     @Override
-    public LongStream ids()
+    public Stream<Long> ids()
     {
         return LongStream.range(0, this.size())
                          .filter(id -> this.determineFile(id)
-                                           .exists());
+                                           .exists())
+                         .mapToObj(MapperUtils.identityForLongAsBoxed());
     }
 
     @Override

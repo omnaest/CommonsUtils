@@ -1,5 +1,7 @@
 package org.omnaest.utils.repository;
 
+import java.util.stream.Stream;
+
 /**
  * Synchronized {@link ElementRepository} decorator
  * 
@@ -19,6 +21,12 @@ public class SynchronizedElementRepository<I, D> extends ElementRepositoryDecora
     public synchronized I add(D element)
     {
         return super.add(element);
+    }
+
+    @Override
+    public synchronized Stream<I> ids()
+    {
+        return super.ids();
     }
 
     @Override
@@ -43,6 +51,24 @@ public class SynchronizedElementRepository<I, D> extends ElementRepositoryDecora
     public synchronized ElementRepository<I, D> clear()
     {
         return super.clear();
+    }
+
+    @Override
+    public synchronized long size()
+    {
+        return super.size();
+    }
+
+    @Override
+    public synchronized boolean isEmpty()
+    {
+        return super.isEmpty();
+    }
+
+    @Override
+    public synchronized void close()
+    {
+        super.close();
     }
 
     @Override

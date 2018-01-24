@@ -1,5 +1,7 @@
 package org.omnaest.utils.repository;
 
+import java.util.stream.Stream;
+
 /**
  * @see ElementRepository
  * @author omnaest
@@ -14,6 +16,12 @@ public abstract class ElementRepositoryDecorator<I, D> implements ElementReposit
     {
         super();
         this.elementRepository = elementRepository;
+    }
+
+    @Override
+    public Stream<I> ids()
+    {
+        return this.elementRepository.ids();
     }
 
     @Override
@@ -50,6 +58,18 @@ public abstract class ElementRepositoryDecorator<I, D> implements ElementReposit
     public long size()
     {
         return this.elementRepository.size();
+    }
+
+    @Override
+    public boolean isEmpty()
+    {
+        return this.elementRepository.isEmpty();
+    }
+
+    @Override
+    public void close()
+    {
+        this.elementRepository.close();
     }
 
 }

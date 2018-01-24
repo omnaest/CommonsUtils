@@ -22,6 +22,7 @@ import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 /**
  * {@link ElementRepository} does define accessors for a data element with a reference identifier
@@ -37,7 +38,7 @@ import java.util.function.Supplier;
  * @param <D>
  *            data element
  */
-public interface ElementRepository<I, D>
+public interface ElementRepository<I, D> extends AutoCloseable
 {
     /**
      * Adds a new data element to the {@link ElementRepository} and returns its reference identifier
@@ -73,6 +74,13 @@ public interface ElementRepository<I, D>
     public D get(I id);
 
     /**
+     * Returns a {@link Stream} of available ids
+     * 
+     * @return
+     */
+    public Stream<I> ids();
+
+    /**
      * Returns the size of the {@link ElementRepository}
      * 
      * @see #add(Object)
@@ -93,6 +101,7 @@ public interface ElementRepository<I, D>
     /**
      * Closes the underlying repository. This is an optional method.
      */
+    @Override
     public default void close()
     {
         //do nothing

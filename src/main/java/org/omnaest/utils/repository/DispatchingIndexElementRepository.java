@@ -3,7 +3,7 @@ package org.omnaest.utils.repository;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 import org.omnaest.utils.ListUtils;
 import org.omnaest.utils.StreamUtils;
@@ -29,7 +29,8 @@ public class DispatchingIndexElementRepository<D> implements IndexElementReposit
         this.repositoryFactory = repositoryFactory;
         this.upperSize = upperSize;
 
-        this.repositories = StreamUtils.fromSupplier(repositoryFactory, repository -> repository.isEmpty())
+        this.repositories = StreamUtils.fromSupplier(repositoryFactory)
+                                       .withTerminationMatcherInclusive(repository -> repository.isEmpty())
                                        .collect(Collectors.toList());
     }
 
@@ -115,10 +116,10 @@ public class DispatchingIndexElementRepository<D> implements IndexElementReposit
     }
 
     @Override
-    public LongStream ids()
+    public Stream<Long> ids()
     {
         return this.repositories.stream()
-                                .flatMapToLong(repository -> repository.ids());
+                                .flatMap(repository -> repository.ids());
     }
 
     @Override
@@ -126,6 +127,12 @@ public class DispatchingIndexElementRepository<D> implements IndexElementReposit
     {
         this.repositories.forEach(IndexElementRepository<D>::clear);
         return this;
+    }
+
+    @Override
+    public void close()
+    {
+        this.repositories.forEach(IndexElementRepository<D>::close);
     }
 
 }

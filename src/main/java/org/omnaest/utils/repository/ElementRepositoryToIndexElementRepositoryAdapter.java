@@ -1,6 +1,6 @@
 package org.omnaest.utils.repository;
 
-import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 public class ElementRepositoryToIndexElementRepositoryAdapter<D> implements IndexElementRepository<D>
 {
@@ -62,9 +62,9 @@ public class ElementRepositoryToIndexElementRepositoryAdapter<D> implements Inde
     }
 
     @Override
-    public LongStream ids()
+    public Stream<Long> ids()
     {
-        throw new UnsupportedOperationException();
+        return this.elementRepository.ids();
     }
 
     @Override

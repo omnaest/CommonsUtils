@@ -132,7 +132,9 @@ public class DispatchingIndexElementRepository<D> implements IndexElementReposit
     @Override
     public void close()
     {
-        this.repositories.forEach(IndexElementRepository<D>::close);
+        this.repositories.stream()
+                         .parallel()
+                         .forEach(IndexElementRepository<D>::close);
     }
 
 }

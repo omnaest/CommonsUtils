@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import org.omnaest.utils.element.bi.BiElement;
+
 /**
  * {@link ElementRepository} does define accessors for a data element with a reference identifier
  * 
@@ -79,6 +81,17 @@ public interface ElementRepository<I, D> extends AutoCloseable
      * @return
      */
     public Stream<I> ids();
+
+    /**
+     * Returns the entries of the repository
+     * 
+     * @return
+     */
+    public default Stream<BiElement<I, D>> entries()
+    {
+        return this.ids()
+                   .map(id -> BiElement.of(id, this.get(id)));
+    }
 
     /**
      * Returns the size of the {@link ElementRepository}

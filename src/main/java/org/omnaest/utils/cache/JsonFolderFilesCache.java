@@ -47,296 +47,326 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 public class JsonFolderFilesCache extends AbstractCache
 {
-	private static final String	UTF_8	= "utf-8";
-	private static final Logger	LOG		= LoggerFactory.getLogger(JsonFolderFilesCache.class);
+    private static final String UTF_8 = "utf-8";
+    private static final Logger LOG   = LoggerFactory.getLogger(JsonFolderFilesCache.class);
 
-	private File cacheDirectory;
+    private File cacheDirectory;
 
-	private AtomicReference<DataRoot> root = new AtomicReference<>();
+    private AtomicReference<DataRoot> root = new AtomicReference<>();
 
-	protected static class DataRoot
-	{
-		private AtomicLong						index	= new AtomicLong();
-		private LinkedHashMap<String, Long>		data	= new LinkedHashMap<>();
-		private LinkedHashMap<String, Class<?>>	types	= new LinkedHashMap<>();
+    protected static class DataRoot
+    {
+        private AtomicLong                      index = new AtomicLong();
+        private LinkedHashMap<String, Long>     data  = new LinkedHashMap<>();
+        private LinkedHashMap<String, Class<?>> types = new LinkedHashMap<>();
 
-		public DataRoot()
-		{
-			super();
+        public DataRoot()
+        {
+            super();
 
-		}
+        }
 
-		public LinkedHashMap<String, Long> getData()
-		{
-			return this.data;
-		}
+        public LinkedHashMap<String, Long> getData()
+        {
+            return this.data;
+        }
 
-		public LinkedHashMap<String, Class<?>> getTypes()
-		{
-			return this.types;
-		}
+        public LinkedHashMap<String, Class<?>> getTypes()
+        {
+            return this.types;
+        }
 
-		public AtomicLong getIndex()
-		{
-			return this.index;
-		}
+        public AtomicLong getIndex()
+        {
+            return this.index;
+        }
 
-		public void setIndex(long index)
-		{
-			this.index.set(index);
-		}
+        public void setIndex(long index)
+        {
+            this.index.set(index);
+        }
 
-		@JsonIgnore
-		public Long getNextIndex()
-		{
-			return this.index.incrementAndGet();
-		}
+        @JsonIgnore
+        public Long getNextIndex()
+        {
+            return this.index.incrementAndGet();
+        }
 
-	}
+    }
 
-	public JsonFolderFilesCache(File cacheDirectory)
-	{
-		super();
-		this.cacheDirectory = cacheDirectory;
-	}
+    public JsonFolderFilesCache(File cacheDirectory)
+    {
+        super();
+        this.cacheDirectory = cacheDirectory;
+    }
 
-	@Override
-	public <V> V get(String key, Class<V> type)
-	{
-		Long fileIndex = this	.getOrCreateRoot()
-								.getData()
-								.get(key);
-		return this.readFromSingleCacheFile(fileIndex, type);
-	}
+    @Override
+    public <V> V get(String key, Class<V> type)
+    {
+        Long fileIndex = this.getOrCreateRoot()
+                             .getData()
+                             .get(key);
+        return this.readFromSingleCacheFile(fileIndex, type);
+    }
 
-	private <V> V readFromSingleCacheFile(Long index, Class<V> type)
-	{
-		String json = null;
-		try
-		{
-			if (index != null)
-			{
-				json = FileUtils.readFileToString(this.determineCacheFile(index), StandardCharsets.UTF_8);
-			}
-		}
-		catch (IOException e)
-		{
-			LOG.error("Exception reading single cache file", e);
-		}
-		return this.readFromJson(json, type);
-	}
+    private <V> V readFromSingleCacheFile(Long index, Class<V> type)
+    {
+        String json = null;
+        try
+        {
+            if (index != null)
+            {
+                json = FileUtils.readFileToString(this.determineCacheFile(index), StandardCharsets.UTF_8);
+            }
+        }
+        catch (IOException e)
+        {
+            LOG.error("Exception reading single cache file", e);
+        }
+        return this.readFromJson(json, type);
+    }
 
-	private File determineCacheFile(Long fileIndex)
-	{
-		return new File(this.cacheDirectory, "" + fileIndex + ".json");
-	}
+    private File determineCacheFile(Long fileIndex)
+    {
+        return new File(this.cacheDirectory, "" + fileIndex + ".json");
+    }
 
-	private <V> V readFromJson(String json, Class<V> type)
-	{
-		return JSONHelper.readFromString(json, type);
-	}
+    private <V> V readFromJson(String json, Class<V> type)
+    {
+        return JSONHelper.readFromString(json, type);
+    }
 
-	private Long writeToFileAndGetIndex(Object value)
-	{
-		Long index = this	.getOrCreateRoot()
-							.getNextIndex();
-		this.writeToSingleCacheFile(value, index);
-		return index;
-	}
+    private Long writeToFileAndGetIndex(Object value)
+    {
+        Long index = this.getOrCreateRoot()
+                         .getNextIndex();
+        this.writeToSingleCacheFile(value, index);
+        return index;
+    }
 
-	private void deleteOrphanCacheFile(Long index)
-	{
-		if (index != null)
-		{
-			try
-			{
-				FileUtils.forceDelete(this.determineCacheFile(index));
-			}
-			catch (IOException e)
-			{
-				LOG.error("Failed deleting orphan cache file: " + index);
-			}
-		}
-	}
+    private void deleteOrphanCacheFile(Long index)
+    {
+        if (index != null)
+        {
+            try
+            {
+                FileUtils.forceDelete(this.determineCacheFile(index));
+            }
+            catch (IOException e)
+            {
+                LOG.error("Failed deleting orphan cache file: " + index);
+            }
+        }
+    }
 
-	private void writeToSingleCacheFile(Object value, Long index)
-	{
-		try
-		{
-			FileUtils.write(this.determineCacheFile(index), JSONHelper.prettyPrint(value), StandardCharsets.UTF_8);
-		}
-		catch (IOException e)
-		{
-			LOG.error("Exception writing single cache file", e);
-		}
-	}
+    private void writeToSingleCacheFile(Object value, Long index)
+    {
+        try
+        {
+            FileUtils.write(this.determineCacheFile(index), JSONHelper.prettyPrint(value), StandardCharsets.UTF_8);
+        }
+        catch (IOException e)
+        {
+            LOG.error("Exception writing single cache file", e);
+        }
+    }
 
-	@Override
-	public void put(String key, Object value)
-	{
-		this.operateOnRootAndGet(t ->
-		{
-			this.deleteOrphanCacheFile(t.getData()
-										.get(key));
-			t	.getData()
-				.put(key, this.writeToFileAndGetIndex(value));
-			t	.getTypes()
-				.put(key, value.getClass());
-			return t;
-		});
+    @Override
+    public void put(String key, Object value)
+    {
+        this.operateOnRootAndGet(t ->
+        {
+            this.deleteOrphanCacheFile(t.getData()
+                                        .get(key));
+            t.getData()
+             .put(key, this.writeToFileAndGetIndex(value));
+            t.getTypes()
+             .put(key, value.getClass());
+            return t;
+        });
 
-	}
+    }
 
-	@Override
-	public <V> V computeIfAbsent(String key, Supplier<V> supplier, Class<V> type)
-	{
-		Long index = this	.getOrCreateRoot()
-							.getData()
-							.get(key);
+    @Override
+    public <V> V computeIfAbsent(String key, Supplier<V> supplier, Class<V> type)
+    {
+        Long index = this.getOrCreateRoot()
+                         .getData()
+                         .get(key);
 
-		if (index == null)
-		{
-			index = this.operateOnRootAndGet(t ->
-			{
-				t	.getData()
-					.computeIfAbsent(key, (id) ->
-					{
-						V value = supplier.get();
-						if (value != null)
-						{
-							t	.getTypes()
-								.put(key, value.getClass());
-						}
+        if (index == null)
+        {
+            index = this.operateOnRootAndGet(t ->
+            {
+                t.getData()
+                 .computeIfAbsent(key, (id) ->
+                 {
+                     V value = supplier.get();
+                     if (value != null)
+                     {
+                         t.getTypes()
+                          .put(key, value.getClass());
+                     }
 
-						Long tindex = this.writeToFileAndGetIndex(value);
-						t	.getData()
-							.put(key, tindex);
+                     Long tindex = this.writeToFileAndGetIndex(value);
+                     t.getData()
+                      .put(key, tindex);
 
-						return tindex;
-					});
-				return t;
-			})
-						.getData()
-						.get(key);
-		}
+                     return tindex;
+                 });
+                return t;
+            })
+                        .getData()
+                        .get(key);
+        }
 
-		if (index != null)
-		{
-			return this.readFromSingleCacheFile(index, type);
-		}
-		else
-		{
-			return null;
-		}
-	}
+        if (index != null)
+        {
+            return this.readFromSingleCacheFile(index, type);
+        }
+        else
+        {
+            return null;
+        }
+    }
 
-	@Override
-	public Set<String> keySet()
-	{
-		return new HashSet<>(this	.getOrCreateRoot()
-									.getData()
-									.keySet());
-	}
+    @Override
+    public Set<String> keySet()
+    {
+        return new HashSet<>(this.getOrCreateRoot()
+                                 .getData()
+                                 .keySet());
+    }
 
-	protected DataRoot getOrCreateRoot()
-	{
-		DataRoot retmap = this.root.get();
+    protected DataRoot getOrCreateRoot()
+    {
+        DataRoot retmap = this.root.get();
 
-		if (retmap == null)
-		{
-			this.operateOnRootAndGet(r -> r == null ? this.loadRoot() : null, () -> this.root.get());
-			retmap = this.root.get();
-		}
+        if (retmap == null)
+        {
+            this.operateOnRootAndGet(r -> r == null ? this.loadRoot() : null, () -> this.root.get());
+            retmap = this.root.get();
+        }
 
-		return retmap;
-	}
+        return retmap;
+    }
 
-	public DataRoot operateOnRootAndGet(UnaryOperator<DataRoot> updateFunction)
-	{
-		return this.operateOnRootAndGet(updateFunction, () -> this.getOrCreateRoot());
-	}
+    public DataRoot operateOnRootAndGet(UnaryOperator<DataRoot> updateFunction)
+    {
+        return this.operateOnRootAndGet(updateFunction, () -> this.getOrCreateRoot());
+    }
 
-	public DataRoot operateOnRootAndGet(UnaryOperator<DataRoot> updateFunction, Supplier<DataRoot> initialDataRoot)
-	{
-		synchronized (this.root)
-		{
-			this.root.set(updateFunction.apply(initialDataRoot.get()));
-			this.writeRootCacheFile();
-		}
-		return this.root.get();
-	}
+    public DataRoot operateOnRootAndGet(UnaryOperator<DataRoot> updateFunction, Supplier<DataRoot> initialDataRoot)
+    {
+        synchronized (this.root)
+        {
+            this.root.set(updateFunction.apply(initialDataRoot.get()));
+            this.writeRootCacheFile();
+        }
+        return this.root.get();
+    }
 
-	private DataRoot loadRoot()
-	{
-		return Optional	.ofNullable(this.readFromRootCacheFile())
-						.orElseGet(() -> new DataRoot());
+    private DataRoot loadRoot()
+    {
+        return Optional.ofNullable(this.readFromRootCacheFile())
+                       .orElseGet(() -> new DataRoot());
 
-	}
+    }
 
-	private DataRoot readFromRootCacheFile()
-	{
-		DataRoot retval = null;
-		File rootCacheFile = this.determineRootCacheFile();
-		if (rootCacheFile.exists() && rootCacheFile.isFile())
-		{
-			try
-			{
-				String json = FileUtils.readFileToString(rootCacheFile, UTF_8);
-				retval = StringUtils.isBlank(json) ? null : JSONHelper.readFromString(json, DataRoot.class);
-			}
-			catch (Exception e)
-			{
-				LOG.error("Exception reading file cache: " + this.cacheDirectory, e);
-				retval = null;
-			}
-		}
-		return retval;
-	}
+    private DataRoot readFromRootCacheFile()
+    {
+        DataRoot retval = null;
+        File rootCacheFile = this.determineRootCacheFile();
+        if (rootCacheFile.exists() && rootCacheFile.isFile())
+        {
+            try
+            {
+                String json = FileUtils.readFileToString(rootCacheFile, UTF_8);
+                retval = StringUtils.isBlank(json) ? null : JSONHelper.readFromString(json, DataRoot.class);
+            }
+            catch (Exception e)
+            {
+                LOG.error("Exception reading file cache: " + this.cacheDirectory, e);
+                retval = null;
+            }
+        }
+        return retval;
+    }
 
-	private void writeRootCacheFile()
-	{
-		try
-		{
-			String json = JSONHelper.prettyPrint(this.root.get());
-			FileUtils.writeStringToFile(this.determineRootCacheFile(), json, UTF_8);
-		}
-		catch (Exception e)
-		{
-			LOG.error("Exception writing json to cache file: " + this.cacheDirectory, e);
-		}
-	}
+    private void writeRootCacheFile()
+    {
+        try
+        {
+            byte commitIndex = (byte) (this.determineCommitIndex() + 1 % 2);
+            org.omnaest.utils.FileUtils.toWriterSupplierUTF8(this.determineRootCacheFile(commitIndex))
+                                       .toConsumerWith(JSONHelper.writerSerializer(DataRoot.class))
+                                       .accept(this.root.get());
+            FileUtils.writeByteArrayToFile(this.determineRootCommitFile(), new byte[] { commitIndex });
+        }
+        catch (Exception e)
+        {
+            LOG.error("Exception writing json to cache file: " + this.cacheDirectory, e);
+        }
+    }
 
-	private File determineRootCacheFile()
-	{
-		return new File(this.cacheDirectory, "root.json");
-	}
+    private byte determineCommitIndex()
+    {
+        byte retval = -1;
+        try
+        {
+            byte[] content = FileUtils.readFileToByteArray(this.determineRootCommitFile());
+            retval = content[0];
+        }
+        catch (Exception e)
+        {
+            //do nothing
+        }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public <V> Class<V> getType(String key)
-	{
-		return (Class<V>) this	.getOrCreateRoot()
-								.getTypes()
-								.get(key);
-	}
+        return retval;
+    }
 
-	@Override
-	public void remove(String key)
-	{
-		if (this.getOrCreateRoot()
-				.getData()
-				.containsKey(key))
-		{
-			this.operateOnRootAndGet(r ->
-			{
-				r	.getData()
-					.remove(key);
-				r	.getTypes()
-					.remove(key);
-				return r;
-			});
-		}
+    private File determineRootCommitFile()
+    {
+        return new File(this.cacheDirectory, "root.commit");
+    }
 
-	}
+    private File determineRootCacheFile()
+    {
+        return this.determineRootCacheFile(this.determineCommitIndex());
+    }
+
+    private File determineRootCacheFile(byte commitIndex)
+    {
+        String commitIndexStr = commitIndex >= 0 ? String.valueOf(commitIndex) : "";
+        return new File(this.cacheDirectory, "root" + commitIndexStr + ".json");
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <V> Class<V> getType(String key)
+    {
+        return (Class<V>) this.getOrCreateRoot()
+                              .getTypes()
+                              .get(key);
+    }
+
+    @Override
+    public void remove(String key)
+    {
+        if (this.getOrCreateRoot()
+                .getData()
+                .containsKey(key))
+        {
+            this.operateOnRootAndGet(r ->
+            {
+                r.getData()
+                 .remove(key);
+                r.getTypes()
+                 .remove(key);
+                return r;
+            });
+        }
+
+    }
 
 }

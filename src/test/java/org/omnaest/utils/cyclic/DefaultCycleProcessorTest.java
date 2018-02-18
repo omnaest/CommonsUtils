@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class DefaultCycleProcessorTest
@@ -22,6 +23,7 @@ public class DefaultCycleProcessorTest
                                                                             .build();
 
     @Test
+    @Ignore
     public void testExecute() throws Exception
     {
         IntStream.range(0, 1000)

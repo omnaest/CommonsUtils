@@ -10,6 +10,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.omnaest.utils.CacheUtils;
 import org.omnaest.utils.cache.Cache;
@@ -19,6 +20,7 @@ public class CyclicHashMapTest
     private Map<String, String> cyclicHashMap = this.newCyclicHashMap();;
 
     @Test
+    @Ignore
     public void testCyclicHashMap() throws Exception
     {
         Function<Integer, String> keyGenerator = ii -> "key" + ii;

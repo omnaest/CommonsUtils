@@ -91,12 +91,12 @@ public class JsonSingleFileCache extends AbstractCache
 
     private <V> V readFromJsonNode(JsonNode jsonNode, Class<V> type)
     {
-        return JSONHelper.readFromString(JSONHelper.prettyPrint(jsonNode), type);
+        return JSONHelper.toObjectWithType(jsonNode, type);
     }
 
     private JsonNode convertToJsonNode(Object value)
     {
-        return JSONHelper.readFromString(JSONHelper.prettyPrint(value), JsonNode.class);
+        return JSONHelper.toObjectWithType(value, JsonNode.class);
     }
 
     @Override

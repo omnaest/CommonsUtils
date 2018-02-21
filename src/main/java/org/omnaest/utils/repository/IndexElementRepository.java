@@ -1,7 +1,6 @@
 package org.omnaest.utils.repository;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
@@ -24,24 +23,6 @@ public interface IndexElementRepository<D> extends ElementRepository<Long, D>
      */
     @Override
     public Stream<Long> ids();
-
-    /**
-     * Adds multiple elements
-     * 
-     * @param elements
-     * @return
-     */
-    public default LongStream add(Stream<D> elements)
-    {
-        return elements.mapToLong(this::add);
-    }
-
-    @SuppressWarnings("unchecked")
-    public default LongStream add(D... elements)
-    {
-        return this.add(Arrays.asList(elements)
-                              .stream());
-    }
 
     @Override
     public IndexElementRepository<D> clear();

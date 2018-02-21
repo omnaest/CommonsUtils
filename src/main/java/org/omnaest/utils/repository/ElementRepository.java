@@ -20,6 +20,7 @@ package org.omnaest.utils.repository;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -49,6 +50,29 @@ public interface ElementRepository<I, D> extends AutoCloseable
      * @return
      */
     public I add(D element);
+
+    /**
+     * Adds multiple elements
+     * 
+     * @param elements
+     * @return
+     */
+    public default Stream<I> add(Stream<D> elements)
+    {
+        return elements.map(this::add);
+    }
+
+    /**
+     * @see #add(Stream)
+     * @param elements
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public default Stream<I> add(D... elements)
+    {
+        return this.add(Arrays.asList(elements)
+                              .stream());
+    }
 
     /**
      * Updates a data element where the id is already known

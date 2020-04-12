@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * {@link Cache} which uses {@link JSONHelper} to store the cache content within multiple json {@link File}s
@@ -56,14 +57,18 @@ public class JsonFolderFilesCache extends AbstractCache
 
     protected static class DataRoot
     {
-        private AtomicLong                      index = new AtomicLong();
-        private LinkedHashMap<String, Long>     data  = new LinkedHashMap<>();
+        @JsonProperty
+        private AtomicLong index = new AtomicLong();
+
+        @JsonProperty
+        private LinkedHashMap<String, Long> data = new LinkedHashMap<>();
+
+        @JsonProperty
         private LinkedHashMap<String, Class<?>> types = new LinkedHashMap<>();
 
         public DataRoot()
         {
             super();
-
         }
 
         public LinkedHashMap<String, Long> getData()
@@ -181,7 +186,7 @@ public class JsonFolderFilesCache extends AbstractCache
             t.getData()
              .put(key, this.writeToFileAndGetIndex(value));
             t.getTypes()
-             .put(key, value.getClass());
+             .put(key, value != null ? value.getClass() : null);
             return t;
         });
 
@@ -297,7 +302,7 @@ public class JsonFolderFilesCache extends AbstractCache
     {
         try
         {
-            byte commitIndex = (byte) (this.determineCommitIndex() + 1 % 2);
+            byte commitIndex = (byte) ((this.determineCommitIndex() + 1) % 2);
             org.omnaest.utils.FileUtils.toWriterSupplierUTF8(this.determineRootCacheFile(commitIndex))
                                        .toConsumerWith(JSONHelper.writerSerializer(DataRoot.class))
                                        .accept(this.root.get());

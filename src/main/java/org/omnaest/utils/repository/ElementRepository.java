@@ -21,8 +21,12 @@ package org.omnaest.utils.repository;
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.omnaest.utils.element.bi.BiElement;
@@ -81,7 +85,20 @@ public interface ElementRepository<I, D> extends AutoCloseable
      * @param element
      * @return
      */
-    public void update(I id, D element);
+    public void put(I id, D element);
+
+    /**
+     * Puts all elements from the given {@link Map} into the {@link ElementRepository}
+     * 
+     * @param map
+     */
+    public default void putAll(Map<I, D> map)
+    {
+        if (map != null)
+        {
+            map.forEach(this::put);
+        }
+    }
 
     /**
      * Deletes a data element by its id
@@ -89,7 +106,7 @@ public interface ElementRepository<I, D> extends AutoCloseable
      * @param id
      * @return
      */
-    public void delete(I id);
+    public void remove(I id);
 
     /**
      * Gets a data element based on the given reference identifier
@@ -98,6 +115,62 @@ public interface ElementRepository<I, D> extends AutoCloseable
      * @return
      */
     public D get(I id);
+
+    /**
+     * Returns the element for the given id, but if the element is not available it calls the given {@link Supplier}, returns that retrieved element and adds it
+     * to the {@link ElementRepository}
+     * 
+     * @param id
+     * @param supplier
+     * @return
+     */
+    public default D computeIfAbsent(I id, Supplier<D> supplier)
+    {
+        D element = this.get(id);
+        if (element == null)
+        {
+            element = supplier.get();
+            this.put(id, element);
+        }
+        return element;
+    }
+
+    /**
+     * Gets an element by the given id and allows to update it by a {@link UnaryOperator}. After the {@link UnaryOperator} finishes the element will be written
+     * back to the {@link ElementRepository}.
+     * 
+     * @param id
+     * @param updateFunction
+     * @return
+     */
+    public default ElementRepository<I, D> update(I id, UnaryOperator<D> updateFunction)
+    {
+        D element = this.get(id);
+        element = updateFunction.apply(element);
+        this.put(id, element);
+        return this;
+    }
+
+    /**
+     * Gets or creates an element by the given id and supplier and allows to update it by a {@link UnaryOperator}. After the {@link UnaryOperator} finished the
+     * element will be written to the store.
+     * 
+     * @param id
+     * @param supplier
+     * @param updateFunction
+     * @return
+     */
+    public default ElementRepository<I, D> computeIfAbsentAndUpdate(I id, Supplier<D> supplier, UnaryOperator<D> updateFunction)
+    {
+        D element = this.get(id);
+        if (element == null)
+        {
+            element = supplier.get();
+        }
+        element = updateFunction.apply(element);
+        this.put(id, element);
+        return this;
+    }
 
     /**
      * Returns a {@link Stream} of available ids
@@ -205,6 +278,38 @@ public interface ElementRepository<I, D> extends AutoCloseable
     {
         return IndexElementRepository.of(directory, type);
 
+    }
+
+    /**
+     * Gets an element by its id or returns the default element if the retrieved element would be null.
+     * 
+     * @param id
+     * @param defaultElement
+     * @return
+     */
+    public default D getOrDefault(I id, D defaultElement)
+    {
+        D retval = this.get(id);
+
+        if (retval == null)
+        {
+            retval = defaultElement;
+        }
+
+        return retval;
+    }
+
+    /**
+     * Returns a {@link Map} of the given ids and their values
+     * 
+     * @param ids
+     * @return
+     */
+    public default Map<I, D> get(Collection<I> ids)
+    {
+        return ids != null ? ids.stream()
+                                .collect(Collectors.toMap(id -> id, id -> this.get(id)))
+                : Collections.emptyMap();
     }
 
 }

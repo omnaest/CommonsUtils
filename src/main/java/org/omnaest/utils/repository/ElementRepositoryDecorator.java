@@ -1,6 +1,11 @@
 package org.omnaest.utils.repository;
 
+import java.util.Map;
+import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
+
+import org.omnaest.utils.element.bi.BiElement;
 
 /**
  * @see ElementRepository
@@ -31,15 +36,58 @@ public abstract class ElementRepositoryDecorator<I, D> implements ElementReposit
     }
 
     @Override
-    public void update(I id, D element)
+    public void put(I id, D element)
     {
-        this.elementRepository.update(id, element);
+        this.elementRepository.put(id, element);
     }
 
     @Override
-    public void delete(I id)
+    public void putAll(Map<I, D> map)
     {
-        this.elementRepository.delete(id);
+        this.elementRepository.putAll(map);
+    }
+
+    @Override
+    public Stream<I> add(Stream<D> elements)
+    {
+        return this.elementRepository.add(elements);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Stream<I> add(D... elements)
+    {
+        return this.elementRepository.add(elements);
+    }
+
+    @Override
+    public D computeIfAbsent(I id, Supplier<D> supplier)
+    {
+        return this.elementRepository.computeIfAbsent(id, supplier);
+    }
+
+    @Override
+    public ElementRepository<I, D> update(I id, UnaryOperator<D> updateFunction)
+    {
+        return this.elementRepository.update(id, updateFunction);
+    }
+
+    @Override
+    public ElementRepository<I, D> computeIfAbsentAndUpdate(I id, Supplier<D> supplier, UnaryOperator<D> updateFunction)
+    {
+        return this.elementRepository.computeIfAbsentAndUpdate(id, supplier, updateFunction);
+    }
+
+    @Override
+    public Stream<BiElement<I, D>> entries()
+    {
+        return this.elementRepository.entries();
+    }
+
+    @Override
+    public void remove(I id)
+    {
+        this.elementRepository.remove(id);
     }
 
     @Override

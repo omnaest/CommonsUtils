@@ -30,15 +30,15 @@ public class SynchronizedElementRepository<I, D> extends ElementRepositoryDecora
     }
 
     @Override
-    public synchronized void update(I id, D element)
+    public synchronized void put(I id, D element)
     {
-        super.update(id, element);
+        super.put(id, element);
     }
 
     @Override
-    public synchronized void delete(I id)
+    public synchronized void remove(I id)
     {
-        super.delete(id);
+        super.remove(id);
     }
 
     @Override

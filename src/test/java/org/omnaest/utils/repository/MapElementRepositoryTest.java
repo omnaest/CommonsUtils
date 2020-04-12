@@ -24,7 +24,7 @@ public class MapElementRepositoryTest
         assertEquals("a", repository.get(0l));
         assertEquals("b", repository.get(repository.add("b")));
 
-        repository.update(0l, "c");
+        repository.put(0l, "c");
         assertEquals("c", repository.get(0l));
     }
 

@@ -48,13 +48,13 @@ public class MapElementRepository<I, D> implements ElementRepository<I, D>
     }
 
     @Override
-    public void update(I id, D element)
+    public void put(I id, D element)
     {
         this.map.put(id, element);
     }
 
     @Override
-    public void delete(I id)
+    public void remove(I id)
     {
         this.map.remove(id);
     }

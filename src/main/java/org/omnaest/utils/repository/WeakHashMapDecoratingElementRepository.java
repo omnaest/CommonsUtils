@@ -21,17 +21,26 @@ public class WeakHashMapDecoratingElementRepository<I, D> extends ElementReposit
     }
 
     @Override
-    public void update(I id, D element)
+    public void put(I id, D element)
     {
         this.cache.put(id, element);
-        super.update(id, element);
+        super.put(id, element);
     }
 
     @Override
-    public void delete(I id)
+    public void putAll(Map<I, D> map)
+    {
+        if (map != null)
+        {
+            map.forEach(this::put);
+        }
+    }
+
+    @Override
+    public void remove(I id)
     {
         this.cache.remove(id);
-        super.delete(id);
+        super.remove(id);
     }
 
     @Override

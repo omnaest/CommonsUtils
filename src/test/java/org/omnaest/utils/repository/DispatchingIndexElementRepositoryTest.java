@@ -28,12 +28,12 @@ public class DispatchingIndexElementRepositoryTest
 
         assertFalse(repository.isEmpty());
 
-        repository.update(0l, "c");
+        repository.put(0l, "c");
         assertEquals("c", repository.get(0l));
 
         //
-        repository.delete(0l);
-        repository.delete(1l);
+        repository.remove(0l);
+        repository.remove(1l);
         assertTrue(repository.isEmpty());
     }
 

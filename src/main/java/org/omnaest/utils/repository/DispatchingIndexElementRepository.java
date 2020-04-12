@@ -53,15 +53,15 @@ public class DispatchingIndexElementRepository<D> implements IndexElementReposit
     }
 
     @Override
-    public void update(Long id, D element)
+    public void put(Long id, D element)
     {
-        this.executeOnSingleRepository((repository, reducedId) -> repository.update(reducedId, element), id);
+        this.executeOnSingleRepository((repository, reducedId) -> repository.put(reducedId, element), id);
     }
 
     @Override
-    public void delete(Long id)
+    public void remove(Long id)
     {
-        this.executeOnSingleRepository(IndexElementRepository<D>::delete, id);
+        this.executeOnSingleRepository(IndexElementRepository<D>::remove, id);
     }
 
     @Override

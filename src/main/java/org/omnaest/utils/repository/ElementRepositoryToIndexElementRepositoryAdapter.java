@@ -19,15 +19,15 @@ public class ElementRepositoryToIndexElementRepositoryAdapter<D> implements Inde
     }
 
     @Override
-    public void update(Long id, D element)
+    public void put(Long id, D element)
     {
-        this.elementRepository.update(id, element);
+        this.elementRepository.put(id, element);
     }
 
     @Override
-    public void delete(Long id)
+    public void remove(Long id)
     {
-        this.elementRepository.delete(id);
+        this.elementRepository.remove(id);
     }
 
     @Override

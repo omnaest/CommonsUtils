@@ -16,7 +16,7 @@
 
 
 */
-package org.omnaest.utils.cache;
+package org.omnaest.utils.cache.internal;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,6 +33,7 @@ import java.util.function.UnaryOperator;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.omnaest.utils.JSONHelper;
+import org.omnaest.utils.cache.Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

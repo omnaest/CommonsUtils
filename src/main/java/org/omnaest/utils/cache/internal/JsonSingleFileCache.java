@@ -16,7 +16,7 @@
 
 
 */
-package org.omnaest.utils.cache;
+package org.omnaest.utils.cache.internal;
 
 import java.io.File;
 import java.util.HashSet;
@@ -31,6 +31,7 @@ import java.util.function.UnaryOperator;
 import org.omnaest.utils.FileUtils;
 import org.omnaest.utils.JSONHelper;
 import org.omnaest.utils.RetryHelper;
+import org.omnaest.utils.cache.Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

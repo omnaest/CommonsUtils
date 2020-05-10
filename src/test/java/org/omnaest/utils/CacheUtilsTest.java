@@ -27,17 +27,20 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.omnaest.utils.cache.Cache;
-import org.omnaest.utils.cache.CacheToUnaryCacheAdapter;
-import org.omnaest.utils.cache.ConcurrentHashMapCache;
-import org.omnaest.utils.cache.JsonFolderFilesCache;
-import org.omnaest.utils.cache.JsonSingleFileCache;
+import org.omnaest.utils.cache.Cache.EvictionStrategy;
+import org.omnaest.utils.cache.CapacityLimitedUnaryCache;
 import org.omnaest.utils.cache.UnaryCache;
+import org.omnaest.utils.cache.internal.CacheToUnaryCacheAdapter;
+import org.omnaest.utils.cache.internal.ConcurrentHashMapCache;
+import org.omnaest.utils.cache.internal.JsonFolderFilesCache;
+import org.omnaest.utils.cache.internal.JsonSingleFileCache;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 
@@ -124,6 +127,25 @@ public class CacheUtilsTest
     {
         Value value = this.cache.computeIfAbsent("key1", () -> new Value("value1"));
         assertEquals("value1", value.getValue());
+    }
+
+    @Test
+    public void testToCapacityLimitedUnaryCache() throws Exception
+    {
+        //
+        CapacityLimitedUnaryCache<Value> cache = this.cache.withCapacityLimit(10, EvictionStrategy.RANDOM);
+
+        //
+        cache.put("key1", new Value("test1"));
+        assertEquals("key1", SetUtils.first(cache.keySet()));
+        assertEquals("test1", cache.get("key1")
+                                   .getValue());
+
+        //
+        IntStream.range(0, 100)
+                 .forEach(ii -> cache.put("key" + ii, new Value("test" + ii)));
+        assertTrue(cache.size() < 20);
+        assertTrue(cache.size() > 5);
     }
 
 }

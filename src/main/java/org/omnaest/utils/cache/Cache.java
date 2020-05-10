@@ -18,10 +18,12 @@
 */
 package org.omnaest.utils.cache;
 
-import java.util.Set;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import org.omnaest.utils.CacheUtils;
+import org.omnaest.utils.cache.internal.capacity.EvictionStrategyHandler;
+import org.omnaest.utils.cache.internal.capacity.RandomEvictionStrategy;
 
 /**
  * Defines a {@link Cache} API.
@@ -40,7 +42,7 @@ import org.omnaest.utils.CacheUtils;
  * @author Omnaest
  * @param <V>
  */
-public interface Cache
+public interface Cache extends CacheBase
 {
     public <V> V get(String key, Class<V> type);
 
@@ -50,15 +52,55 @@ public interface Cache
 
     public void put(String key, Object value);
 
+    public <V> void putAll(Map<String, V> map);
+
     public <V> V computeIfAbsent(String key, Supplier<V> supplier, Class<V> type);
 
-    public void remove(String key);
+    /**
+     * Returns a new {@link Cache} instance with a capacity limit and a random element eviction strategy
+     * 
+     * @param capacity
+     * @param evictionStrategy
+     * @return
+     */
+    public default CapacityLimitedCache withCapacityLimit(int capacity, EvictionStrategyProvider evictionStrategy)
+    {
+        return CacheUtils.toCapacityLimitedCache(this, evictionStrategy)
+                         .withCapacityLimit(capacity);
+    }
 
-    public Set<String> keySet();
+    /**
+     * Returns an {@link UnaryCache} instance based on the current {@link Cache}
+     * 
+     * @param type
+     * @return
+     */
+    public default <V> UnaryCache<V> asUnaryCache(Class<V> type)
+    {
+        return CacheUtils.toUnaryCache(this, type);
+    }
 
-    public boolean isEmpty();
+    public static interface EvictionStrategyProvider extends Supplier<EvictionStrategyHandler>
+    {
+    }
 
-    public int size();
+    public static enum EvictionStrategy implements EvictionStrategyProvider
+    {
+        RANDOM(new RandomEvictionStrategy());
 
-    public void clear();
+        private EvictionStrategyHandler handler;
+
+        private EvictionStrategy(EvictionStrategyHandler handler)
+        {
+            this.handler = handler;
+        }
+
+        @Override
+        public EvictionStrategyHandler get()
+        {
+            return this.handler;
+        }
+
+    }
+
 }

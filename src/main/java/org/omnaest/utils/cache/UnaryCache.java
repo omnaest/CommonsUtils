@@ -18,32 +18,36 @@
 */
 package org.omnaest.utils.cache;
 
-import java.util.Set;
 import java.util.function.Supplier;
+
+import org.omnaest.utils.CacheUtils;
+import org.omnaest.utils.cache.Cache.EvictionStrategyProvider;
 
 /**
  * @see Cache
  * @author Omnaest
  * @param <V>
  */
-public interface UnaryCache<V>
+public interface UnaryCache<V> extends CacheBase
 {
-	public V get(String key);
+    public V get(String key);
 
-	public Supplier<V> getSupplier(String key);
+    public Supplier<V> getSupplier(String key);
 
-	public void put(String key, V value);
+    public void put(String key, V value);
 
-	public V computeIfAbsent(String key, Supplier<V> supplier);
+    public V computeIfAbsent(String key, Supplier<V> supplier);
 
-	public Set<String> keySet();
-
-	public void remove(String key);
-
-	public int size();
-
-	public boolean isEmpty();
-
-	public void clear();
-
+    /**
+     * Returns a new {@link Cache} instance with a capacity limit and a random element eviction strategy
+     * 
+     * @param capacity
+     * @param evictionStrategy
+     * @return
+     */
+    public default CapacityLimitedUnaryCache<V> withCapacityLimit(int capacity, EvictionStrategyProvider evictionStrategy)
+    {
+        return CacheUtils.toCapacityLimitedUnaryCache(this, evictionStrategy)
+                         .withCapacityLimit(capacity);
+    }
 }

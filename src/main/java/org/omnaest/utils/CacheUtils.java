@@ -22,9 +22,16 @@ import java.io.File;
 import java.util.function.Supplier;
 
 import org.omnaest.utils.cache.Cache;
-import org.omnaest.utils.cache.ConcurrentHashMapCache;
-import org.omnaest.utils.cache.JsonFolderFilesCache;
-import org.omnaest.utils.cache.JsonSingleFileCache;
+import org.omnaest.utils.cache.Cache.EvictionStrategyProvider;
+import org.omnaest.utils.cache.CapacityLimitedCache;
+import org.omnaest.utils.cache.CapacityLimitedUnaryCache;
+import org.omnaest.utils.cache.UnaryCache;
+import org.omnaest.utils.cache.internal.CacheToUnaryCacheAdapter;
+import org.omnaest.utils.cache.internal.CapacityLimitedCacheWrapper;
+import org.omnaest.utils.cache.internal.CapacityLimitedUnaryCacheWrapper;
+import org.omnaest.utils.cache.internal.ConcurrentHashMapCache;
+import org.omnaest.utils.cache.internal.JsonFolderFilesCache;
+import org.omnaest.utils.cache.internal.JsonSingleFileCache;
 import org.omnaest.utils.element.cached.CachedElement;
 
 /**
@@ -33,6 +40,8 @@ import org.omnaest.utils.element.cached.CachedElement;
  */
 public class CacheUtils
 {
+    public static final String DEFAULT_CACHE_FOLDER = "cache";
+
     /**
      * Reads the content of the source {@link Cache} and populates the content into the target {@link Cache}
      *
@@ -65,6 +74,27 @@ public class CacheUtils
         return new JsonFolderFilesCache(cacheDirectory);
     }
 
+    public static CapacityLimitedCache toCapacityLimitedCache(Cache cache, EvictionStrategyProvider evictionStrategy)
+    {
+        return new CapacityLimitedCacheWrapper(cache, evictionStrategy);
+    }
+
+    public static <V> CapacityLimitedUnaryCache<V> toCapacityLimitedUnaryCache(UnaryCache<V> cache, EvictionStrategyProvider evictionStrategy)
+    {
+        return new CapacityLimitedUnaryCacheWrapper<>(cache, evictionStrategy);
+    }
+
+    /**
+     * Returns a new {@link JsonFolderFilesCache} for the local {@value #DEFAULT_CACHE_FOLDER} folder.
+     * 
+     * @param name
+     * @return
+     */
+    public static Cache newLocalJsonFolderCache(String name)
+    {
+        return newJsonFolderCache(new File(DEFAULT_CACHE_FOLDER, name));
+    }
+
     /**
      * Returns a {@link CachedElement} around the given {@link Supplier} using a json based {@link File} cache
      * 
@@ -92,5 +122,17 @@ public class CacheUtils
     {
         return CachedElement.of(supplier)
                             .withFileCache(cacheFile, JSONHelper.writerSerializer(type), JSONHelper.readerDeserializer(type));
+    }
+
+    /**
+     * Returns a {@link UnaryCache} for the given {@link Cache} instance
+     * 
+     * @param cache
+     * @param type
+     * @return
+     */
+    public static <V> UnaryCache<V> toUnaryCache(Cache cache, Class<V> type)
+    {
+        return new CacheToUnaryCacheAdapter<>(cache, type);
     }
 }

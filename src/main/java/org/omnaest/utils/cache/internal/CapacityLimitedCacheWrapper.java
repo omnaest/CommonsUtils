@@ -27,13 +27,8 @@ public class CapacityLimitedCacheWrapper extends CacheDecorator implements Capac
     @Override
     public void put(String key, Object value)
     {
-        this.incrementCounterAndValidateCapacity();
-        super.put(key, value);
-    }
-
-    private void incrementCounterAndValidateCapacity()
-    {
         this.capacityLimiter.incrementCounterAndValidateCapacity();
+        super.put(key, value);
     }
 
     @Override
@@ -54,6 +49,13 @@ public class CapacityLimitedCacheWrapper extends CacheDecorator implements Capac
     public String toString()
     {
         return "CapacityLimitedCacheWithRandomEviction [capacityLimiter=" + this.capacityLimiter + ", toString()=" + super.toString() + "]";
+    }
+
+    @Override
+    public CapacityLimitedCache withEvictionRatio(double ratio)
+    {
+        this.capacityLimiter.setEvictionRatio(ratio);
+        return this;
     }
 
 }

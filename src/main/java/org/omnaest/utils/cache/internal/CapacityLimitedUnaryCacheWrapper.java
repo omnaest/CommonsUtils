@@ -45,4 +45,11 @@ public class CapacityLimitedUnaryCacheWrapper<V> extends UnaryCacheDecorator<V> 
         return super.computeIfAbsent(key, supplier);
     }
 
+    @Override
+    public CapacityLimitedUnaryCache<V> withEvictionRatio(double ratio)
+    {
+        this.capacityLimiter.setEvictionRatio(ratio);
+        return this;
+    }
+
 }

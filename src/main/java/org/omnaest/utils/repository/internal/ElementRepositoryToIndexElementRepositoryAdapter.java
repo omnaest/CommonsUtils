@@ -1,6 +1,9 @@
-package org.omnaest.utils.repository;
+package org.omnaest.utils.repository.internal;
 
 import java.util.stream.Stream;
+
+import org.omnaest.utils.repository.ElementRepository;
+import org.omnaest.utils.repository.IndexElementRepository;
 
 public class ElementRepositoryToIndexElementRepositoryAdapter<D> implements IndexElementRepository<D>
 {

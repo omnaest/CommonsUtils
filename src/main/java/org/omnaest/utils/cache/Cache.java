@@ -75,9 +75,10 @@ public interface Cache extends CacheBase
      * @param type
      * @return
      */
-    public default <V> UnaryCache<V> asUnaryCache(Class<V> type)
+    @SuppressWarnings("unchecked")
+    public default <V> UnaryCache<V> asUnaryCache(Class<? super V> type)
     {
-        return CacheUtils.toUnaryCache(this, type);
+        return (UnaryCache<V>) CacheUtils.toUnaryCache(this, type);
     }
 
     public static interface EvictionStrategyProvider extends Supplier<EvictionStrategyHandler>

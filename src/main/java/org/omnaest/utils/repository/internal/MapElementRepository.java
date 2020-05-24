@@ -16,11 +16,13 @@
 
 
 */
-package org.omnaest.utils.repository;
+package org.omnaest.utils.repository.internal;
 
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
+
+import org.omnaest.utils.repository.ElementRepository;
 
 /**
  * {@link ElementRepository} using a given {@link Map} and {@link Supplier} for ids

@@ -21,15 +21,15 @@ package org.omnaest.utils.repository;
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.omnaest.utils.element.bi.BiElement;
+import org.omnaest.utils.repository.internal.MapElementRepository;
+import org.omnaest.utils.repository.internal.SynchronizedElementRepository;
+import org.omnaest.utils.repository.internal.WeakHashMapDecoratingElementRepository;
+import org.omnaest.utils.repository.join.ElementRepositoryJoiner;
 
 /**
  * {@link ElementRepository} does define accessors for a data element with a reference identifier
@@ -39,13 +39,15 @@ import org.omnaest.utils.element.bi.BiElement;
  * @see #asWeakCached()
  * @see #asSynchronized()
  * @see IndexElementRepository
+ * @see ImmutableElementRepository
+ * @see ElementRepositoryUtils
  * @author omnaest
  * @param <I>
  *            reference identifier
  * @param <D>
  *            data element
  */
-public interface ElementRepository<I, D> extends AutoCloseable
+public interface ElementRepository<I, D> extends ImmutableElementRepository<I, D>, AutoCloseable
 {
     /**
      * Adds a new data element to the {@link ElementRepository} and returns its reference identifier
@@ -109,14 +111,6 @@ public interface ElementRepository<I, D> extends AutoCloseable
     public void remove(I id);
 
     /**
-     * Gets a data element based on the given reference identifier
-     * 
-     * @param id
-     * @return
-     */
-    public D get(I id);
-
-    /**
      * Returns the element for the given id, but if the element is not available it calls the given {@link Supplier}, returns that retrieved element and adds it
      * to the {@link ElementRepository}
      * 
@@ -170,42 +164,6 @@ public interface ElementRepository<I, D> extends AutoCloseable
         element = updateFunction.apply(element);
         this.put(id, element);
         return this;
-    }
-
-    /**
-     * Returns a {@link Stream} of available ids
-     * 
-     * @return
-     */
-    public Stream<I> ids();
-
-    /**
-     * Returns the entries of the repository
-     * 
-     * @return
-     */
-    public default Stream<BiElement<I, D>> entries()
-    {
-        return this.ids()
-                   .map(id -> BiElement.of(id, this.get(id)));
-    }
-
-    /**
-     * Returns the size of the {@link ElementRepository}
-     * 
-     * @see #add(Object)
-     * @return
-     */
-    public long size();
-
-    /**
-     * Returns true if this {@link IndexElementRepository} is empty
-     * 
-     * @return
-     */
-    public default boolean isEmpty()
-    {
-        return this.size() == 0;
     }
 
     /**
@@ -281,35 +239,24 @@ public interface ElementRepository<I, D> extends AutoCloseable
     }
 
     /**
-     * Gets an element by its id or returns the default element if the retrieved element would be null.
+     * Returns an {@link ElementRepositoryJoiner} of this and an additional {@link ElementRepository} with the same keys.
      * 
-     * @param id
-     * @param defaultElement
+     * @param elementRepository
      * @return
      */
-    public default D getOrDefault(I id, D defaultElement)
+    public default <DR> ElementRepositoryJoiner<I, D, DR> join(ElementRepository<I, DR> elementRepository)
     {
-        D retval = this.get(id);
-
-        if (retval == null)
-        {
-            retval = defaultElement;
-        }
-
-        return retval;
+        return ElementRepositoryJoiner.of(this, elementRepository);
     }
 
     /**
-     * Returns a {@link Map} of the given ids and their values
+     * Returns this as {@link ImmutableElementRepository}
      * 
-     * @param ids
      * @return
      */
-    public default Map<I, D> get(Collection<I> ids)
+    public default ImmutableElementRepository<I, D> asImmutable()
     {
-        return ids != null ? ids.stream()
-                                .collect(Collectors.toMap(id -> id, id -> this.get(id)))
-                : Collections.emptyMap();
+        return this;
     }
 
 }

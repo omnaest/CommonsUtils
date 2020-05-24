@@ -1,10 +1,11 @@
-package org.omnaest.utils.repository;
+package org.omnaest.utils.repository.internal;
 
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 
 import org.junit.Test;
+import org.omnaest.utils.repository.internal.DirectoryElementRepository;
 
 public class DirectoryElementRepositoryTest
 {

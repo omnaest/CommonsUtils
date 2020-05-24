@@ -1,6 +1,8 @@
-package org.omnaest.utils.repository;
+package org.omnaest.utils.repository.internal;
 
 import java.util.stream.Stream;
+
+import org.omnaest.utils.repository.ElementRepository;
 
 /**
  * Synchronized {@link ElementRepository} decorator

@@ -1,7 +1,9 @@
-package org.omnaest.utils.repository;
+package org.omnaest.utils.repository.internal;
 
 import java.util.Map;
 import java.util.WeakHashMap;
+
+import org.omnaest.utils.repository.ElementRepository;
 
 public class WeakHashMapDecoratingElementRepository<I, D> extends ElementRepositoryDecorator<I, D>
 {

@@ -1,4 +1,4 @@
-package org.omnaest.utils.repository;
+package org.omnaest.utils.repository.internal;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.omnaest.utils.ThreadUtils;
+import org.omnaest.utils.repository.ElementRepository;
 
 public class BufferedUpdateElementRepository<I, D> extends ElementRepositoryDecorator<I, D>
 {

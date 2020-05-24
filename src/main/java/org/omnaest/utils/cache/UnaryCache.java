@@ -18,17 +18,21 @@
 */
 package org.omnaest.utils.cache;
 
+import java.util.Iterator;
+import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import org.omnaest.utils.CacheUtils;
 import org.omnaest.utils.cache.Cache.EvictionStrategyProvider;
+import org.omnaest.utils.cache.UnaryCache.Entry;
 
 /**
  * @see Cache
  * @author Omnaest
  * @param <V>
  */
-public interface UnaryCache<V> extends CacheBase
+public interface UnaryCache<V> extends CacheBase, Iterable<Entry<V>>, Function<String, V>
 {
     public V get(String key);
 
@@ -37,6 +41,44 @@ public interface UnaryCache<V> extends CacheBase
     public void put(String key, V value);
 
     public V computeIfAbsent(String key, Supplier<V> supplier);
+
+    public default V computeIfAbsent(String key, Function<String, V> supplierFunction)
+    {
+        return this.computeIfAbsent(key, () -> supplierFunction.apply(key));
+    }
+
+    public default Stream<Entry<V>> stream()
+    {
+        return this.keySet()
+                   .stream()
+                   .map(key -> new Entry<V>()
+                   {
+                       @Override
+                       public String getKey()
+                       {
+                           return key;
+                       }
+
+                       @Override
+                       public V getValue()
+                       {
+                           return get(key);
+                       }
+                   });
+    }
+
+    @Override
+    public default Iterator<Entry<V>> iterator()
+    {
+        return this.stream()
+                   .iterator();
+    }
+
+    @Override
+    public default V apply(String key)
+    {
+        return this.get(key);
+    }
 
     /**
      * Returns a new {@link Cache} instance with a capacity limit and a random element eviction strategy
@@ -49,5 +91,24 @@ public interface UnaryCache<V> extends CacheBase
     {
         return CacheUtils.toCapacityLimitedUnaryCache(this, evictionStrategy)
                          .withCapacityLimit(capacity);
+    }
+
+    /**
+     * Returns a {@link Function} on top of this {@link UnaryCache} which will use the given supplier {@link Function} to generate an {@link UnaryCache.Entry}
+     * if there is no entry for the given key.
+     * 
+     * @param supplierFunction
+     * @return
+     */
+    public default Function<String, V> asSuppliedFunction(Function<String, V> supplierFunction)
+    {
+        return key -> this.computeIfAbsent(key, supplierFunction);
+    }
+
+    public static interface Entry<V>
+    {
+        public String getKey();
+
+        public V getValue();
     }
 }

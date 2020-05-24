@@ -1,4 +1,4 @@
-package org.omnaest.utils.repository;
+package org.omnaest.utils.repository.internal;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -7,6 +7,8 @@ import static org.junit.Assert.assertTrue;
 import java.util.LinkedHashMap;
 
 import org.junit.Test;
+import org.omnaest.utils.repository.IndexElementRepository;
+import org.omnaest.utils.repository.internal.DispatchingIndexElementRepository;
 
 /**
  * @see DispatchingIndexElementRepository

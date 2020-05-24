@@ -1,11 +1,18 @@
 package org.omnaest.utils.repository;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
+
+import org.omnaest.utils.repository.internal.DirectoryElementRepository;
+import org.omnaest.utils.repository.internal.DispatchingIndexElementRepository;
+import org.omnaest.utils.repository.internal.ElementRepositoryToIndexElementRepositoryAdapter;
+import org.omnaest.utils.repository.internal.IndexElementRepositoryList;
+import org.omnaest.utils.repository.internal.MapElementRepository;
 
 /**
  * {@link ElementRepository} which uses a {@link Long} value as key
@@ -95,4 +102,13 @@ public interface IndexElementRepository<D> extends ElementRepository<Long, D>
         return of(ElementRepository.super.asSynchronized());
     }
 
+    /**
+     * Returns a {@link List} wrapper which allows to access this {@link IndexElementRepository} via the {@link List} inteface.
+     * 
+     * @return
+     */
+    public default List<D> asList()
+    {
+        return new IndexElementRepositoryList<>(this);
+    }
 }

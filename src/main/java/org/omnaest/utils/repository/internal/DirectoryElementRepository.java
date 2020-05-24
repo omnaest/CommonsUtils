@@ -1,4 +1,4 @@
-package org.omnaest.utils.repository;
+package org.omnaest.utils.repository.internal;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,6 +15,7 @@ import org.omnaest.utils.MapperUtils;
 import org.omnaest.utils.NumberUtils;
 import org.omnaest.utils.ObjectUtils;
 import org.omnaest.utils.functional.Accessor;
+import org.omnaest.utils.repository.IndexElementRepository;
 
 /**
  * {@link IndexElementRepository} based on a {@link File} directory structure and json serializer/deserializer

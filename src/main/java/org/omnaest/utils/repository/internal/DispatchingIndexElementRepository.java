@@ -1,4 +1,4 @@
-package org.omnaest.utils.repository;
+package org.omnaest.utils.repository.internal;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -8,6 +8,7 @@ import java.util.stream.Stream;
 import org.omnaest.utils.ListUtils;
 import org.omnaest.utils.StreamUtils;
 import org.omnaest.utils.element.bi.BiElement;
+import org.omnaest.utils.repository.IndexElementRepository;
 
 /**
  * An {@link IndexElementRepository} which does dispatch the calls to multiple {@link IndexElementRepository}s.<br>

@@ -1,4 +1,4 @@
-package org.omnaest.utils.repository;
+package org.omnaest.utils.repository.internal;
 
 import static org.junit.Assert.assertEquals;
 
@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 
 import org.junit.Test;
+import org.omnaest.utils.repository.ElementRepository;
 
 public class MapElementRepositoryTest
 {

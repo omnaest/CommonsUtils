@@ -1,4 +1,4 @@
-package org.omnaest.utils.repository;
+package org.omnaest.utils.repository.internal;
 
 import java.util.Map;
 import java.util.function.Supplier;
@@ -6,6 +6,7 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 import org.omnaest.utils.element.bi.BiElement;
+import org.omnaest.utils.repository.ElementRepository;
 
 /**
  * @see ElementRepository

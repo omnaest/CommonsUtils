@@ -20,13 +20,12 @@ package org.omnaest.utils.repository;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
-import java.util.stream.Stream;
 
 import org.omnaest.utils.ElementRepositoryUtils;
+import org.omnaest.utils.repository.internal.AppendableSupportedCoreElementRepositoryDecorator;
 import org.omnaest.utils.repository.internal.MapElementRepository;
 import org.omnaest.utils.repository.internal.SynchronizedElementRepository;
 import org.omnaest.utils.repository.internal.WeakHashMapDecoratingElementRepository;
@@ -48,68 +47,10 @@ import org.omnaest.utils.repository.join.ElementRepositoryJoiner;
  * @param <D>
  *            data element
  */
-public interface ElementRepository<I, D> extends ImmutableElementRepository<I, D>, AutoCloseable
+public interface ElementRepository<I, D> extends CoreElementRepository<I, D>, AppendableElementRepository<I, D>
 {
-    /**
-     * Adds a new data element to the {@link ElementRepository} and returns its reference identifier
-     * 
-     * @param element
-     * @return
-     */
-    public I add(D element);
-
-    /**
-     * Adds multiple elements
-     * 
-     * @param elements
-     * @return
-     */
-    public default Stream<I> add(Stream<D> elements)
-    {
-        return elements.map(this::add);
-    }
-
-    /**
-     * @see #add(Stream)
-     * @param elements
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    public default Stream<I> add(D... elements)
-    {
-        return this.add(Arrays.asList(elements)
-                              .stream());
-    }
-
-    /**
-     * Updates a data element where the id is already known
-     * 
-     * @param id
-     * @param element
-     * @return
-     */
-    public void put(I id, D element);
-
-    /**
-     * Puts all elements from the given {@link Map} into the {@link ElementRepository}
-     * 
-     * @param map
-     */
-    public default void putAll(Map<I, D> map)
-    {
-        if (map != null)
-        {
-            map.forEach(this::put);
-        }
-    }
-
-    /**
-     * Deletes a data element by its id
-     * 
-     * @param id
-     * @return
-     */
-    public void remove(I id);
+    @Override
+    public ElementRepository<I, D> clear();
 
     /**
      * Returns the element for the given id, but if the element is not available it calls the given {@link Supplier}, returns that retrieved element and adds it
@@ -168,22 +109,6 @@ public interface ElementRepository<I, D> extends ImmutableElementRepository<I, D
     }
 
     /**
-     * Closes the underlying repository. This is an optional method.
-     */
-    @Override
-    public default void close()
-    {
-        //do nothing
-    }
-
-    /**
-     * Clears the {@link ElementRepository}
-     * 
-     * @return this
-     */
-    public ElementRepository<I, D> clear();
-
-    /**
      * Returns a new {@link ElementRepository} wrapping the current one into a {@link WeakReference} cached structure
      * 
      * @return
@@ -213,6 +138,18 @@ public interface ElementRepository<I, D> extends ImmutableElementRepository<I, D
     public static <I, D> ElementRepository<I, D> of(Map<I, D> map, Supplier<I> idSupplier)
     {
         return new MapElementRepository<>(map, idSupplier);
+    }
+
+    /**
+     * Wraps a given {@link CoreElementRepository} with support for the {@link AppendableElementRepository} methods
+     * 
+     * @param coreElementRepository
+     * @param idSupplier
+     * @return
+     */
+    public static <I, D> ElementRepository<I, D> from(CoreElementRepository<I, D> coreElementRepository, Supplier<I> idSupplier)
+    {
+        return new AppendableSupportedCoreElementRepositoryDecorator<>(coreElementRepository, idSupplier);
     }
 
     /**

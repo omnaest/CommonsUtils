@@ -26,6 +26,7 @@ import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
+import org.omnaest.utils.ElementRepositoryUtils;
 import org.omnaest.utils.repository.internal.MapElementRepository;
 import org.omnaest.utils.repository.internal.SynchronizedElementRepository;
 import org.omnaest.utils.repository.internal.WeakHashMapDecoratingElementRepository;

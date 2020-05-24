@@ -1,7 +1,10 @@
-package org.omnaest.utils.repository;
+package org.omnaest.utils;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
+
+import org.omnaest.utils.repository.ElementRepository;
+import org.omnaest.utils.repository.IndexElementRepository;
 
 public class ElementRepositoryUtils
 {

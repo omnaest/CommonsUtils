@@ -6,8 +6,8 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import org.junit.Test;
+import org.omnaest.utils.ElementRepositoryUtils;
 import org.omnaest.utils.element.bi.BiElement;
-import org.omnaest.utils.repository.ElementRepositoryUtils;
 import org.omnaest.utils.repository.ImmutableElementRepository;
 import org.omnaest.utils.repository.IndexElementRepository;
 

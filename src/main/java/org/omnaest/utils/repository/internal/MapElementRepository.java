@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import org.omnaest.utils.EnumUtils;
+import org.omnaest.utils.optional.NullOptional;
 import org.omnaest.utils.repository.ElementRepository;
 
 /**
@@ -44,9 +46,10 @@ public class MapElementRepository<I, D> implements ElementRepository<I, D>
     }
 
     @Override
-    public D get(I id)
+    public NullOptional<D> get(I id)
     {
-        return this.map.get(id);
+        D value = this.map.get(id);
+        return value != null || this.map.containsKey(id) ? NullOptional.ofPresentNullable(value) : NullOptional.empty();
     }
 
     @Override
@@ -83,10 +86,12 @@ public class MapElementRepository<I, D> implements ElementRepository<I, D>
     }
 
     @Override
-    public Stream<I> ids()
+    public Stream<I> ids(IdOrder idOrder)
     {
-        return this.map.keySet()
-                       .stream();
+        return EnumUtils.decideOn(idOrder)
+                        .ifEqualTo(IdOrder.ARBITRARY, () -> this.map.keySet()
+                                                                    .stream())
+                        .orElseThrow(() -> new IllegalArgumentException("Unsupported IdOrder value: " + idOrder));
     }
 
     @Override

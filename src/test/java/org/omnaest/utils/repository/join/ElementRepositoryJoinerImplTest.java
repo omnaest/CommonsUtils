@@ -30,7 +30,7 @@ public class ElementRepositoryJoinerImplTest
         repositoryRight.put(2l, "r2");
 
         assertEquals(1, result.size());
-        assertEquals(BiElement.of("l1", "r1"), result.get(1l));
+        assertEquals(BiElement.of("l1", "r1"), result.getValue(1l));
 
         assertEquals(Arrays.asList(1l), result.ids()
                                               .collect(Collectors.toList()));
@@ -52,9 +52,9 @@ public class ElementRepositoryJoinerImplTest
         repositoryRight.put(2l, "r2");
 
         assertEquals(3, result.size());
-        assertEquals(BiElement.of("l0", null), result.get(0l));
-        assertEquals(BiElement.of("l1", "r1"), result.get(1l));
-        assertEquals(BiElement.of(null, "r2"), result.get(2l));
+        assertEquals(BiElement.of("l0", null), result.getValue(0l));
+        assertEquals(BiElement.of("l1", "r1"), result.getValue(1l));
+        assertEquals(BiElement.of(null, "r2"), result.getValue(2l));
 
         assertEquals(Arrays.asList(0l, 1l, 2l), result.ids()
                                                       .collect(Collectors.toList()));
@@ -75,8 +75,8 @@ public class ElementRepositoryJoinerImplTest
         repositoryRight.put(2l, "r2");
 
         assertEquals(2, result.size());
-        assertEquals(BiElement.of("l0", null), result.get(0l));
-        assertEquals(BiElement.of("l1", "r1"), result.get(1l));
+        assertEquals(BiElement.of("l0", null), result.getValue(0l));
+        assertEquals(BiElement.of("l1", "r1"), result.getValue(1l));
 
         assertEquals(Arrays.asList(0l, 1l), result.ids()
                                                   .collect(Collectors.toList()));
@@ -98,8 +98,8 @@ public class ElementRepositoryJoinerImplTest
         repositoryRight.put(2l, "r2");
 
         assertEquals(2, result.size());
-        assertEquals(BiElement.of("l1", "r1"), result.get(1l));
-        assertEquals(BiElement.of(null, "r2"), result.get(2l));
+        assertEquals(BiElement.of("l1", "r1"), result.getValue(1l));
+        assertEquals(BiElement.of(null, "r2"), result.getValue(2l));
 
         assertEquals(Arrays.asList(1l, 2l), result.ids()
                                                   .collect(Collectors.toList()));

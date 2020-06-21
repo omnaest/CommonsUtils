@@ -44,9 +44,9 @@ public class SynchronizedElementRepository<I, D> extends ElementRepositoryDecora
     }
 
     @Override
-    public synchronized D get(I id)
+    public synchronized D getValue(I id)
     {
-        return super.get(id);
+        return super.getValue(id);
     }
 
     @Override

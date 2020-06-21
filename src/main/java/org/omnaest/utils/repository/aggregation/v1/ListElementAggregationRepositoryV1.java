@@ -1,4 +1,4 @@
-package org.omnaest.utils.repository.aggregation;
+package org.omnaest.utils.repository.aggregation.v1;
 
 import java.util.List;
 import java.util.Objects;
@@ -8,12 +8,12 @@ import java.util.stream.Stream;
 import org.omnaest.utils.element.bi.BiElement;
 import org.omnaest.utils.supplier.SupplierConsumer;
 
-public class ListElementAggregationRepository<I, D> implements ElementAggregationRepository<I, D>
+public class ListElementAggregationRepositoryV1<I, D> implements ElementAggregationRepositoryV1<I, D>
 {
     private List<BiElement<I, D>> list;
     private SupplierConsumer<I>   idSupplier;
 
-    public ListElementAggregationRepository(List<BiElement<I, D>> list)
+    public ListElementAggregationRepositoryV1(List<BiElement<I, D>> list)
     {
         super();
         this.list = list;
@@ -57,7 +57,7 @@ public class ListElementAggregationRepository<I, D> implements ElementAggregatio
     }
 
     @Override
-    public ElementAggregationRepository<I, D> clear()
+    public ElementAggregationRepositoryV1<I, D> clear()
     {
         this.list.clear();
         return this;

@@ -1,11 +1,11 @@
-package org.omnaest.utils.repository.aggregation;
+package org.omnaest.utils.repository.aggregation.v1;
 
 import java.util.List;
 import java.util.stream.Stream;
 
 import org.omnaest.utils.element.bi.BiElement;
 
-public interface ElementAggregationRepository<I, D> extends AutoCloseable
+public interface ElementAggregationRepositoryV1<I, D> extends AutoCloseable
 {
     public Stream<D> get(I id);
 
@@ -17,19 +17,19 @@ public interface ElementAggregationRepository<I, D> extends AutoCloseable
 
     public void remove(I id);
 
-    public ElementAggregationRepository<I, D> clear();
+    public ElementAggregationRepositoryV1<I, D> clear();
 
     public long size();
 
     /**
-     * Returns an {@link ElementAggregationRepository} based on a {@link List}
+     * Returns an {@link ElementAggregationRepositoryV1} based on a {@link List}
      * 
      * @param list
      * @return
      */
-    public static <I, D> ElementAggregationRepository<I, D> of(List<BiElement<I, D>> list)
+    public static <I, D> ElementAggregationRepositoryV1<I, D> of(List<BiElement<I, D>> list)
     {
-        return new ListElementAggregationRepository<>(list);
+        return new ListElementAggregationRepositoryV1<>(list);
     }
 
     @Override

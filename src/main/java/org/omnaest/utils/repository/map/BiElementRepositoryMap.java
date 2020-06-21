@@ -78,7 +78,7 @@ public class BiElementRepositoryMap<K, V> extends MapDecorator<K, V> implements 
         @Override
         public D get()
         {
-            return this.repository.get(this.id);
+            return this.repository.getValue(this.id);
         }
 
         @Override

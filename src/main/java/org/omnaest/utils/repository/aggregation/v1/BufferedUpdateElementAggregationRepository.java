@@ -1,4 +1,4 @@
-package org.omnaest.utils.repository.aggregation;
+package org.omnaest.utils.repository.aggregation.v1;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +26,7 @@ public class BufferedUpdateElementAggregationRepository<I, D> extends ElementAgg
     private TimeUnit delayTimeUnit = TimeUnit.SECONDS;
     private int      maxCacheSize  = 100;
 
-    public BufferedUpdateElementAggregationRepository(ElementAggregationRepository<I, D> repository)
+    public BufferedUpdateElementAggregationRepository(ElementAggregationRepositoryV1<I, D> repository)
     {
         super(repository);
 

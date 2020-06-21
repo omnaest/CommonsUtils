@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
-import java.util.stream.LongStream;
-import java.util.stream.Stream;
 
 import org.omnaest.utils.repository.internal.DirectoryElementRepository;
 import org.omnaest.utils.repository.internal.DispatchingIndexElementRepository;
@@ -22,14 +20,6 @@ import org.omnaest.utils.repository.internal.MapElementRepository;
  */
 public interface IndexElementRepository<D> extends ElementRepository<Long, D>
 {
-
-    /**
-     * Returns a {@link LongStream} of available ids
-     * 
-     * @return
-     */
-    @Override
-    public Stream<Long> ids();
 
     @Override
     public IndexElementRepository<D> clear();

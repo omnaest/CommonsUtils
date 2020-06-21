@@ -1,6 +1,11 @@
 package org.omnaest.utils.repository;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public interface AppendableElementRepository<I, D>
@@ -19,20 +24,36 @@ public interface AppendableElementRepository<I, D>
      * @param elements
      * @return
      */
-    public default Stream<I> add(Stream<D> elements)
+    public default Stream<I> addAll(Stream<D> elements)
     {
-        return elements.map(this::add);
+        return Optional.ofNullable(elements)
+                       .orElse(Stream.empty())
+                       .map(this::add);
     }
 
     /**
-     * @see #add(Stream)
+     * Adds multiple elements
+     * 
+     * @param elements
+     * @return
+     */
+    public default List<I> addAll(Collection<D> elements)
+    {
+        return this.addAll(Optional.ofNullable(elements)
+                                   .orElse(Collections.emptyList())
+                                   .stream())
+                   .collect(Collectors.toList());
+    }
+
+    /**
+     * @see #addAll(Stream)
      * @param elements
      * @return
      */
     @SuppressWarnings("unchecked")
-    public default Stream<I> add(D... elements)
+    public default Stream<I> addAll(D... elements)
     {
-        return this.add(Arrays.asList(elements)
-                              .stream());
+        return this.addAll(Arrays.asList(elements)
+                                 .stream());
     }
 }

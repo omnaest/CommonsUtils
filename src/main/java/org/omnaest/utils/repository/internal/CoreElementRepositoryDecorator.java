@@ -3,12 +3,12 @@ package org.omnaest.utils.repository.internal;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import org.omnaest.utils.element.bi.BiElement;
+import org.omnaest.utils.optional.NullOptional;
 import org.omnaest.utils.repository.CoreElementRepository;
 
 public class CoreElementRepositoryDecorator<I, D> implements CoreElementRepository<I, D>
@@ -34,9 +34,9 @@ public class CoreElementRepositoryDecorator<I, D> implements CoreElementReposito
     }
 
     @Override
-    public D get(I id)
+    public D getValue(I id)
     {
-        return this.elementRepository.get(id);
+        return this.elementRepository.getValue(id);
     }
 
     @Override
@@ -59,9 +59,9 @@ public class CoreElementRepositoryDecorator<I, D> implements CoreElementReposito
     }
 
     @Override
-    public Optional<D> getValue(I id)
+    public NullOptional<D> get(I id)
     {
-        return this.elementRepository.getValue(id);
+        return this.elementRepository.get(id);
     }
 
     @Override
@@ -71,9 +71,9 @@ public class CoreElementRepositoryDecorator<I, D> implements CoreElementReposito
     }
 
     @Override
-    public Stream<I> ids()
+    public Stream<I> ids(IdOrder idOrder)
     {
-        return this.elementRepository.ids();
+        return this.elementRepository.ids(idOrder);
     }
 
     @Override
@@ -107,9 +107,9 @@ public class CoreElementRepositoryDecorator<I, D> implements CoreElementReposito
     }
 
     @Override
-    public D getOrDefault(I id, D defaultElement)
+    public D getValueOrDefault(I id, D defaultElement)
     {
-        return this.elementRepository.getOrDefault(id, defaultElement);
+        return this.elementRepository.getValueOrDefault(id, defaultElement);
     }
 
     @Override

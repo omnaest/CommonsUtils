@@ -68,7 +68,7 @@ public class JSONDirectorySynchronizedValuesMap<K, V> extends MapDecorator<K, V>
 		Function<Integer, Consumer<V>> documentWriter = documentFileResolver.andThen(file ->
 		{
 			return value -> org.omnaest.utils.FileUtils	.toConsumer(file)
-														.accept(JSONHelper	.serializer(valueType)
+														.accept(JSONHelper	.serializer()
 																			.apply(value));
 		});
 

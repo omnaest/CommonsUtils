@@ -8,6 +8,7 @@ import java.util.stream.Stream;
 import org.omnaest.utils.ListUtils;
 import org.omnaest.utils.StreamUtils;
 import org.omnaest.utils.element.bi.BiElement;
+import org.omnaest.utils.optional.NullOptional;
 import org.omnaest.utils.repository.IndexElementRepository;
 
 /**
@@ -66,7 +67,7 @@ public class DispatchingIndexElementRepository<D> implements IndexElementReposit
     }
 
     @Override
-    public D get(Long id)
+    public NullOptional<D> get(Long id)
     {
         return this.executeOnSingleRepositoryAndGet(IndexElementRepository<D>::get, id);
     }
@@ -117,10 +118,10 @@ public class DispatchingIndexElementRepository<D> implements IndexElementReposit
     }
 
     @Override
-    public Stream<Long> ids()
+    public Stream<Long> ids(IdOrder idOrder)
     {
         return this.repositories.stream()
-                                .flatMap(repository -> repository.ids());
+                                .flatMap(repository -> repository.ids(idOrder));
     }
 
     @Override

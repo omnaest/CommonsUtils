@@ -2,6 +2,7 @@ package org.omnaest.utils.repository.internal;
 
 import java.util.stream.Stream;
 
+import org.omnaest.utils.optional.NullOptional;
 import org.omnaest.utils.repository.ElementRepository;
 import org.omnaest.utils.repository.IndexElementRepository;
 
@@ -34,7 +35,7 @@ public class ElementRepositoryToIndexElementRepositoryAdapter<D> implements Inde
     }
 
     @Override
-    public D get(Long id)
+    public NullOptional<D> get(Long id)
     {
         return this.elementRepository.get(id);
     }
@@ -65,9 +66,9 @@ public class ElementRepositoryToIndexElementRepositoryAdapter<D> implements Inde
     }
 
     @Override
-    public Stream<Long> ids()
+    public Stream<Long> ids(IdOrder idOrder)
     {
-        return this.elementRepository.ids();
+        return this.elementRepository.ids(idOrder);
     }
 
     @Override

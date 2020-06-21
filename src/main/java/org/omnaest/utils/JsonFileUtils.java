@@ -20,7 +20,7 @@ public class JsonFileUtils
      * Returns an {@link Accessor} to an json file using the given type for serialization and deserialization
      * 
      * @see FileUtils#toAccessor(File)
-     * @see JSONHelper#serializer(Class)
+     * @see JSONHelper#serializer()
      * @see JSONHelper#deserializer(Class)
      * @param file
      * @param type
@@ -29,6 +29,6 @@ public class JsonFileUtils
     public static <E> Accessor<E> toJsonAccessor(File file, Class<E> type)
     {
         return FileUtils.toAccessor(file)
-                        .with(JSONHelper.serializer(type), JSONHelper.deserializer(type));
+                        .with(JSONHelper.serializer(), JSONHelper.deserializer(type));
     }
 }

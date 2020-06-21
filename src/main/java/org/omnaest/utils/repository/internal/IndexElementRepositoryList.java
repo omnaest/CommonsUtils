@@ -34,13 +34,13 @@ public class IndexElementRepositoryList<D> extends AbstractList<D>
     @Override
     public D get(int index)
     {
-        return this.elementRepository.get((long) index);
+        return this.elementRepository.getValue((long) index);
     }
 
     @Override
     public D set(int index, D element)
     {
-        D previousElement = this.elementRepository.get((long) index);
+        D previousElement = this.elementRepository.getValue((long) index);
         this.elementRepository.put((long) index, element);
         return previousElement;
     }
@@ -53,7 +53,7 @@ public class IndexElementRepositoryList<D> extends AbstractList<D>
                                                .sorted()
                                                .collect(Collectors.toList());
         Collections.reverse(ids);
-        ids.forEach(id -> this.elementRepository.put(id + 1, this.elementRepository.get(id)));
+        ids.forEach(id -> this.elementRepository.put(id + 1, this.elementRepository.getValue(id)));
         this.elementRepository.put((long) index, element);
     }
 
@@ -62,7 +62,7 @@ public class IndexElementRepositoryList<D> extends AbstractList<D>
     {
 
         // delete the element
-        D previousElement = this.elementRepository.get((long) index);
+        D previousElement = this.elementRepository.getValue((long) index);
         this.elementRepository.remove((long) index);
 
         // correct other index positions
@@ -76,7 +76,7 @@ public class IndexElementRepositoryList<D> extends AbstractList<D>
                        long nextId = id + 1;
                        if (nextId < size + 1)
                        {
-                           this.elementRepository.put(id, this.elementRepository.get(nextId));
+                           this.elementRepository.put(id, this.elementRepository.getValue(nextId));
                        }
                        else
                        {

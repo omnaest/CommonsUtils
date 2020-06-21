@@ -1,15 +1,15 @@
-package org.omnaest.utils.repository.aggregation;
+package org.omnaest.utils.repository.aggregation.v1;
 
 import java.util.List;
 import java.util.stream.Stream;
 
 import org.omnaest.utils.element.bi.BiElement;
 
-public class ElementAggregationRepositoryDecorator<I, D> implements ElementAggregationRepository<I, D>
+public class ElementAggregationRepositoryDecorator<I, D> implements ElementAggregationRepositoryV1<I, D>
 {
-    protected ElementAggregationRepository<I, D> repository;
+    protected ElementAggregationRepositoryV1<I, D> repository;
 
-    public ElementAggregationRepositoryDecorator(ElementAggregationRepository<I, D> repository)
+    public ElementAggregationRepositoryDecorator(ElementAggregationRepositoryV1<I, D> repository)
     {
         super();
         this.repository = repository;
@@ -46,7 +46,7 @@ public class ElementAggregationRepositoryDecorator<I, D> implements ElementAggre
     }
 
     @Override
-    public ElementAggregationRepository<I, D> clear()
+    public ElementAggregationRepositoryV1<I, D> clear()
     {
         return this.repository.clear();
     }

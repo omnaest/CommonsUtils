@@ -20,13 +20,18 @@ package org.omnaest.utils.repository;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 import org.omnaest.utils.ElementRepositoryUtils;
+import org.omnaest.utils.ReflectionUtils;
+import org.omnaest.utils.functional.BidirectionalFunction;
 import org.omnaest.utils.repository.internal.AppendableSupportedCoreElementRepositoryDecorator;
 import org.omnaest.utils.repository.internal.MapElementRepository;
+import org.omnaest.utils.repository.internal.MappedElementRepository;
 import org.omnaest.utils.repository.internal.SynchronizedElementRepository;
 import org.omnaest.utils.repository.internal.WeakHashMapDecoratingElementRepository;
 import org.omnaest.utils.repository.join.ElementRepositoryJoiner;
@@ -40,6 +45,7 @@ import org.omnaest.utils.repository.join.ElementRepositoryJoiner;
  * @see #asSynchronized()
  * @see IndexElementRepository
  * @see ImmutableElementRepository
+ * @see ElementAggregationRepository
  * @see ElementRepositoryUtils
  * @author omnaest
  * @param <I>
@@ -62,7 +68,7 @@ public interface ElementRepository<I, D> extends CoreElementRepository<I, D>, Ap
      */
     public default D computeIfAbsent(I id, Supplier<D> supplier)
     {
-        D element = this.get(id);
+        D element = this.getValue(id);
         if (element == null)
         {
             element = supplier.get();
@@ -81,7 +87,7 @@ public interface ElementRepository<I, D> extends CoreElementRepository<I, D>, Ap
      */
     public default ElementRepository<I, D> update(I id, UnaryOperator<D> updateFunction)
     {
-        D element = this.get(id);
+        D element = this.getValue(id);
         element = updateFunction.apply(element);
         this.put(id, element);
         return this;
@@ -98,7 +104,7 @@ public interface ElementRepository<I, D> extends CoreElementRepository<I, D>, Ap
      */
     public default ElementRepository<I, D> computeIfAbsentAndUpdate(I id, Supplier<D> supplier, UnaryOperator<D> updateFunction)
     {
-        D element = this.get(id);
+        D element = this.getValue(id);
         if (element == null)
         {
             element = supplier.get();
@@ -195,6 +201,29 @@ public interface ElementRepository<I, D> extends CoreElementRepository<I, D>, Ap
     public default ImmutableElementRepository<I, D> asImmutable()
     {
         return this;
+    }
+
+    public static interface Factory
+    {
+        public <I, D> ElementRepository<I, D> newInstance(String name, Class<I> idType, Class<D> dataType);
+
+        public static Factory of(Map<?, ?> map)
+        {
+            return new ElementRepository.Factory()
+            {
+                @Override
+                public <I, D> ElementRepository<I, D> newInstance(String name, Class<I> idType, Class<D> dataType)
+                {
+                    AtomicLong counter = new AtomicLong();
+                    return ElementRepository.of(new HashMap<>(), () -> ReflectionUtils.newInstance(idType, counter.getAndIncrement()));
+                }
+            };
+        }
+    }
+
+    public default <ND> ElementRepository<I, ND> mapped(BidirectionalFunction<D, ND> mapper)
+    {
+        return new MappedElementRepository<>(this, mapper);
     }
 
 }

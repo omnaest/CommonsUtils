@@ -6,6 +6,7 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 import org.omnaest.utils.element.bi.BiElement;
+import org.omnaest.utils.optional.NullOptional;
 import org.omnaest.utils.repository.ElementRepository;
 
 /**
@@ -25,9 +26,9 @@ public abstract class ElementRepositoryDecorator<I, D> implements ElementReposit
     }
 
     @Override
-    public Stream<I> ids()
+    public Stream<I> ids(IdOrder idOrder)
     {
-        return this.elementRepository.ids();
+        return this.elementRepository.ids(idOrder);
     }
 
     @Override
@@ -49,16 +50,16 @@ public abstract class ElementRepositoryDecorator<I, D> implements ElementReposit
     }
 
     @Override
-    public Stream<I> add(Stream<D> elements)
+    public Stream<I> addAll(Stream<D> elements)
     {
-        return this.elementRepository.add(elements);
+        return this.elementRepository.addAll(elements);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public Stream<I> add(D... elements)
+    public Stream<I> addAll(D... elements)
     {
-        return this.elementRepository.add(elements);
+        return this.elementRepository.addAll(elements);
     }
 
     @Override
@@ -92,7 +93,7 @@ public abstract class ElementRepositoryDecorator<I, D> implements ElementReposit
     }
 
     @Override
-    public D get(I id)
+    public NullOptional<D> get(I id)
     {
         return this.elementRepository.get(id);
     }

@@ -72,12 +72,12 @@ public class BufferedUpdateElementRepository<I, D> extends ElementRepositoryDeco
     }
 
     @Override
-    public D get(I id)
+    public D getValue(I id)
     {
         D retval = this.cache.get(id);
         if (retval == null)
         {
-            retval = this.elementRepository.get(id);
+            retval = this.elementRepository.getValue(id);
         }
         return retval;
     }

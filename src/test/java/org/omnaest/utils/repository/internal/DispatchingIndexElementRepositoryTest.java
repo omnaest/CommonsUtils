@@ -24,14 +24,14 @@ public class DispatchingIndexElementRepositoryTest
 
         assertTrue(repository.isEmpty());
 
-        assertEquals("a", repository.get(repository.add("a")));
-        assertEquals("a", repository.get(0l));
-        assertEquals("b", repository.get(repository.add("b")));
+        assertEquals("a", repository.getValue(repository.add("a")));
+        assertEquals("a", repository.getValue(0l));
+        assertEquals("b", repository.getValue(repository.add("b")));
 
         assertFalse(repository.isEmpty());
 
         repository.put(0l, "c");
-        assertEquals("c", repository.get(0l));
+        assertEquals("c", repository.getValue(0l));
 
         //
         repository.remove(0l);
@@ -46,7 +46,7 @@ public class DispatchingIndexElementRepositoryTest
 
         for (int ii = 0; ii < 100; ii++)
         {
-            assertEquals("a" + ii, repository.get(repository.add("a" + ii)));
+            assertEquals("a" + ii, repository.getValue(repository.add("a" + ii)));
         }
 
     }

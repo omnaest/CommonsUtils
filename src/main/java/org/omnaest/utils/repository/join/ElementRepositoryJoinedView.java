@@ -3,9 +3,11 @@ package org.omnaest.utils.repository.join;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import org.omnaest.utils.EnumUtils;
 import org.omnaest.utils.StreamUtils;
 import org.omnaest.utils.element.bi.BiElement;
 import org.omnaest.utils.element.lar.LeftAndRight;
+import org.omnaest.utils.optional.NullOptional;
 import org.omnaest.utils.repository.ElementRepository;
 import org.omnaest.utils.repository.ImmutableElementRepository;
 
@@ -25,26 +27,30 @@ public class ElementRepositoryJoinedView<I, D1, D2> implements ImmutableElementR
     }
 
     @Override
-    public BiElement<D1, D2> get(I id)
+    public NullOptional<BiElement<D1, D2>> get(I id)
     {
-        D1 element1 = this.elementRepositoryLeft.get(id);
-        D2 element2 = this.elementRepositoryRight.get(id);
-        return BiElement.of(element1, element2);
+        NullOptional<D1> element1 = this.elementRepositoryLeft.get(id);
+        NullOptional<D2> element2 = this.elementRepositoryRight.get(id);
+        return NullOptional.ofPresenceAndNullable(element1.isPresent() || element2.isPresent(),
+                                                  () -> BiElement.of(element1.orElse(null), element2.orElse(null)));
     }
 
     @Override
-    public Stream<I> ids()
+    public Stream<I> ids(IdOrder idOrder)
     {
-        return StreamUtils.concat(this.elementRepositoryLeft.ids(), this.elementRepositoryRight.ids())
-                          .distinct()
-                          .map(id ->
-                          {
-                              I left = this.elementRepositoryLeft.containsId(id) ? id : null;
-                              I right = this.elementRepositoryRight.containsId(id) ? id : null;
-                              return new LeftAndRight<>(left, right);
-                          })
-                          .filter(this.mergedIdFilter)
-                          .map(lar -> lar.hasLeft() ? lar.getLeft() : lar.getRight());
+        return EnumUtils.decideOn(idOrder)
+                        .ifEqualTo(IdOrder.ARBITRARY,
+                                   () -> StreamUtils.concat(this.elementRepositoryLeft.ids(idOrder), this.elementRepositoryRight.ids(idOrder))
+                                                    .distinct()
+                                                    .map(id ->
+                                                    {
+                                                        I left = this.elementRepositoryLeft.containsId(id) ? id : null;
+                                                        I right = this.elementRepositoryRight.containsId(id) ? id : null;
+                                                        return new LeftAndRight<>(left, right);
+                                                    })
+                                                    .filter(this.mergedIdFilter)
+                                                    .map(lar -> lar.hasLeft() ? lar.getLeft() : lar.getRight()))
+                        .orElseThrow(() -> new IllegalArgumentException("Unsupported IdOrder value: " + idOrder));
     }
 
     @Override

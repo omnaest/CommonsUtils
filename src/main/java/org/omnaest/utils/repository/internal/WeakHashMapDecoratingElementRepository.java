@@ -46,13 +46,13 @@ public class WeakHashMapDecoratingElementRepository<I, D> extends ElementReposit
     }
 
     @Override
-    public D get(I id)
+    public D getValue(I id)
     {
         D retval = this.cache.get(id);
 
         if (retval == null)
         {
-            retval = super.get(id);
+            retval = super.getValue(id);
             this.cache.put(id, retval);
         }
 

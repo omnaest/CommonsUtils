@@ -9,12 +9,14 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
+import org.omnaest.utils.EnumUtils;
 import org.omnaest.utils.FileUtils;
 import org.omnaest.utils.JSONHelper;
 import org.omnaest.utils.MapperUtils;
 import org.omnaest.utils.NumberUtils;
 import org.omnaest.utils.ObjectUtils;
 import org.omnaest.utils.functional.Accessor;
+import org.omnaest.utils.optional.NullOptional;
 import org.omnaest.utils.repository.IndexElementRepository;
 
 /**
@@ -38,7 +40,7 @@ public class DirectoryElementRepository<D> implements IndexElementRepository<D>
         this.type = type;
 
         this.counterFileAccessor = FileUtils.toAccessor(new File(this.directory, "counter.json"))
-                                            .with(JSONHelper.serializer(Long.class), JSONHelper.deserializer(Long.class));
+                                            .with(JSONHelper.serializer(), JSONHelper.deserializer(Long.class));
 
         this.counter = new AtomicLong(ObjectUtils.defaultIfNull(this.counterFileAccessor.get(), 0l));
     }
@@ -73,7 +75,7 @@ public class DirectoryElementRepository<D> implements IndexElementRepository<D>
     {
         File file = this.determineFile(id);
         FileUtils.toConsumer(file)
-                 .accept(JSONHelper.serializer(this.type)
+                 .accept(JSONHelper.serializer()
                                    .apply(element));
 
         if (this.deleteFilesOnExit)
@@ -108,7 +110,7 @@ public class DirectoryElementRepository<D> implements IndexElementRepository<D>
 
         File file = this.determineFile(fileIndex);
         FileUtils.toConsumer(file)
-                 .accept(JSONHelper.serializer(this.type)
+                 .accept(JSONHelper.serializer()
                                    .apply(element));
 
         if (this.deleteFilesOnExit)
@@ -169,21 +171,23 @@ public class DirectoryElementRepository<D> implements IndexElementRepository<D>
     }
 
     @Override
-    public D get(Long id)
+    public NullOptional<D> get(Long id)
     {
-        D element = JSONHelper.deserializer(this.type)
-                              .apply(FileUtils.toSupplier(this.determineFile(id))
-                                              .get());
-        return element;
+        return NullOptional.ofNullable(FileUtils.toSupplier(this.determineFile(id)))
+                           .map(supplier -> supplier.get())
+                           .mapToNullable(content -> JSONHelper.deserializer(this.type)
+                                                               .apply(content));
     }
 
     @Override
-    public Stream<Long> ids()
+    public Stream<Long> ids(IdOrder order)
     {
-        return LongStream.range(0, this.size())
-                         .filter(id -> this.determineFile(id)
-                                           .exists())
-                         .mapToObj(MapperUtils.identityForLongAsBoxed());
+        LongStream idStream = EnumUtils.decideOn(order)
+                                       .ifEqualTo(IdOrder.FROM_OLDEST_TO_NEWEST, () -> LongStream.range(0, this.size()))
+                                       .orElse(LongStream.range(0, this.size()));
+        return idStream.filter(id -> this.determineFile(id)
+                                         .exists())
+                       .mapToObj(MapperUtils.identityForLongAsBoxed());
     }
 
     @Override

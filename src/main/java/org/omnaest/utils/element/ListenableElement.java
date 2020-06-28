@@ -73,7 +73,7 @@ public class ListenableElement<E>
 	{
 		if (!ObjectUtils.equals(this.element, element))
 		{
-			this.distributionEventHandler.handle(new Change<E>(this.element, element));
+			this.distributionEventHandler.accept(new Change<E>(this.element, element));
 		}
 		this.element = element;
 		return this;

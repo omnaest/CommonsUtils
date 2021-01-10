@@ -69,7 +69,7 @@ public class CacheUtils
         return new JsonSingleFileCache(cacheFile);
     }
 
-    public static <V> Cache newJsonFolderCache(File cacheDirectory)
+    public static <V> JsonFolderFilesCache newJsonFolderCache(File cacheDirectory)
     {
         return new JsonFolderFilesCache(cacheDirectory);
     }

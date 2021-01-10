@@ -29,6 +29,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -37,7 +38,6 @@ import org.omnaest.utils.cache.Cache;
 import org.omnaest.utils.cache.Cache.EvictionStrategy;
 import org.omnaest.utils.cache.CapacityLimitedUnaryCache;
 import org.omnaest.utils.cache.UnaryCache;
-import org.omnaest.utils.cache.internal.CacheToUnaryCacheAdapter;
 import org.omnaest.utils.cache.internal.ConcurrentHashMapCache;
 import org.omnaest.utils.cache.internal.JsonFolderFilesCache;
 import org.omnaest.utils.cache.internal.JsonSingleFileCache;
@@ -48,6 +48,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 public class CacheUtilsTest
 {
     private UnaryCache<Value> cache;
+    private Supplier<Cache>   cacheSupplier;
 
     public static class Value
     {
@@ -84,16 +85,19 @@ public class CacheUtilsTest
         Supplier<Cache> supplier1 = () -> new ConcurrentHashMapCache();
         Supplier<Cache> supplier2 = () -> new JsonSingleFileCache(tempFile);
         Supplier<Cache> supplier3 = () -> new JsonFolderFilesCache(tempFile.getParentFile());
-        return Arrays.<Supplier<Cache>>asList(supplier1, supplier2, supplier3)
+        Supplier<Cache> supplier4 = () -> new JsonFolderFilesCache(tempFile.getParentFile()).withNativeStringStorage(true)
+                                                                                            .withNativeByteArrayStorage(true);
+        return Arrays.<Supplier<Cache>>asList(supplier1, supplier2, supplier3, supplier4)
                      .stream()
-                     .skip(0)
                      .collect(Collectors.toList());
     }
 
     public CacheUtilsTest(Supplier<Cache> cacheSupplier)
     {
         super();
-        this.cache = new CacheToUnaryCacheAdapter<>(cacheSupplier.get(), Value.class);
+        this.cacheSupplier = cacheSupplier;
+        this.cache = cacheSupplier.get()
+                                  .asUnaryCache(Value.class);
         this.cache.clear();
     }
 
@@ -105,6 +109,28 @@ public class CacheUtilsTest
                                        .getValue());
         assertEquals(1, this.cache.size());
         assertFalse(this.cache.isEmpty());
+    }
+
+    @Test
+    public void testGetByteArray() throws Exception
+    {
+        UnaryCache<byte[]> byteArrayCache = this.cacheSupplier.get()
+                                                              .asUnaryCache(byte[].class);
+        byteArrayCache.put("key1", new byte[] { 0, 1, 127 });
+        assertEquals(Arrays.asList(ArrayUtils.toObject(new byte[] { 0, 1, 127 })), Arrays.asList(ArrayUtils.toObject(byteArrayCache.get("key1"))));
+        assertEquals(1, byteArrayCache.size());
+        assertFalse(byteArrayCache.isEmpty());
+    }
+
+    @Test
+    public void testGetString() throws Exception
+    {
+        UnaryCache<String> stringCache = this.cacheSupplier.get()
+                                                           .asUnaryCache(String.class);
+        stringCache.put("key1", "hello everyone");
+        assertEquals("hello everyone", stringCache.get("key1"));
+        assertEquals(1, stringCache.size());
+        assertFalse(stringCache.isEmpty());
     }
 
     @Test

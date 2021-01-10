@@ -56,6 +56,21 @@ public class JsonFolderFilesCache extends AbstractCache
 
     private AtomicReference<DataRoot> root = new AtomicReference<>();
 
+    private boolean nativeByteArrayStorage = false;
+    private boolean nativeStringStorage    = false;
+
+    public JsonFolderFilesCache withNativeByteArrayStorage(boolean active)
+    {
+        this.nativeByteArrayStorage = active;
+        return this;
+    }
+
+    public JsonFolderFilesCache withNativeStringStorage(boolean active)
+    {
+        this.nativeStringStorage = active;
+        return this;
+    }
+
     protected static class DataRoot
     {
         @JsonProperty
@@ -115,31 +130,50 @@ public class JsonFolderFilesCache extends AbstractCache
         return this.readFromSingleCacheFile(fileIndex, type);
     }
 
+    @SuppressWarnings("unchecked")
     private <V> V readFromSingleCacheFile(Long index, Class<V> type)
     {
-        String json = null;
-        try
-        {
-            if (index != null)
-            {
-                json = FileUtils.readFileToString(this.determineCacheFile(index), StandardCharsets.UTF_8);
-            }
-        }
-        catch (IOException e)
-        {
-            LOG.error("Exception reading single cache file", e);
-        }
-        return this.readFromJson(json, type);
+        return Optional.ofNullable(index)
+                       .map(cacheFileIndex ->
+                       {
+                           try
+                           {
+                               File cacheFile = this.determineCacheFile(cacheFileIndex);
+                               if (this.shouldBeHandledAsNativeByteArray(type))
+                               {
+                                   return (V) FileUtils.readFileToByteArray(cacheFile);
+                               }
+                               else if (this.shouldBeHandledAsNativeString(type))
+                               {
+                                   return (V) FileUtils.readFileToString(cacheFile, StandardCharsets.UTF_8);
+                               }
+                               else
+                               {
+                                   return JSONHelper.readFromString(FileUtils.readFileToString(cacheFile, StandardCharsets.UTF_8), type);
+                               }
+                           }
+                           catch (IOException e)
+                           {
+                               LOG.error("Exception reading single cache file", e);
+                               return null;
+                           }
+                       })
+                       .orElse(null);
+    }
+
+    private <V> boolean shouldBeHandledAsNativeString(Class<V> type)
+    {
+        return this.nativeStringStorage && String.class.equals(type);
+    }
+
+    private <V> boolean shouldBeHandledAsNativeByteArray(Class<V> type)
+    {
+        return this.nativeByteArrayStorage && byte[].class.equals(type);
     }
 
     private File determineCacheFile(Long fileIndex)
     {
         return new File(this.cacheDirectory, "" + fileIndex + ".json");
-    }
-
-    private <V> V readFromJson(String json, Class<V> type)
-    {
-        return JSONHelper.readFromString(json, type);
     }
 
     private Long writeToFileAndGetIndex(Object value)
@@ -169,7 +203,23 @@ public class JsonFolderFilesCache extends AbstractCache
     {
         try
         {
-            FileUtils.write(this.determineCacheFile(index), JSONHelper.prettyPrint(value), StandardCharsets.UTF_8);
+            File cacheFile = this.determineCacheFile(index);
+            if (this.shouldBeHandledAsNativeByteArray(Optional.ofNullable(value)
+                                                              .map(Object::getClass)
+                                                              .orElse(null)))
+            {
+                FileUtils.writeByteArrayToFile(cacheFile, (byte[]) value);
+            }
+            else if (this.shouldBeHandledAsNativeString(Optional.ofNullable(value)
+                                                                .map(Object::getClass)
+                                                                .orElse(null)))
+            {
+                FileUtils.writeStringToFile(cacheFile, (String) value, StandardCharsets.UTF_8);
+            }
+            else
+            {
+                FileUtils.write(cacheFile, JSONHelper.prettyPrint(value), StandardCharsets.UTF_8);
+            }
         }
         catch (IOException e)
         {

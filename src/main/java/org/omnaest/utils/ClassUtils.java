@@ -1,5 +1,6 @@
 package org.omnaest.utils;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -59,60 +60,60 @@ public class ClassUtils
      */
     public static Optional<Resource> loadResource(Class<?> type, String resource)
     {
-        try
-        {
-            InputStream inputStream = type.getResourceAsStream(resource);
-            return Optional.of(new Resource()
-            {
-                @Override
-                public String asString()
-                {
-                    try
-                    {
-                        return IOUtils.toString(this.asByteArray(), StandardCharsets.UTF_8.name());
-                    }
-                    catch (IOException e)
-                    {
-                        throw new IllegalStateException(e);
-                    }
-                }
 
-                @Override
-                public byte[] asByteArray()
-                {
-                    try
-                    {
-                        return IOUtils.toByteArray(inputStream);
-                    }
-                    catch (IOException e)
-                    {
-                        throw new IllegalStateException(e);
-                    }
-                }
+        return Optional.ofNullable(type)
+                       .filter(t -> org.apache.commons.lang3.StringUtils.isNotBlank(resource))
+                       .map(t -> t.getResourceAsStream(resource))
+                       .map(is ->
+                       {
+                           try
+                           {
+                               return IOUtils.toByteArray(is);
+                           }
+                           catch (IOException e1)
+                           {
+                               return null;
+                           }
+                       })
+                       .map(data -> new Resource()
+                       {
+                           @Override
+                           public String asString()
+                           {
+                               try
+                               {
+                                   return IOUtils.toString(this.asByteArray(), StandardCharsets.UTF_8.name());
+                               }
+                               catch (IOException e)
+                               {
+                                   throw new IllegalStateException(e);
+                               }
+                           }
 
-                @Override
-                public JSONResource asJson()
-                {
-                    return new JSONResource()
-                    {
-                        @Override
-                        public <R, T extends R> R as(Class<T> type)
-                        {
-                            return JSONHelper.readFromString(asString(), type);
-                        }
-                    };
-                }
+                           @Override
+                           public byte[] asByteArray()
+                           {
+                               return data;
+                           }
 
-                @Override
-                public InputStream asInputStream()
-                {
-                    return inputStream;
-                }
-            });
-        }
-        catch (Exception e)
-        {
-            return Optional.empty();
-        }
+                           @Override
+                           public JSONResource asJson()
+                           {
+                               return new JSONResource()
+                               {
+                                   @Override
+                                   public <R, T extends R> R as(Class<T> type)
+                                   {
+                                       return JSONHelper.readFromString(asString(), type);
+                                   }
+                               };
+                           }
+
+                           @Override
+                           public InputStream asInputStream()
+                           {
+                               return new ByteArrayInputStream(data);
+                           }
+                       });
     }
 }

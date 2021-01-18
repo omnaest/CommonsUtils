@@ -23,6 +23,7 @@ import java.util.function.Supplier;
 
 import org.omnaest.utils.cache.Cache;
 import org.omnaest.utils.cache.Cache.EvictionStrategyProvider;
+import org.omnaest.utils.cache.CacheWithNativeTypeSupport;
 import org.omnaest.utils.cache.CapacityLimitedCache;
 import org.omnaest.utils.cache.CapacityLimitedUnaryCache;
 import org.omnaest.utils.cache.UnaryCache;
@@ -32,6 +33,7 @@ import org.omnaest.utils.cache.internal.CapacityLimitedUnaryCacheWrapper;
 import org.omnaest.utils.cache.internal.ConcurrentHashMapCache;
 import org.omnaest.utils.cache.internal.JsonFolderFilesCache;
 import org.omnaest.utils.cache.internal.JsonSingleFileCache;
+import org.omnaest.utils.cache.internal.NoOperationCache;
 import org.omnaest.utils.element.cached.CachedElement;
 
 /**
@@ -69,7 +71,7 @@ public class CacheUtils
         return new JsonSingleFileCache(cacheFile);
     }
 
-    public static <V> JsonFolderFilesCache newJsonFolderCache(File cacheDirectory)
+    public static <V> CacheWithNativeTypeSupport newJsonFolderCache(File cacheDirectory)
     {
         return new JsonFolderFilesCache(cacheDirectory);
     }
@@ -90,7 +92,7 @@ public class CacheUtils
      * @param name
      * @return
      */
-    public static Cache newLocalJsonFolderCache(String name)
+    public static CacheWithNativeTypeSupport newLocalJsonFolderCache(String name)
     {
         return newJsonFolderCache(new File(DEFAULT_CACHE_FOLDER, name));
     }
@@ -134,5 +136,15 @@ public class CacheUtils
     public static <V> UnaryCache<V> toUnaryCache(Cache cache, Class<V> type)
     {
         return new CacheToUnaryCacheAdapter<>(cache, type);
+    }
+
+    /**
+     * Returns a new {@link NoOperationCache} instance
+     * 
+     * @return
+     */
+    public static Cache newNoOperationCache()
+    {
+        return new NoOperationCache();
     }
 }

@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
@@ -31,9 +32,12 @@ import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.apache.commons.lang.StringUtils;
 import org.omnaest.utils.JSONHelper;
 import org.omnaest.utils.cache.Cache;
+import org.omnaest.utils.cache.CacheWithNativeTypeSupport;
+import org.omnaest.utils.optional.NullOptional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +51,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Omnaest
  * @param <V>
  */
-public class JsonFolderFilesCache extends AbstractCache
+public class JsonFolderFilesCache extends AbstractCache implements CacheWithNativeTypeSupport
 {
     private static final String UTF_8 = "utf-8";
     private static final Logger LOG   = LoggerFactory.getLogger(JsonFolderFilesCache.class);
@@ -59,12 +63,14 @@ public class JsonFolderFilesCache extends AbstractCache
     private boolean nativeByteArrayStorage = false;
     private boolean nativeStringStorage    = false;
 
+    @Override
     public JsonFolderFilesCache withNativeByteArrayStorage(boolean active)
     {
         this.nativeByteArrayStorage = active;
         return this;
     }
 
+    @Override
     public JsonFolderFilesCache withNativeStringStorage(boolean active)
     {
         this.nativeStringStorage = active;
@@ -77,22 +83,22 @@ public class JsonFolderFilesCache extends AbstractCache
         private AtomicLong index = new AtomicLong();
 
         @JsonProperty
-        private LinkedHashMap<String, Long> data = new LinkedHashMap<>();
+        private Map<String, Long> data = new LinkedHashMap<>();
 
         @JsonProperty
-        private LinkedHashMap<String, Class<?>> types = new LinkedHashMap<>();
+        private Map<String, Class<?>> types = new LinkedHashMap<>();
 
         public DataRoot()
         {
             super();
         }
 
-        public LinkedHashMap<String, Long> getData()
+        public Map<String, Long> getData()
         {
             return this.data;
         }
 
-        public LinkedHashMap<String, Class<?>> getTypes()
+        public Map<String, Class<?>> getTypes()
         {
             return this.types;
         }
@@ -127,38 +133,41 @@ public class JsonFolderFilesCache extends AbstractCache
         Long fileIndex = this.getOrCreateRoot()
                              .getData()
                              .get(key);
-        return this.readFromSingleCacheFile(fileIndex, type);
+        return this.readFromSingleCacheFile(fileIndex, type)
+                   .orElse(null);
     }
 
     @SuppressWarnings("unchecked")
-    private <V> V readFromSingleCacheFile(Long index, Class<V> type)
+    private <V> NullOptional<V> readFromSingleCacheFile(Long index, Class<V> type)
     {
-        return Optional.ofNullable(index)
-                       .map(cacheFileIndex ->
-                       {
-                           try
+        return NullOptional.ofNullable(index)
+                           .map(cacheFileIndex -> this.determineCacheFile(cacheFileIndex))
+                           .filter(cacheFile -> cacheFile.exists())
+                           .flatMap(cacheFile ->
                            {
-                               File cacheFile = this.determineCacheFile(cacheFileIndex);
-                               if (this.shouldBeHandledAsNativeByteArray(type))
+                               try
                                {
-                                   return (V) FileUtils.readFileToByteArray(cacheFile);
+                                   if (this.shouldBeHandledAsNativeByteArray(type))
+                                   {
+                                       return NullOptional.ofPresentNullable((V) FileUtils.readFileToByteArray(cacheFile));
+                                   }
+                                   else if (this.shouldBeHandledAsNativeString(type))
+                                   {
+                                       return NullOptional.ofPresentNullable((V) FileUtils.readFileToString(cacheFile, StandardCharsets.UTF_8));
+                                   }
+                                   else
+                                   {
+                                       return NullOptional.ofPresentNullable(JSONHelper.readerDeserializer(type)
+                                                                                       .apply(org.omnaest.utils.FileUtils.toReader(cacheFile,
+                                                                                                                                   StandardCharsets.UTF_8)));
+                                   }
                                }
-                               else if (this.shouldBeHandledAsNativeString(type))
+                               catch (IOException e)
                                {
-                                   return (V) FileUtils.readFileToString(cacheFile, StandardCharsets.UTF_8);
+                                   LOG.error("Exception reading single cache file", e);
+                                   return NullOptional.empty();
                                }
-                               else
-                               {
-                                   return JSONHelper.readFromString(FileUtils.readFileToString(cacheFile, StandardCharsets.UTF_8), type);
-                               }
-                           }
-                           catch (IOException e)
-                           {
-                               LOG.error("Exception reading single cache file", e);
-                               return null;
-                           }
-                       })
-                       .orElse(null);
+                           });
     }
 
     private <V> boolean shouldBeHandledAsNativeString(Class<V> type)
@@ -218,7 +227,11 @@ public class JsonFolderFilesCache extends AbstractCache
             }
             else
             {
-                FileUtils.write(cacheFile, JSONHelper.prettyPrint(value), StandardCharsets.UTF_8);
+                try (FileWriterWithEncoding writer = new FileWriterWithEncoding(cacheFile, StandardCharsets.UTF_8))
+                {
+                    JSONHelper.prepareAsPrettyPrintWriterConsumer(value)
+                              .accept(writer);
+                }
             }
         }
         catch (IOException e)
@@ -230,15 +243,15 @@ public class JsonFolderFilesCache extends AbstractCache
     @Override
     public void put(String key, Object value)
     {
-        this.operateOnRootAndGet(t ->
+        this.operateOnRootAndGet(root ->
         {
-            this.deleteOrphanCacheFile(t.getData()
-                                        .get(key));
-            t.getData()
-             .put(key, this.writeToFileAndGetIndex(value));
-            t.getTypes()
-             .put(key, value != null ? value.getClass() : null);
-            return t;
+            this.deleteOrphanCacheFile(root.getData()
+                                           .get(key));
+            root.getData()
+                .put(key, this.writeToFileAndGetIndex(value));
+            root.getTypes()
+                .put(key, value != null ? value.getClass() : null);
+            return root;
         });
 
     }
@@ -252,25 +265,25 @@ public class JsonFolderFilesCache extends AbstractCache
 
         if (index == null)
         {
-            index = this.operateOnRootAndGet(t ->
+            index = this.operateOnRootAndGet(root ->
             {
-                t.getData()
-                 .computeIfAbsent(key, (id) ->
-                 {
-                     V value = supplier.get();
-                     if (value != null)
-                     {
-                         t.getTypes()
-                          .put(key, value.getClass());
-                     }
+                root.getData()
+                    .computeIfAbsent(key, (id) ->
+                    {
+                        V value = supplier.get();
+                        if (value != null)
+                        {
+                            root.getTypes()
+                                .put(key, value.getClass());
+                        }
 
-                     Long tindex = this.writeToFileAndGetIndex(value);
-                     t.getData()
-                      .put(key, tindex);
+                        Long fileIndex = this.writeToFileAndGetIndex(value);
+                        root.getData()
+                            .put(key, fileIndex);
 
-                     return tindex;
-                 });
-                return t;
+                        return fileIndex;
+                    });
+                return root;
             })
                         .getData()
                         .get(key);
@@ -278,7 +291,14 @@ public class JsonFolderFilesCache extends AbstractCache
 
         if (index != null)
         {
-            return this.readFromSingleCacheFile(index, type);
+            long fileIndex = index;
+            return this.readFromSingleCacheFile(fileIndex, type)
+                       .orElseGet(() ->
+                       {
+                           V value = supplier.get();
+                           this.writeToSingleCacheFile(value, fileIndex);
+                           return value;
+                       });
         }
         else
         {

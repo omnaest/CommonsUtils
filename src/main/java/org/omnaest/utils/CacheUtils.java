@@ -19,8 +19,10 @@
 package org.omnaest.utils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.function.Supplier;
 
+import org.apache.commons.io.FileUtils;
 import org.omnaest.utils.cache.Cache;
 import org.omnaest.utils.cache.Cache.EvictionStrategyProvider;
 import org.omnaest.utils.cache.CacheWithNativeTypeSupport;
@@ -94,7 +96,27 @@ public class CacheUtils
      */
     public static CacheWithNativeTypeSupport newLocalJsonFolderCache(String name)
     {
-        return newJsonFolderCache(new File(DEFAULT_CACHE_FOLDER, name));
+        return newJsonFolderCache(createCacheFolder(name));
+    }
+
+    /**
+     * Returns the directory with the given name below the {@value #DEFAULT_CACHE_FOLDER} folder
+     * 
+     * @param name
+     * @return
+     */
+    public static File createCacheFolder(String name)
+    {
+        try
+        {
+            File file = new File(DEFAULT_CACHE_FOLDER, name);
+            FileUtils.forceMkdir(file);
+            return file;
+        }
+        catch (IOException e)
+        {
+            throw new IllegalStateException(e);
+        }
     }
 
     /**

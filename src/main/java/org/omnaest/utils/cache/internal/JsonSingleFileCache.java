@@ -30,7 +30,7 @@ import java.util.function.UnaryOperator;
 
 import org.omnaest.utils.FileUtils;
 import org.omnaest.utils.JSONHelper;
-import org.omnaest.utils.RetryHelper;
+import org.omnaest.utils.RetryUtils;
 import org.omnaest.utils.cache.Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -193,7 +193,7 @@ public class JsonSingleFileCache extends AbstractCache
             {
                 try
                 {
-                    retval = RetryHelper.retry(5 * 10, 100, TimeUnit.MILLISECONDS, () ->
+                    retval = RetryUtils.retry(5 * 10, 100, TimeUnit.MILLISECONDS, () ->
                     {
                         return FileUtils.readFrom(this.cacheFile, JSONHelper.prepareAsReaderToObjectFunction(DataRoot.class));
                     });

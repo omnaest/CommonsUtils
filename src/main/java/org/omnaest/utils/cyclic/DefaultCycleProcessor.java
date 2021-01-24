@@ -19,7 +19,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import org.omnaest.utils.RetryHelper;
+import org.omnaest.utils.RetryUtils;
 import org.omnaest.utils.StreamUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -301,7 +301,7 @@ public class DefaultCycleProcessor<I, W> implements CycleProcessor<I, W>
     {
         LOG.info("Writing window: " + index);
 
-        RetryHelper.retryUnlimited(100, TimeUnit.MILLISECONDS, () ->
+        RetryUtils.retryUnlimited(100, TimeUnit.MILLISECONDS, () ->
         {
             if (this.windowWriter != null)
             {
@@ -321,7 +321,7 @@ public class DefaultCycleProcessor<I, W> implements CycleProcessor<I, W>
     private void readWindow(I index, WindowCollector<W> lockAndCondition)
     {
         LOG.info("Reading window: " + index);
-        RetryHelper.retryUnlimited(100, TimeUnit.MILLISECONDS, () ->
+        RetryUtils.retryUnlimited(100, TimeUnit.MILLISECONDS, () ->
         {
             try
             {

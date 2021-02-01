@@ -20,6 +20,7 @@ package org.omnaest.utils.cache;
 
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 import org.omnaest.utils.CacheUtils;
 import org.omnaest.utils.cache.internal.capacity.EvictionStrategyHandler;
@@ -55,6 +56,18 @@ public interface Cache extends CacheBase
     public <V> void putAll(Map<String, V> map);
 
     public <V> V computeIfAbsent(String key, Supplier<V> supplier, Class<V> type);
+
+    /**
+     * If the given key is not present the {@link Supplier} is called, if there is a key existing then the update function is called to modify the value in the
+     * store.
+     * 
+     * @param key
+     * @param supplier
+     * @param updateFunction
+     * @param type
+     * @return
+     */
+    public <V> V computeIfAbsentOrUpdate(String key, Supplier<V> supplier, UnaryOperator<V> updateFunction, Class<V> type);
 
     /**
      * Returns a new {@link Cache} instance with a capacity limit and a random element eviction strategy

@@ -67,4 +67,10 @@ public class ConcurrentHashMapCache extends AbstractCache
         this.cache.remove(key);
     }
 
+    @Override
+    public String toString()
+    {
+        return "ConcurrentHashMapCache [cache=" + this.cache + "]";
+    }
+
 }

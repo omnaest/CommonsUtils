@@ -1,9 +1,9 @@
-package org.omnaest.utils.cyclic;
+package org.omnaest.utils.processor.cyclic;
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import org.omnaest.utils.cyclic.CycleProcessor.CycleProcessorBuilder.TypedCycleProcessorBuilder.TypedCycleProcessorBuilderLoaded;
+import org.omnaest.utils.processor.cyclic.CycleProcessor.CycleProcessorBuilder.TypedCycleProcessorBuilder.TypedCycleProcessorBuilderLoaded;
 
 public interface CycleProcessor<I, W>
 {

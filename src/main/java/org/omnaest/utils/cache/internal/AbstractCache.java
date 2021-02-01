@@ -19,7 +19,9 @@
 package org.omnaest.utils.cache.internal;
 
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 import org.omnaest.utils.cache.Cache;
 
@@ -64,7 +66,6 @@ public abstract class AbstractCache implements Cache
         {
             map.forEach(this::put);
         }
-
     }
 
     @Override
@@ -74,6 +75,23 @@ public abstract class AbstractCache implements Cache
         {
             keys.forEach(this::remove);
         }
+    }
+
+    @Override
+    public <V> V computeIfAbsentOrUpdate(String key, Supplier<V> supplier, UnaryOperator<V> updateFunction, Class<V> type)
+    {
+        AtomicBoolean supplied = new AtomicBoolean(false);
+        V result = this.computeIfAbsent(key, () ->
+        {
+            supplied.set(true);
+            return supplier.get();
+        }, type);
+        if (!supplied.get())
+        {
+            result = updateFunction.apply(result);
+            this.put(key, result);
+        }
+        return result;
     }
 
 }

@@ -3,9 +3,14 @@ package org.omnaest.utils.cache.internal;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 import org.omnaest.utils.cache.Cache;
 
+/**
+ * @see Cache
+ * @author omnaest
+ */
 public class CacheDecorator implements Cache
 {
     private Cache cache;
@@ -56,6 +61,12 @@ public class CacheDecorator implements Cache
     public <V> V computeIfAbsent(String key, Supplier<V> supplier, Class<V> type)
     {
         return this.cache.computeIfAbsent(key, supplier, type);
+    }
+
+    @Override
+    public <V> V computeIfAbsentOrUpdate(String key, Supplier<V> supplier, UnaryOperator<V> updateFunction, Class<V> type)
+    {
+        return this.cache.computeIfAbsentOrUpdate(key, supplier, updateFunction, type);
     }
 
     @Override

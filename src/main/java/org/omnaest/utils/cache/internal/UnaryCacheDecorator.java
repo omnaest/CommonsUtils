@@ -2,6 +2,7 @@ package org.omnaest.utils.cache.internal;
 
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 import org.omnaest.utils.cache.UnaryCache;
 
@@ -37,6 +38,12 @@ public class UnaryCacheDecorator<V> implements UnaryCache<V>
     public V computeIfAbsent(String key, Supplier<V> supplier)
     {
         return this.cache.computeIfAbsent(key, supplier);
+    }
+
+    @Override
+    public V computeIfAbsentOrUpdate(String key, Supplier<V> supplier, UnaryOperator<V> updateFunction)
+    {
+        return this.cache.computeIfAbsentOrUpdate(key, supplier, updateFunction);
     }
 
     @Override

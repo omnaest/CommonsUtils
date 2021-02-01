@@ -1,4 +1,4 @@
-package org.omnaest.utils.cyclic;
+package org.omnaest.utils.processor.cyclic;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;

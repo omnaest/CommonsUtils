@@ -1,4 +1,4 @@
-package org.omnaest.utils.cyclic;
+package org.omnaest.utils.processor.cyclic;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -14,6 +14,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.omnaest.utils.CacheUtils;
 import org.omnaest.utils.cache.Cache;
+import org.omnaest.utils.processor.cyclic.CyclicHashMap;
 
 public class CyclicHashMapTest
 {

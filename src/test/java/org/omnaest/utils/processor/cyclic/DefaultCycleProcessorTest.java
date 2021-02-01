@@ -1,4 +1,4 @@
-package org.omnaest.utils.cyclic;
+package org.omnaest.utils.processor.cyclic;
 
 import static org.junit.Assert.assertEquals;
 
@@ -9,6 +9,7 @@ import java.util.stream.IntStream;
 
 import org.junit.Ignore;
 import org.junit.Test;
+import org.omnaest.utils.processor.cyclic.CycleProcessor;
 
 public class DefaultCycleProcessorTest
 {

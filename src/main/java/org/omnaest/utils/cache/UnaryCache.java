@@ -21,6 +21,7 @@ package org.omnaest.utils.cache;
 import java.util.Iterator;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 import org.omnaest.utils.CacheUtils;
@@ -41,6 +42,17 @@ public interface UnaryCache<V> extends CacheBase, Iterable<Entry<V>>, Function<S
     public void put(String key, V value);
 
     public V computeIfAbsent(String key, Supplier<V> supplier);
+
+    /**
+     * If the given key is not present the {@link Supplier} is called, if there is a key existing then the update function is called to modify the value in the
+     * store.
+     * 
+     * @param key
+     * @param supplier
+     * @param updateFunction
+     * @return
+     */
+    public V computeIfAbsentOrUpdate(String key, Supplier<V> supplier, UnaryOperator<V> updateFunction);
 
     public default V computeIfAbsent(String key, Function<String, V> supplierFunction)
     {

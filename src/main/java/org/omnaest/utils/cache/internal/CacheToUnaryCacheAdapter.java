@@ -20,6 +20,7 @@ package org.omnaest.utils.cache.internal;
 
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 import org.omnaest.utils.cache.Cache;
 import org.omnaest.utils.cache.UnaryCache;
@@ -73,6 +74,12 @@ public class CacheToUnaryCacheAdapter<V> implements UnaryCache<V>
     }
 
     @Override
+    public V computeIfAbsentOrUpdate(String key, Supplier<V> supplier, UnaryOperator<V> updateFunction)
+    {
+        return this.cache.computeIfAbsentOrUpdate(key, supplier, updateFunction, this.type);
+    }
+
+    @Override
     public Set<String> keySet()
     {
         return this.cache.keySet();
@@ -100,6 +107,12 @@ public class CacheToUnaryCacheAdapter<V> implements UnaryCache<V>
     public void clear()
     {
         this.cache.clear();
+    }
+
+    @Override
+    public String toString()
+    {
+        return "CacheToUnaryCacheAdapter [cache=" + this.cache + ", type=" + this.type + "]";
     }
 
 }

@@ -42,6 +42,12 @@ public class ConcurrentHashMapCache extends AbstractCache
     }
 
     @Override
+    public <V> void putAll(Map<String, V> map)
+    {
+        this.cache.putAll(map);
+    }
+
+    @Override
     public <V> V computeIfAbsent(String key, Supplier<V> supplier, Class<V> type)
     {
         return (V) this.cache.computeIfAbsent(key, (id) -> supplier.get());

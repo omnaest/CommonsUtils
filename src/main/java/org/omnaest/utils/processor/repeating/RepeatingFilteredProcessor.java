@@ -2,13 +2,16 @@ package org.omnaest.utils.processor.repeating;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.omnaest.utils.CacheUtils;
 import org.omnaest.utils.cache.Cache;
 import org.omnaest.utils.cache.UnaryCache;
+import org.omnaest.utils.functional.BiIntFunction;
 import org.omnaest.utils.functional.UnaryBiFunction;
 
 /**
@@ -45,6 +48,22 @@ public interface RepeatingFilteredProcessor<R>
     public <E> RepeatingFilteredProcessorWithStreamProvider<E, R> process(Supplier<Stream<E>> elementStreamSupplier);
 
     /**
+     * Similar to {@link #process(Supplier)} but provides the cache id
+     * 
+     * @param elementStreamSupplier
+     * @return
+     */
+    public <E> RepeatingFilteredProcessorWithStreamProvider<E, R> process(IntFunction<Stream<E>> elementStreamSupplier);
+
+    /**
+     * Similar to {@link #process(IntFunction)} but also provides the distribution factor as second argument.
+     * 
+     * @param elementStreamSupplier
+     * @return
+     */
+    public <E> RepeatingFilteredProcessorWithStreamProvider<E, R> process(BiIntFunction<Stream<E>> elementStreamSupplier);
+
+    /**
      * Defines the distribution factor based on a factor of the maximum capacity. Be aware that the resulting distribution factor is only roughly the real
      * maximum number of elements per bucket as the distribution is based on a hash function.
      * 
@@ -53,6 +72,17 @@ public interface RepeatingFilteredProcessor<R>
      * @return
      */
     public RepeatingFilteredProcessor<R> withDistributionFactor(double bucketSizeFactor, int maximumCapacity);
+
+    /**
+     * Defines the distribution factor based on the maximum bucket size and the maximum overall capacity.Be aware that the resulting distribution factor is only
+     * roughly the real maximum number of elements per bucket as the distribution is based on a hash function.
+     * 
+     * @see #withDistributionFactor(int)
+     * @param maximumBucketSize
+     * @param maximumCapacity
+     * @return
+     */
+    public RepeatingFilteredProcessor<R> withDistributionFactor(int maximumBucketSize, int maximumCapacity);
 
     /**
      * Defines the distribution factor. This sets the number of distinct buckets into which the provided elements are inserted. As more buckets are available
@@ -109,7 +139,13 @@ public interface RepeatingFilteredProcessor<R>
      */
     public static <R> RepeatingFilteredProcessor<R> of(Function<Integer, UnaryCache<R>> cacheProvider)
     {
-        return new DefaultRepeatingFilteredProcessor<>(cacheProvider);
+        OnCacheCloseHandler<R> onCacheCloseHandler = null;
+        return of(cacheProvider, onCacheCloseHandler);
+    }
+
+    public static <R> RepeatingFilteredProcessor<R> of(Function<Integer, UnaryCache<R>> cacheProvider, OnCacheCloseHandler<R> onCacheCloseHandler)
+    {
+        return new DefaultRepeatingFilteredProcessor<>(cacheProvider, onCacheCloseHandler);
     }
 
     /**
@@ -123,7 +159,12 @@ public interface RepeatingFilteredProcessor<R>
     {
         Map<Integer, UnaryCache<R>> cacheIdToCache = new ConcurrentHashMap<>();
         return of(cacheId -> cacheIdToCache.computeIfAbsent(cacheId, id -> CacheUtils.newConcurrentInMemoryCache()
-                                                                                     .asUnaryCache(type)));
+                                                                                     .asUnaryCache(type)),
+                  null);
+    }
+
+    public static interface OnCacheCloseHandler<R> extends BiConsumer<Integer, UnaryCache<R>>
+    {
     }
 
 }

@@ -18,6 +18,7 @@
 */
 package org.omnaest.utils.cache.internal;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
@@ -65,6 +66,12 @@ public class CacheToUnaryCacheAdapter<V> implements UnaryCache<V>
     public void put(String key, V value)
     {
         this.cache.put(key, value);
+    }
+
+    @Override
+    public void putAll(Map<String, V> map)
+    {
+        this.cache.putAll(map);
     }
 
     @Override

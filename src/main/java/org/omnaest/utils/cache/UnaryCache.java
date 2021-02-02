@@ -18,10 +18,13 @@
 */
 package org.omnaest.utils.cache;
 
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.omnaest.utils.CacheUtils;
@@ -40,6 +43,8 @@ public interface UnaryCache<V> extends CacheBase, Iterable<Entry<V>>, Function<S
     public Supplier<V> getSupplier(String key);
 
     public void put(String key, V value);
+
+    public void putAll(Map<String, V> map);
 
     public V computeIfAbsent(String key, Supplier<V> supplier);
 
@@ -122,5 +127,17 @@ public interface UnaryCache<V> extends CacheBase, Iterable<Entry<V>>, Function<S
         public String getKey();
 
         public V getValue();
+    }
+
+    /**
+     * Returns a new immutable {@link Map} instance with the content of the {@link UnaryCache} populated
+     * 
+     * @return
+     */
+    public default Map<String, V> toMap()
+    {
+        return Collections.unmodifiableMap(this.keySet()
+                                               .stream()
+                                               .collect(Collectors.toMap(key -> key, this::get)));
     }
 }

@@ -58,17 +58,17 @@ public class JsonFolderFilesCacheTest
     public void testGetAge() throws Exception
     {
         Cache cache = CacheUtils.newJsonFolderCache(FileUtils.createRandomTempDirectory())
-                                .asDurationLimitedCache(TimeDuration.of(300, TimeUnit.MILLISECONDS));
+                                .asDurationLimitedCache(TimeDuration.of(1, TimeUnit.SECONDS));
 
         cache.put("key1", "value1");
         assertEquals("value1", cache.get("key1", String.class));
         assertTrue(cache.getAge("key1")
-                        .as(TimeUnit.MILLISECONDS) <= 500);
+                        .as(TimeUnit.MILLISECONDS) <= 1000);
 
-        ThreadUtils.sleepSilently(500, TimeUnit.MILLISECONDS);
+        ThreadUtils.sleepSilently(1100, TimeUnit.MILLISECONDS);
 
         assertEquals(null, cache.get("key1", String.class));
         assertTrue(cache.getAge("key1")
-                        .as(TimeUnit.MILLISECONDS) >= 500);
+                        .as(TimeUnit.MILLISECONDS) >= 1000);
     }
 }

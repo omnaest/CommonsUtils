@@ -1,14 +1,21 @@
 package org.omnaest.utils.cache.internal;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
+import org.omnaest.utils.CacheUtils;
+import org.omnaest.utils.FileUtils;
 import org.omnaest.utils.JSONHelper;
+import org.omnaest.utils.ThreadUtils;
+import org.omnaest.utils.cache.Cache;
 import org.omnaest.utils.cache.internal.JsonFolderFilesCache.DataRoot;
+import org.omnaest.utils.duration.TimeDuration;
 
 public class JsonFolderFilesCacheTest
 {
@@ -45,5 +52,23 @@ public class JsonFolderFilesCacheTest
                                                      .get("key1"));
         assertEquals(Long.valueOf(2l), clonedDataRoot.getData()
                                                      .get("key2"));
+    }
+
+    @Test
+    public void testGetAge() throws Exception
+    {
+        Cache cache = CacheUtils.newJsonFolderCache(FileUtils.createRandomTempDirectory())
+                                .asDurationLimitedCache(TimeDuration.of(300, TimeUnit.MILLISECONDS));
+
+        cache.put("key1", "value1");
+        assertEquals("value1", cache.get("key1", String.class));
+        assertTrue(cache.getAge("key1")
+                        .as(TimeUnit.MILLISECONDS) <= 500);
+
+        ThreadUtils.sleepSilently(500, TimeUnit.MILLISECONDS);
+
+        assertEquals(null, cache.get("key1", String.class));
+        assertTrue(cache.getAge("key1")
+                        .as(TimeUnit.MILLISECONDS) >= 500);
     }
 }

@@ -21,8 +21,11 @@ package org.omnaest.utils.cache.internal;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -37,6 +40,7 @@ import org.apache.commons.lang.StringUtils;
 import org.omnaest.utils.JSONHelper;
 import org.omnaest.utils.cache.Cache;
 import org.omnaest.utils.cache.CacheWithNativeTypeSupport;
+import org.omnaest.utils.duration.TimeDuration;
 import org.omnaest.utils.optional.NullOptional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,10 +87,10 @@ public class JsonFolderFilesCache extends AbstractCache implements CacheWithNati
         private AtomicLong index = new AtomicLong();
 
         @JsonProperty
-        private Map<String, Long> data = new LinkedHashMap<>();
+        private Map<String, Long> data = new HashMap<>();
 
         @JsonProperty
-        private Map<String, Class<?>> types = new LinkedHashMap<>();
+        private Map<String, Class<?>> types = new HashMap<>();
 
         public DataRoot()
         {
@@ -135,6 +139,18 @@ public class JsonFolderFilesCache extends AbstractCache implements CacheWithNati
                              .get(key);
         return this.readFromSingleCacheFile(fileIndex, type)
                    .orElse(null);
+    }
+
+    @Override
+    public TimeDuration getAge(String key)
+    {
+        Instant modificationDate = Optional.ofNullable(this.getOrCreateRoot()
+                                                           .getData()
+                                                           .get(key))
+                                           .map(index -> this.determineCacheFile(index))
+                                           .map(cacheFile -> new Date(cacheFile.lastModified()).toInstant())
+                                           .orElseGet(() -> Instant.now());
+        return TimeDuration.of(Duration.between(modificationDate, Instant.now()));
     }
 
     @SuppressWarnings("unchecked")

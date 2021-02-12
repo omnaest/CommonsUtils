@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -41,6 +42,7 @@ import org.omnaest.utils.cache.UnaryCache;
 import org.omnaest.utils.cache.internal.ConcurrentHashMapCache;
 import org.omnaest.utils.cache.internal.JsonFolderFilesCache;
 import org.omnaest.utils.cache.internal.JsonSingleFileCache;
+import org.omnaest.utils.duration.TimeDuration;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 
@@ -87,7 +89,10 @@ public class CacheUtilsTest
         Supplier<Cache> supplier3 = () -> new JsonFolderFilesCache(tempFile.getParentFile());
         Supplier<Cache> supplier4 = () -> new JsonFolderFilesCache(tempFile.getParentFile()).withNativeStringStorage(true)
                                                                                             .withNativeByteArrayStorage(true);
-        return Arrays.<Supplier<Cache>>asList(supplier1, supplier2, supplier3, supplier4)
+        Supplier<Cache> supplier5 = () -> new ConcurrentHashMapCache().asDurationLimitedCache(TimeDuration.of(1, TimeUnit.HOURS));
+        Supplier<Cache> supplier6 = () -> new JsonSingleFileCache(tempFile).asDurationLimitedCache(TimeDuration.of(1, TimeUnit.HOURS));
+        Supplier<Cache> supplier7 = () -> new JsonFolderFilesCache(tempFile.getParentFile()).asDurationLimitedCache(TimeDuration.of(1, TimeUnit.HOURS));
+        return Arrays.<Supplier<Cache>>asList(supplier1, supplier2, supplier3, supplier4, supplier5, supplier6, supplier7)
                      .stream()
                      .collect(Collectors.toList());
     }

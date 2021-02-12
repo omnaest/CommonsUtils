@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 import org.omnaest.utils.cache.Cache;
+import org.omnaest.utils.duration.TimeDuration;
 
 /**
  * @see Cache
@@ -97,6 +98,12 @@ public class CacheDecorator implements Cache
     public void clear()
     {
         this.cache.clear();
+    }
+
+    @Override
+    public TimeDuration getAge(String key)
+    {
+        return this.cache.getAge(key);
     }
 
     @Override

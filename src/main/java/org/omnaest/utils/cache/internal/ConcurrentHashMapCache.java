@@ -20,37 +20,62 @@ package org.omnaest.utils.cache.internal;
 
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+
+import org.omnaest.utils.duration.TimeDuration;
 
 @SuppressWarnings("unchecked")
 public class ConcurrentHashMapCache extends AbstractCache
 {
-    private Map<String, Object> cache = new ConcurrentHashMap<>();
+    private Map<String, ValueHolder> cache = new ConcurrentHashMap<>();
 
     @Override
     public <V> V get(String key, Class<V> type)
     {
-        return key == null ? null : (V) this.cache.get(key);
+        return Optional.ofNullable(key)
+                       .map(this.cache::get)
+                       .map(ValueHolder::getValue)
+                       .map(result -> (V) result)
+                       .orElse(null);
+    }
+
+    @Override
+    public TimeDuration getAge(String key)
+    {
+        long creationTime = Optional.ofNullable(this.cache.get(key))
+                                    .map(holder -> holder.getCreationTime())
+                                    .orElseGet(() -> System.currentTimeMillis());
+        long age = System.currentTimeMillis() - creationTime;
+        return TimeDuration.of(age, TimeUnit.MILLISECONDS);
     }
 
     @Override
     public void put(String key, Object value)
     {
-        this.cache.put(key, value);
+        this.cache.put(key, new ValueHolder(value));
     }
 
     @Override
     public <V> void putAll(Map<String, V> map)
     {
-        this.cache.putAll(map);
+        if (map != null)
+        {
+            map.forEach((key, value) ->
+            {
+                this.cache.put(key, new ValueHolder(value));
+            });
+        }
     }
 
     @Override
     public <V> V computeIfAbsent(String key, Supplier<V> supplier, Class<V> type)
     {
-        return (V) this.cache.computeIfAbsent(key, (id) -> supplier.get());
+        return (V) this.cache.computeIfAbsent(key, (id) -> new ValueHolder(supplier.get()))
+                             .getValue();
     }
 
     @Override
@@ -77,6 +102,36 @@ public class ConcurrentHashMapCache extends AbstractCache
     public String toString()
     {
         return "ConcurrentHashMapCache [cache=" + this.cache + "]";
+    }
+
+    private static class ValueHolder
+    {
+        private Object value;
+        private long   creationTime;
+
+        public ValueHolder(Object value)
+        {
+            super();
+            this.value = value;
+            this.creationTime = System.currentTimeMillis();
+        }
+
+        public Object getValue()
+        {
+            return this.value;
+        }
+
+        public long getCreationTime()
+        {
+            return this.creationTime;
+        }
+
+        @Override
+        public String toString()
+        {
+            return "ValueHolder [value=" + this.value + ", creationTime=" + this.creationTime + "]";
+        }
+
     }
 
 }

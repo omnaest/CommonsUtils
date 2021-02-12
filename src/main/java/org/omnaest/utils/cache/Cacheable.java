@@ -1,9 +1,11 @@
 package org.omnaest.utils.cache;
 
 import java.io.File;
+import java.util.function.UnaryOperator;
 
 import org.omnaest.utils.CacheUtils;
 import org.omnaest.utils.cache.internal.JsonFolderFilesCache;
+import org.omnaest.utils.duration.TimeDuration;
 
 /**
  * Interface for any {@link Class} which supports a {@link Cache} layer
@@ -28,8 +30,31 @@ public interface Cacheable<T>
      */
     public default T withLocalCache()
     {
+        return this.withLocalCache(v -> v);
+    }
+
+    /**
+     * Similar to {@link #withLocalCache()} but allows to modify the {@link Cache} instance
+     * 
+     * @param cacheModifier
+     * @return
+     */
+    public default T withLocalCache(UnaryOperator<Cache> cacheModifier)
+    {
         return this.withLocalCache(this.getClass()
-                                       .getSimpleName());
+                                       .getSimpleName(),
+                                   cacheModifier);
+    }
+
+    /**
+     * Similar to {@link #withLocalCache()} but with a key eviction after the given {@link TimeDuration}
+     * 
+     * @param duration
+     * @return
+     */
+    public default T withLocalCache(TimeDuration duration)
+    {
+        return this.withLocalCache(cache -> cache.asDurationLimitedCache(duration));
     }
 
     /**
@@ -40,7 +65,19 @@ public interface Cacheable<T>
      */
     public default T withLocalCache(String name)
     {
-        return this.withCache(CacheUtils.newLocalJsonFolderCache(name));
+        return this.withLocalCache(name, cache -> cache);
+    }
+
+    /**
+     * Same as {@link #withLocalCache(String)} but allows to modify the {@link Cache} instance
+     * 
+     * @param name
+     * @param cacheModifier
+     * @return
+     */
+    public default T withLocalCache(String name, UnaryOperator<Cache> cacheModifier)
+    {
+        return this.withCache(cacheModifier.apply(CacheUtils.newLocalJsonFolderCache(name)));
     }
 
     /**

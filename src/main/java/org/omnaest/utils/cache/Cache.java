@@ -23,8 +23,10 @@ import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 import org.omnaest.utils.CacheUtils;
+import org.omnaest.utils.cache.internal.DurationLimitedCache;
 import org.omnaest.utils.cache.internal.capacity.EvictionStrategyHandler;
 import org.omnaest.utils.cache.internal.capacity.RandomEvictionStrategy;
+import org.omnaest.utils.duration.TimeDuration;
 
 /**
  * Defines a {@link Cache} API.
@@ -46,6 +48,8 @@ import org.omnaest.utils.cache.internal.capacity.RandomEvictionStrategy;
 public interface Cache extends CacheBase
 {
     public <V> V get(String key, Class<V> type);
+
+    public TimeDuration getAge(String key);
 
     public <V> Class<V> getType(String key);
 
@@ -92,6 +96,17 @@ public interface Cache extends CacheBase
     public default <V> UnaryCache<V> asUnaryCache(Class<? super V> type)
     {
         return (UnaryCache<V>) CacheUtils.toUnaryCache(this, type);
+    }
+
+    /**
+     * Returns a {@link Cache} where the entries are evicted on read after the given {@link TimeDuration}
+     * 
+     * @param timeDuration
+     * @return
+     */
+    public default Cache asDurationLimitedCache(TimeDuration timeDuration)
+    {
+        return new DurationLimitedCache(this, timeDuration);
     }
 
     public static interface EvictionStrategyProvider extends Supplier<EvictionStrategyHandler>

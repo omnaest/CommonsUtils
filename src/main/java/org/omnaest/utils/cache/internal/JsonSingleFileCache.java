@@ -32,9 +32,12 @@ import org.omnaest.utils.FileUtils;
 import org.omnaest.utils.JSONHelper;
 import org.omnaest.utils.RetryUtils;
 import org.omnaest.utils.cache.Cache;
+import org.omnaest.utils.duration.TimeDuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
@@ -52,10 +55,17 @@ public class JsonSingleFileCache extends AbstractCache
 
     private AtomicReference<DataRoot> root = new AtomicReference<>();
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     protected static class DataRoot
     {
-        private LinkedHashMap<String, JsonNode> data  = new LinkedHashMap<>();
+        @JsonProperty
+        private LinkedHashMap<String, JsonNode> data = new LinkedHashMap<>();
+
+        @JsonProperty
         private LinkedHashMap<String, Class<?>> types = new LinkedHashMap<>();
+
+        @JsonProperty
+        private LinkedHashMap<String, Long> creationDates = new LinkedHashMap<>();
 
         public DataRoot()
         {
@@ -73,6 +83,11 @@ public class JsonSingleFileCache extends AbstractCache
             return this.types;
         }
 
+        public LinkedHashMap<String, Long> getCreationDates()
+        {
+            return this.creationDates;
+        }
+
     }
 
     public JsonSingleFileCache(File cacheFile)
@@ -88,6 +103,17 @@ public class JsonSingleFileCache extends AbstractCache
                                          .getData()
                                          .get(key),
                                      type);
+    }
+
+    @Override
+    public TimeDuration getAge(String key)
+    {
+        long creationTime = Optional.ofNullable(this.getOrCreateRoot()
+                                                    .getCreationDates()
+                                                    .get(key))
+                                    .orElseGet(() -> System.currentTimeMillis());
+        long duration = System.currentTimeMillis() - creationTime;
+        return TimeDuration.of(duration, TimeUnit.MILLISECONDS);
     }
 
     private <V> V readFromJsonNode(JsonNode jsonNode, Class<V> type)
@@ -109,6 +135,8 @@ public class JsonSingleFileCache extends AbstractCache
              .put(key, this.convertToJsonNode(value));
             t.getTypes()
              .put(key, value.getClass());
+            t.getCreationDates()
+             .put(key, System.currentTimeMillis());
             return t;
         });
 
@@ -130,6 +158,8 @@ public class JsonSingleFileCache extends AbstractCache
                                                       {
                                                           t.getTypes()
                                                            .put(key, value.getClass());
+                                                          t.getCreationDates()
+                                                           .put(key, System.currentTimeMillis());
                                                       }
                                                       return this.convertToJsonNode(value);
                                                   });
@@ -244,6 +274,8 @@ public class JsonSingleFileCache extends AbstractCache
                 r.getData()
                  .remove(key);
                 r.getTypes()
+                 .remove(key);
+                r.getCreationDates()
                  .remove(key);
                 return r;
             });

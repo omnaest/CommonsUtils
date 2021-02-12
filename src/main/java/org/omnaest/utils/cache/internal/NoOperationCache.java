@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import org.omnaest.utils.cache.Cache;
+import org.omnaest.utils.duration.TimeDuration;
 
 /**
  * {@link Cache} implementation which is always empty and stores nothing.<br>
@@ -20,6 +21,12 @@ public class NoOperationCache extends AbstractCache
     public <V> V get(String key, Class<V> type)
     {
         return null;
+    }
+
+    @Override
+    public TimeDuration getAge(String key)
+    {
+        return TimeDuration.zero();
     }
 
     @Override

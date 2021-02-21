@@ -116,4 +116,20 @@ public class ClassUtils
                            }
                        });
     }
+
+    public static <T> Optional<T> newInstance(Class<T> type)
+    {
+        return Optional.ofNullable(type)
+                       .map(t ->
+                       {
+                           try
+                           {
+                               return t.newInstance();
+                           }
+                           catch (InstantiationException | IllegalAccessException e)
+                           {
+                               return null;
+                           }
+                       });
+    }
 }

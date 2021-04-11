@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.IOUtils;
 
@@ -35,6 +36,8 @@ public class ClassUtils
         public InputStream asInputStream();
 
         public byte[] asByteArray();
+
+        public Stream<String> asLines();
     }
 
     public static interface JSONResource
@@ -128,6 +131,12 @@ public class ClassUtils
                            public InputStream asInputStream()
                            {
                                return new ByteArrayInputStream(data);
+                           }
+
+                           @Override
+                           public Stream<String> asLines()
+                           {
+                               return StringUtils.splitToStreamByLineSeparator(this.asString());
                            }
                        });
     }

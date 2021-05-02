@@ -51,6 +51,7 @@ import org.omnaest.utils.cache.internal.ConcurrentHashMapCache;
 import org.omnaest.utils.cache.internal.JsonFolderFilesCache;
 import org.omnaest.utils.cache.internal.JsonSingleFileCache;
 import org.omnaest.utils.cache.internal.NoOperationCache;
+import org.omnaest.utils.cache.internal.RandomAccessLogarithmicBlockFileStorageCache;
 import org.omnaest.utils.element.cached.CachedElement;
 
 /**
@@ -86,6 +87,16 @@ public class CacheUtils
     public static <V> Cache newJsonFileCache(File cacheFile)
     {
         return new JsonSingleFileCache(cacheFile);
+    }
+
+    public static <V> Cache newRandomAccessLogarithmicBlockFileStorageCache(File cacheDirectory, int hashCapacity)
+    {
+        return new RandomAccessLogarithmicBlockFileStorageCache(cacheDirectory, hashCapacity);
+    }
+
+    public static <V> Cache newRandomAccessLogarithmicBlockFileStorageCache(File cacheDirectory, int hashCapacity, int initialBlockSize)
+    {
+        return new RandomAccessLogarithmicBlockFileStorageCache(cacheDirectory, hashCapacity, initialBlockSize);
     }
 
     public static <V> CacheWithNativeTypeSupport newJsonFolderCache(File cacheDirectory)

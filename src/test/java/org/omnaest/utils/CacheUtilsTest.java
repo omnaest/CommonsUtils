@@ -98,16 +98,21 @@ public class CacheUtilsTest
     @Parameters
     public static Iterable<? extends Object> data() throws IOException
     {
-        File tempFile = File.createTempFile("testCache", ".json"); // new File("C:/Temp/cacheTest.json");
+        File tempFile = FileUtils.createRandomTempFile();
+        File tempDirectory1 = FileUtils.createRandomTempDirectory();
+        File tempDirectory2 = FileUtils.createRandomTempDirectory();
+        File tempDirectory3 = FileUtils.createRandomTempDirectory();
+        File tempDirectory4 = FileUtils.createRandomTempDirectory();
         Supplier<Cache> supplier1 = () -> new ConcurrentHashMapCache();
         Supplier<Cache> supplier2 = () -> new JsonSingleFileCache(tempFile);
-        Supplier<Cache> supplier3 = () -> new JsonFolderFilesCache(tempFile.getParentFile());
-        Supplier<Cache> supplier4 = () -> new JsonFolderFilesCache(tempFile.getParentFile()).withNativeStringStorage(true)
-                                                                                            .withNativeByteArrayStorage(true);
+        Supplier<Cache> supplier3 = () -> new JsonFolderFilesCache(tempDirectory1);
+        Supplier<Cache> supplier4 = () -> new JsonFolderFilesCache(tempDirectory2).withNativeStringStorage(true)
+                                                                                  .withNativeByteArrayStorage(true);
         Supplier<Cache> supplier5 = () -> new ConcurrentHashMapCache().asDurationLimitedCache(TimeDuration.of(1, TimeUnit.HOURS));
         Supplier<Cache> supplier6 = () -> new JsonSingleFileCache(tempFile).asDurationLimitedCache(TimeDuration.of(1, TimeUnit.HOURS));
-        Supplier<Cache> supplier7 = () -> new JsonFolderFilesCache(tempFile.getParentFile()).asDurationLimitedCache(TimeDuration.of(1, TimeUnit.HOURS));
-        return Arrays.<Supplier<Cache>>asList(supplier1, supplier2, supplier3, supplier4, supplier5, supplier6, supplier7)
+        Supplier<Cache> supplier7 = () -> new JsonFolderFilesCache(tempDirectory3).asDurationLimitedCache(TimeDuration.of(1, TimeUnit.HOURS));
+        Supplier<Cache> supplier8 = () -> CacheUtils.newRandomAccessLogarithmicBlockFileStorageCache(tempDirectory4, 10);
+        return Arrays.<Supplier<Cache>>asList(supplier1, supplier2, supplier3, supplier4, supplier5, supplier6, supplier7, supplier8)
                      .stream()
                      .collect(Collectors.toList());
     }

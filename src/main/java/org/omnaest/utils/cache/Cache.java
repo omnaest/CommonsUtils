@@ -33,15 +33,21 @@
 */
 package org.omnaest.utils.cache;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 import org.omnaest.utils.CacheUtils;
+import org.omnaest.utils.CollectorUtils;
 import org.omnaest.utils.cache.internal.DurationLimitedCache;
 import org.omnaest.utils.cache.internal.capacity.EvictionStrategyHandler;
 import org.omnaest.utils.cache.internal.capacity.RandomEvictionStrategy;
 import org.omnaest.utils.duration.TimeDuration;
+import org.omnaest.utils.element.bi.BiElement;
 
 /**
  * Defines a {@link Cache} API.
@@ -87,6 +93,21 @@ public interface Cache extends CacheBase
      * @return
      */
     public <V> V computeIfAbsentOrUpdate(String key, Supplier<V> supplier, UnaryOperator<V> updateFunction, Class<V> type);
+
+    public default <V> Map<String, V> get(Class<V> type, String... keys)
+    {
+        return this.get(type, Arrays.asList(keys));
+    }
+
+    public default <V> Map<String, V> get(Class<V> type, Collection<String> keys)
+    {
+        return Optional.ofNullable(keys)
+                       .orElse(Collections.emptyList())
+                       .stream()
+                       .map(key -> BiElement.of(key, this.get(key, type)))
+                       .filter(bi -> bi.hasNoNullValue())
+                       .collect(CollectorUtils.toMapByBiElement());
+    }
 
     /**
      * Returns a new {@link Cache} instance with a capacity limit and a random element eviction strategy

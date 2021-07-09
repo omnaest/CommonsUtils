@@ -33,6 +33,7 @@
 */
 package org.omnaest.utils.cache;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
@@ -54,6 +55,10 @@ import org.omnaest.utils.cache.UnaryCache.Entry;
 public interface UnaryCache<V> extends CacheBase, Iterable<Entry<V>>, Function<String, V>
 {
     public V get(String key);
+
+    public Map<String, V> get(String... keys);
+
+    public Map<String, V> get(Collection<String> keys);
 
     public Supplier<V> getSupplier(String key);
 

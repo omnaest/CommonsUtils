@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.cache.internal;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -102,6 +103,18 @@ public class UnaryCacheDecorator<V> implements UnaryCache<V>
     public void clear()
     {
         this.cache.clear();
+    }
+
+    @Override
+    public Map<String, V> get(String... keys)
+    {
+        return this.cache.get(keys);
+    }
+
+    @Override
+    public Map<String, V> get(Collection<String> keys)
+    {
+        return this.cache.get(keys);
     }
 
 }

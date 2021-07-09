@@ -33,6 +33,7 @@
 */
 package org.omnaest.utils.cache.internal;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -69,6 +70,18 @@ public class CacheToUnaryCacheAdapter<V> implements UnaryCache<V>
     public V get(String key)
     {
         return this.cache.get(key, this.type);
+    }
+
+    @Override
+    public Map<String, V> get(String... keys)
+    {
+        return this.cache.get(this.type, keys);
+    }
+
+    @Override
+    public Map<String, V> get(Collection<String> keys)
+    {
+        return this.cache.get(this.type, keys);
     }
 
     @Override

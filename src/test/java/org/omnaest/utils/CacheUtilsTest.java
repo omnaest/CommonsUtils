@@ -53,6 +53,7 @@ import org.junit.runners.Parameterized.Parameters;
 import org.omnaest.utils.cache.Cache;
 import org.omnaest.utils.cache.Cache.EvictionStrategy;
 import org.omnaest.utils.cache.CapacityLimitedUnaryCache;
+import org.omnaest.utils.cache.SingleElementCache;
 import org.omnaest.utils.cache.UnaryCache;
 import org.omnaest.utils.cache.internal.ConcurrentHashMapCache;
 import org.omnaest.utils.cache.internal.JsonFolderFilesCache;
@@ -197,6 +198,15 @@ public class CacheUtilsTest
                  .forEach(ii -> cache.put("key" + ii, new Value("test" + ii)));
         assertTrue(cache.size() < 20);
         assertTrue(cache.size() > 5);
+    }
+
+    @Test
+    public void testSingleElementCache() throws Exception
+    {
+        SingleElementCache<Value> singleElementCache = this.cache.asSingleElementCache();
+        singleElementCache.accept(new Value("value1"));
+        assertEquals("value1", singleElementCache.get()
+                                                 .getValue());
     }
 
 }

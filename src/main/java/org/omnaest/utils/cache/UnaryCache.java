@@ -160,4 +160,35 @@ public interface UnaryCache<V> extends CacheBase, Iterable<Entry<V>>, Function<S
                                                .stream()
                                                .collect(Collectors.toMap(key -> key, this::get)));
     }
+
+    /**
+     * Returns a {@link SingleElementCache} view of this {@link UnaryCache}
+     * 
+     * @return
+     */
+    public default SingleElementCache<V> asSingleElementCache()
+    {
+        return new SingleElementCache<V>()
+        {
+            private final String ENTRY_KEY = "entry";
+
+            @Override
+            public V get()
+            {
+                return UnaryCache.this.get(ENTRY_KEY);
+            }
+
+            @Override
+            public void accept(V value)
+            {
+                UnaryCache.this.put(ENTRY_KEY, value);
+            }
+
+            @Override
+            public V computeIfAbsent(Supplier<V> supplier)
+            {
+                return UnaryCache.this.computeIfAbsent(ENTRY_KEY, id -> supplier.get());
+            }
+        };
+    }
 }

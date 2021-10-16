@@ -48,6 +48,20 @@ public class DurationLimitedCache implements Cache
     }
 
     @Override
+    public boolean contains(String key)
+    {
+        if (this.cache.getAge(key)
+                      .isSmallerThan(this.duration))
+        {
+            return this.cache.contains(key);
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    @Override
     public void removeAll(Iterable<String> keys)
     {
         this.cache.removeAll(keys);

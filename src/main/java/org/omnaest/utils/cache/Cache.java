@@ -70,6 +70,8 @@ public interface Cache extends CacheBase
 {
     public <V> V get(String key, Class<V> type);
 
+    public boolean contains(String key);
+
     public TimeDuration getAge(String key);
 
     public <V> Class<V> getType(String key);

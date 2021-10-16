@@ -34,6 +34,7 @@
 package org.omnaest.utils.cache.internal;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
@@ -107,6 +108,14 @@ public abstract class AbstractCache implements Cache
             this.put(key, result);
         }
         return result;
+    }
+
+    @Override
+    public boolean contains(String key)
+    {
+        return Optional.ofNullable(this.getType(key))
+                       .map(type -> this.get(key, type) != null)
+                       .orElse(false);
     }
 
 }

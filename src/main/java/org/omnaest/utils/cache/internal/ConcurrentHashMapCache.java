@@ -59,6 +59,14 @@ public class ConcurrentHashMapCache extends AbstractCache
     }
 
     @Override
+    public boolean contains(String key)
+    {
+        return Optional.ofNullable(key)
+                       .map(this.cache::containsKey)
+                       .orElse(false);
+    }
+
+    @Override
     public TimeDuration getAge(String key)
     {
         long creationTime = Optional.ofNullable(this.cache.get(key))

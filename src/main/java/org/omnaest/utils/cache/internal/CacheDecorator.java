@@ -38,6 +38,12 @@ public class CacheDecorator implements Cache
     }
 
     @Override
+    public boolean contains(String key)
+    {
+        return this.cache.contains(key);
+    }
+
+    @Override
     public void removeAll(Iterable<String> keys)
     {
         this.cache.removeAll(keys);

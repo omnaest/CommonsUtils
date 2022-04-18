@@ -33,7 +33,6 @@
 */
 package org.omnaest.utils.cache.internal;
 
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -104,7 +103,7 @@ public class ConcurrentHashMapCache extends AbstractCache
     @Override
     public Set<String> keySet()
     {
-        return new HashSet<>(this.cache.keySet());
+        return this.cache.keySet();
     }
 
     @Override

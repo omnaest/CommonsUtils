@@ -22,11 +22,12 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
@@ -85,10 +86,10 @@ public class JsonFolderFilesCache extends AbstractCache implements CacheWithNati
         private AtomicLong index = new AtomicLong();
 
         @JsonProperty
-        private Map<String, Long> data = new HashMap<>();
+        private ConcurrentMap<String, Long> data = new ConcurrentHashMap<>();
 
         @JsonProperty
-        private Map<String, Class<?>> types = new HashMap<>();
+        private ConcurrentMap<String, Class<?>> types = new ConcurrentHashMap<>();
 
         public DataRoot()
         {
@@ -299,11 +300,7 @@ public class JsonFolderFilesCache extends AbstractCache implements CacheWithNati
                                 .put(key, value.getClass());
                         }
 
-                        Long fileIndex = this.writeToFileAndGetIndex(value);
-                        root.getData()
-                            .put(key, fileIndex);
-
-                        return fileIndex;
+                        return this.writeToFileAndGetIndex(value);
                     });
                 return root;
             })

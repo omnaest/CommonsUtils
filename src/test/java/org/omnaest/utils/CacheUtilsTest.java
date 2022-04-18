@@ -35,11 +35,14 @@ package org.omnaest.utils;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -207,6 +210,69 @@ public class CacheUtilsTest
         singleElementCache.accept(new Value("value1"));
         assertEquals("value1", singleElementCache.get()
                                                  .getValue());
+    }
+
+    @Test
+    public void testAsMap()
+    {
+        Map<String, Value> map = this.cache.asMap();
+
+        assertTrue(map.isEmpty());
+        assertEquals(0, map.size());
+
+        map.put("a", new Value("value a"));
+        assertFalse(map.isEmpty());
+        assertEquals(1, map.size());
+        assertEquals("value a", map.get("a")
+                                   .getValue());
+
+        map.put("b", new Value("value b"));
+        assertFalse(map.isEmpty());
+        assertEquals(2, map.size());
+        assertEquals("value b", map.get("b")
+                                   .getValue());
+
+        assertEquals(SetUtils.toSet("a", "b"), map.keySet());
+
+        map.remove("a");
+        assertFalse(map.isEmpty());
+        assertEquals(1, map.size());
+        assertNull(map.get("a"));
+
+        map.clear();
+        assertTrue(map.isEmpty());
+    }
+
+    @Test
+    public void testAsSet()
+    {
+        Cache cache = this.cacheSupplier.get();
+        Set<String> set = cache.asSet();
+
+        assertTrue(set.isEmpty());
+        assertEquals(0, set.size());
+
+        set.add("a");
+        assertFalse(set.isEmpty());
+        assertEquals(1, set.size());
+        assertTrue(set.contains("a"));
+
+        set.add("b");
+        assertFalse(set.isEmpty());
+        assertEquals(2, set.size());
+        assertEquals(2, cache.size());
+        assertTrue(set.contains("b"));
+
+        assertEquals(SetUtils.toSet("a", "b"), set);
+
+        set.remove("a");
+        assertFalse(set.isEmpty());
+        assertEquals(1, set.size());
+        assertFalse(set.contains("a"));
+
+        set.clear();
+        assertTrue(set.isEmpty());
+        assertEquals(0, cache.size());
     }
 
 }

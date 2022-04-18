@@ -34,7 +34,7 @@
 package org.omnaest.utils.element;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.omnaest.utils.events.DistributionEventHandler;
+import org.omnaest.utils.events.DistributingEventHandlerManager;
 import org.omnaest.utils.events.EventHandler;
 
 public class ListenableElement<E>
@@ -77,7 +77,7 @@ public class ListenableElement<E>
 
 	}
 
-	private DistributionEventHandler<Change<E>> distributionEventHandler = new DistributionEventHandler<>();
+	private DistributingEventHandlerManager<Change<E>> distributionEventHandler = new DistributingEventHandlerManager<>();
 
 	public E get()
 	{

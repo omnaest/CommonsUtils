@@ -37,6 +37,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
@@ -44,8 +45,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.omnaest.utils.CacheUtils;
+import org.omnaest.utils.MapUtils;
 import org.omnaest.utils.cache.Cache.EvictionStrategyProvider;
 import org.omnaest.utils.cache.UnaryCache.Entry;
+import org.omnaest.utils.map.CRUDMap;
 
 /**
  * @see Cache
@@ -159,6 +162,65 @@ public interface UnaryCache<V> extends CacheBase, Iterable<Entry<V>>, Function<S
         return Collections.unmodifiableMap(this.keySet()
                                                .stream()
                                                .collect(Collectors.toMap(key -> key, this::get)));
+    }
+
+    /**
+     * Returns a mutable {@link Map} representation of the current {@link UnaryCache}
+     * 
+     * @return
+     */
+    public default Map<String, V> asMap()
+    {
+        UnaryCache<V> cache = this;
+        return MapUtils.toMap(new CRUDMap<String, V>()
+        {
+            @Override
+            public int size()
+            {
+                return cache.size();
+            }
+
+            @Override
+            public boolean containsKey(String key)
+            {
+                return cache.get(key) != null;
+            }
+
+            @Override
+            public V get(String key)
+            {
+                return cache.get(key);
+            }
+
+            @Override
+            public V put(String key, V value)
+            {
+                V result = this.get(key);
+                cache.put(key, value);
+                return result;
+            }
+
+            @Override
+            public V remove(String key)
+            {
+                V result = this.get(key);
+                cache.remove(key);
+                return result;
+            }
+
+            @Override
+            public void clear()
+            {
+                cache.clear();
+            }
+
+            @Override
+            public Set<String> keySet()
+            {
+                return cache.keySet();
+            }
+
+        });
     }
 
     /**

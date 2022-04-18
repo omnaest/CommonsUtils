@@ -38,11 +38,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 import org.omnaest.utils.CacheUtils;
 import org.omnaest.utils.CollectorUtils;
+import org.omnaest.utils.MapUtils;
 import org.omnaest.utils.cache.internal.DurationLimitedCache;
 import org.omnaest.utils.cache.internal.capacity.EvictionStrategyHandler;
 import org.omnaest.utils.cache.internal.capacity.RandomEvictionStrategy;
@@ -134,6 +136,17 @@ public interface Cache extends CacheBase
     public default <V> UnaryCache<V> asUnaryCache(Class<? super V> type)
     {
         return (UnaryCache<V>) CacheUtils.toUnaryCache(this, type);
+    }
+
+    /**
+     * Returns a {@link Set} based on the current {@link Cache}. The elements are represented by the key and the value is a boolean value.
+     * 
+     * @return
+     */
+    public default Set<String> asSet()
+    {
+        return MapUtils.toSet(this.asUnaryCache(Boolean.class)
+                                  .asMap());
     }
 
     /**

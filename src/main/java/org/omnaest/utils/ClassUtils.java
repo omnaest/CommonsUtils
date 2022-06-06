@@ -102,7 +102,7 @@ public class ClassUtils
                                {
                                    return IOUtils.toString(this.asByteArray(), StandardCharsets.UTF_8.name());
                                }
-                               catch (IOException e)
+                               catch (Exception e)
                                {
                                    throw new IllegalStateException(e);
                                }

@@ -273,7 +273,7 @@ public class JsonFolderFilesCache extends AbstractCache implements CacheWithNati
             root.getData()
                 .put(key, this.writeToFileAndGetIndex(value));
             root.getTypes()
-                .put(key, value != null ? value.getClass() : null);
+                .put(key, value != null ? value.getClass() : Void.class);
             return root;
         });
 

@@ -44,111 +44,113 @@ import org.apache.commons.io.FileUtils;
 
 public class FileSynchronizedMap<K, V> extends MapDecorator<K, V>
 {
-	private File				file;
-	private Charset				encoding	= StandardCharsets.UTF_8;
-	private Serializer<K, V>	serializer;
-	private Deserializer<K, V>	deserializer;
+    private File               file;
+    private Charset            encoding = StandardCharsets.UTF_8;
+    private Serializer<K, V>   serializer;
+    private Deserializer<K, V> deserializer;
 
-	public static class FileAccessException extends IllegalStateException
-	{
-		private static final long serialVersionUID = -5661240860248366655L;
+    public static class FileAccessException extends IllegalStateException
+    {
+        private static final long serialVersionUID = -5661240860248366655L;
 
-		public FileAccessException(Throwable cause)
-		{
-			super(cause);
-		}
-	}
+        public FileAccessException(Throwable cause)
+        {
+            super(cause);
+        }
+    }
 
-	public static interface Serializer<K, V> extends Function<Map<K, V>, String>
-	{
-	}
+    public static interface Serializer<K, V> extends Function<Map<K, V>, String>
+    {
+    }
 
-	public static interface Deserializer<K, V> extends Function<String, Map<K, V>>
-	{
-	}
+    public static interface Deserializer<K, V> extends Function<String, Map<K, V>>
+    {
+    }
 
-	public FileSynchronizedMap(Map<K, V> map, File file, Serializer<K, V> serializer, Deserializer<K, V> deserializer)
-	{
-		super(map);
-		this.file = file;
-		this.serializer = serializer;
-		this.deserializer = deserializer;
+    public FileSynchronizedMap(Map<K, V> map, File file, Serializer<K, V> serializer, Deserializer<K, V> deserializer)
+    {
+        super(map);
+        this.file = file;
+        this.serializer = serializer;
+        this.deserializer = deserializer;
 
-		this.init(map);
-	}
+        this.init(map);
+    }
 
-	private void init(Map<K, V> sourceMap)
-	{
-		//
-		boolean emptySourceMap = sourceMap.isEmpty();
-		this.loadFromFile();
+    private void init(Map<K, V> sourceMap)
+    {
+        //
+        boolean emptySourceMap = sourceMap.isEmpty();
+        this.loadFromFile();
 
-		//
-		if (!emptySourceMap)
-		{
-			this.synchronizeWithFile();
-		}
-	}
+        //
+        if (!emptySourceMap)
+        {
+            this.synchronizeWithFile();
+        }
+    }
 
-	private void loadFromFile()
-	{
-		try
-		{
-			if (this.file.exists() && this.file.isFile())
-			{
-				this.putAll(this.deserializer.apply(FileUtils.readFileToString(this.file, this.encoding)));
-			}
-		} catch (IOException e)
-		{
-			throw new FileAccessException(e);
-		}
-	}
+    private void loadFromFile()
+    {
+        try
+        {
+            if (this.file.exists() && this.file.isFile())
+            {
+                this.putAll(this.deserializer.apply(FileUtils.readFileToString(this.file, this.encoding)));
+            }
+        }
+        catch (IOException e)
+        {
+            throw new FileAccessException(e);
+        }
+    }
 
-	private void synchronizeWithFile()
-	{
-		try
-		{
-			FileUtils.writeStringToFile(this.file, this.serializer.apply(this), this.encoding);
-		} catch (IOException e)
-		{
-			throw new FileAccessException(e);
-		}
-	}
+    private void synchronizeWithFile()
+    {
+        try
+        {
+            FileUtils.writeStringToFile(this.file, this.serializer.apply(this), this.encoding);
+        }
+        catch (IOException e)
+        {
+            throw new FileAccessException(e);
+        }
+    }
 
-	public FileSynchronizedMap<K, V> setEncoding(Charset encoding)
-	{
-		this.encoding = encoding;
-		return this;
-	}
+    public FileSynchronizedMap<K, V> setEncoding(Charset encoding)
+    {
+        this.encoding = encoding;
+        return this;
+    }
 
-	@Override
-	public V put(K key, V value)
-	{
-		V retval = super.put(key, value);
-		this.synchronizeWithFile();
-		return retval;
-	}
+    @Override
+    public V put(K key, V value)
+    {
+        V retval = super.put(key, value);
+        this.synchronizeWithFile();
+        return retval;
+    }
 
-	@Override
-	public V remove(Object key)
-	{
-		V remove = super.remove(key);
-		this.synchronizeWithFile();
-		return remove;
-	}
+    @Override
+    public V remove(Object key)
+    {
+        V remove = super.remove(key);
+        this.synchronizeWithFile();
+        return remove;
+    }
 
-	@Override
-	public void putAll(Map<? extends K, ? extends V> m)
-	{
-		super.putAll(m);
-		this.synchronizeWithFile();
-	}
+    @Override
+    public void putAll(Map<? extends K, ? extends V> m)
+    {
+        super.putAll(m);
+        this.synchronizeWithFile();
+    }
 
-	@Override
-	public void clear()
-	{
-		super.clear();
-		this.synchronizeWithFile();
-	}
+    @Override
+    public void clear()
+    {
+        super.clear();
+        this.synchronizeWithFile();
+    }
 
 }

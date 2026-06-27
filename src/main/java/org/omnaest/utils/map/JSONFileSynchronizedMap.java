@@ -47,24 +47,22 @@ import org.omnaest.utils.JSONHelper;
  */
 public class JSONFileSynchronizedMap<K, V> extends FileSynchronizedMap<K, V>
 {
-	public JSONFileSynchronizedMap(Map<K, V> map, File file)
-	{
-		super(map, file, new FileSynchronizedMap.Serializer<K, V>()
-		{
-			@Override
-			public String apply(Map<K, V> map)
-			{
-				return JSONHelper.prettyPrint(map);
-			}
-		}, new FileSynchronizedMap.Deserializer<K, V>()
-		{
-			@SuppressWarnings("unchecked")
-			@Override
-			public Map<K, V> apply(String data)
-			{
-				return JSONHelper.readFromString(data, Map.class);
-			}
-		});
-	}
+    public JSONFileSynchronizedMap(Map<K, V> map, File file)
+    {
+        super(map, file, new FileSynchronizedMap.Serializer<K, V>() {
+            @Override
+            public String apply(Map<K, V> map)
+            {
+                return JSONHelper.prettyPrint(map);
+            }
+        }, new FileSynchronizedMap.Deserializer<K, V>() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public Map<K, V> apply(String data)
+            {
+                return JSONHelper.readFromString(data, Map.class);
+            }
+        });
+    }
 
 }

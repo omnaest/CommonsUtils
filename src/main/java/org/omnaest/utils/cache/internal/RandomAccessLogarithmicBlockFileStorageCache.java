@@ -29,7 +29,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public class RandomAccessLogarithmicBlockFileStorageCache extends AbstractCache
 {
-    private static final Logger LOG = LoggerFactory.getLogger(RandomAccessLogarithmicBlockFileStorageCache.class);
+    private static final Logger    LOG = LoggerFactory.getLogger(RandomAccessLogarithmicBlockFileStorageCache.class);
 
     private StringBlockFileStorage fileStorage;
     private int                    hashCapacity;
@@ -76,7 +76,7 @@ public class RandomAccessLogarithmicBlockFileStorageCache extends AbstractCache
             private String type;
 
             @JsonProperty
-            private Date modifiedDate;
+            private Date   modifiedDate;
 
             protected Content()
             {

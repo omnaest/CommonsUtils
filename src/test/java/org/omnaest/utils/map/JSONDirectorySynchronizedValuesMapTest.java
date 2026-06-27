@@ -43,37 +43,37 @@ import org.omnaest.utils.FileMapUtils;
 
 public class JSONDirectorySynchronizedValuesMapTest
 {
-	private static class Domain
-	{
-		private String field;
+    private static class Domain
+    {
+        private String field;
 
-		public String getField()
-		{
-			return this.field;
-		}
+        public String getField()
+        {
+            return this.field;
+        }
 
-		public Domain setField(String field)
-		{
-			this.field = field;
-			return this;
-		}
-	}
+        public Domain setField(String field)
+        {
+            this.field = field;
+            return this;
+        }
+    }
 
-	@Test
-	public void testJSONDirectorySynchronizedValuesMap() throws Exception
-	{
-		File directory = new File("C:/Temp/jsonDirectoryTest");
-		Map<String, Domain> map = FileMapUtils.toJsonDirectorySynchronizedValuesMap(directory, Domain.class);
+    @Test
+    public void testJSONDirectorySynchronizedValuesMap() throws Exception
+    {
+        File directory = new File("C:/Temp/jsonDirectoryTest");
+        Map<String, Domain> map = FileMapUtils.toJsonDirectorySynchronizedValuesMap(directory, Domain.class);
 
-		map.put("key1", new Domain().setField("value1"));
-		map.put("key2", new Domain().setField("value2"));
+        map.put("key1", new Domain().setField("value1"));
+        map.put("key2", new Domain().setField("value2"));
 
-		Map<String, Domain> map2 = FileMapUtils.toJsonDirectorySynchronizedValuesMap(directory, Domain.class);
-		assertEquals(2, map2.size());
-		assertEquals("value1", map2	.get("key1")
-									.getField());
-		assertEquals("value2", map2	.get("key2")
-									.getField());
-	}
+        Map<String, Domain> map2 = FileMapUtils.toJsonDirectorySynchronizedValuesMap(directory, Domain.class);
+        assertEquals(2, map2.size());
+        assertEquals("value1", map2.get("key1")
+                                   .getField());
+        assertEquals("value2", map2.get("key2")
+                                   .getField());
+    }
 
 }

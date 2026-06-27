@@ -41,15 +41,15 @@ import org.slf4j.LoggerFactory;
 
 public class DefaultCycleProcessor<I, W> implements CycleProcessor<I, W>
 {
-    private static final Logger LOG = LoggerFactory.getLogger(DefaultCycleProcessor.class);
+    private static final Logger                         LOG                       = LoggerFactory.getLogger(DefaultCycleProcessor.class);
 
-    private Function<I, W>   windowReaderFunction;
-    private BiConsumer<I, W> windowWriter;
+    private Function<I, W>                              windowReaderFunction;
+    private BiConsumer<I, W>                            windowWriter;
 
-    private ExecutorService operationsExecutorService = Executors.newCachedThreadPool();
-    private ExecutorService mainExecutorService       = Executors.newSingleThreadExecutor();
+    private ExecutorService                             operationsExecutorService = Executors.newCachedThreadPool();
+    private ExecutorService                             mainExecutorService       = Executors.newSingleThreadExecutor();
 
-    private KeyLockingRepository<I, WindowCollector<W>> windowIndexToCollector = new KeyLockingRepository<>();
+    private KeyLockingRepository<I, WindowCollector<W>> windowIndexToCollector    = new KeyLockingRepository<>();
 
     private static class NewOperationsSignaling
     {
@@ -90,12 +90,12 @@ public class DefaultCycleProcessor<I, W> implements CycleProcessor<I, W>
 
     private static class KeyLockingRepository<K, V>
     {
-        private Map<K, Lock>          keyToLock          = new ConcurrentHashMap<>();
-        private Map<K, Condition>     keyToReadSignal    = new ConcurrentHashMap<>();
-        private Map<K, Condition>     keyToLoadedSignal  = new ConcurrentHashMap<>();
-        private Map<K, Condition>     keyToRemovedSignal = new ConcurrentHashMap<>();
-        private Map<K, AtomicInteger> keyToReadCounter   = new ConcurrentHashMap<>();
-        private Map<K, V>             keyToValue         = new ConcurrentHashMap<>();
+        private Map<K, Lock>           keyToLock              = new ConcurrentHashMap<>();
+        private Map<K, Condition>      keyToReadSignal        = new ConcurrentHashMap<>();
+        private Map<K, Condition>      keyToLoadedSignal      = new ConcurrentHashMap<>();
+        private Map<K, Condition>      keyToRemovedSignal     = new ConcurrentHashMap<>();
+        private Map<K, AtomicInteger>  keyToReadCounter       = new ConcurrentHashMap<>();
+        private Map<K, V>              keyToValue             = new ConcurrentHashMap<>();
 
         private NewOperationsSignaling newOperationsSignaling = new NewOperationsSignaling();
 
@@ -144,7 +144,8 @@ public class DefaultCycleProcessor<I, W> implements CycleProcessor<I, W>
                 {
                     lock.unlock();
                 }
-            } while (!consumed);
+            }
+            while (!consumed);
         }
 
         public void removalOperation(K key, Consumer<V> preConsumer, Consumer<V> postConsumer)
@@ -201,7 +202,8 @@ public class DefaultCycleProcessor<I, W> implements CycleProcessor<I, W>
                     }
                     lock.unlock();
                 }
-            } while (!consumed);
+            }
+            while (!consumed);
         }
 
         public Set<K> keySet()

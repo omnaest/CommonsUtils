@@ -113,8 +113,7 @@ public interface RepeatingFilteredProcessor<R>
     {
         public Stream<ProcessedElement<E, R>> withOperation(Function<E, String> identityFunction, Function<E, R> mappingFunction);
 
-        public Stream<ProcessedElement<E, R>> withOperation(Function<E, String> identityFunction, Function<E, R> mappingFunction,
-                                                            UnaryBiFunction<R> mergeFunction);
+        public Stream<ProcessedElement<E, R>> withOperation(Function<E, String> identityFunction, Function<E, R> mappingFunction, UnaryBiFunction<R> mergeFunction);
 
         /**
          * Returns a {@link Stream} of mapping results which is not based on the direct processing like by
@@ -128,8 +127,7 @@ public interface RepeatingFilteredProcessor<R>
          * @param mergeFunction
          * @return
          */
-        public Stream<AggregatedElement<R>> withAggregatingOperation(Function<E, String> identityFunction, Function<E, R> mappingFunction,
-                                                                     UnaryBiFunction<R> mergeFunction);
+        public Stream<AggregatedElement<R>> withAggregatingOperation(Function<E, String> identityFunction, Function<E, R> mappingFunction, UnaryBiFunction<R> mergeFunction);
     }
 
     public static interface AggregatedElement<R>

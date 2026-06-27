@@ -91,8 +91,7 @@ public interface UnaryCache<V> extends CacheBase, Iterable<Entry<V>>, Function<S
     {
         return this.keySet()
                    .stream()
-                   .map(key -> new Entry<V>()
-                   {
+                   .map(key -> new Entry<V>() {
                        @Override
                        public String getKey()
                        {
@@ -172,8 +171,7 @@ public interface UnaryCache<V> extends CacheBase, Iterable<Entry<V>>, Function<S
     public default Map<String, V> asMap()
     {
         UnaryCache<V> cache = this;
-        return MapUtils.toMap(new CRUDMap<String, V>()
-        {
+        return MapUtils.toMap(new CRUDMap<String, V>() {
             @Override
             public int size()
             {
@@ -230,8 +228,7 @@ public interface UnaryCache<V> extends CacheBase, Iterable<Entry<V>>, Function<S
      */
     public default SingleElementCache<V> asSingleElementCache()
     {
-        return new SingleElementCache<V>()
-        {
+        return new SingleElementCache<V>() {
             private final String ENTRY_KEY = "entry";
 
             @Override

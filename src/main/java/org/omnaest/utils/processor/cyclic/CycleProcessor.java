@@ -73,15 +73,13 @@ public interface CycleProcessor<I, W>
      */
     public static CycleProcessorBuilder builder()
     {
-        return new CycleProcessorBuilder()
-        {
+        return new CycleProcessorBuilder() {
 
             @Override
             public <I, W> TypedCycleProcessorBuilderLoaded<I, W> withWindowReader(Function<I, W> windowReaderFunction)
             {
 
-                return new TypedCycleProcessorBuilderLoaded<I, W>()
-                {
+                return new TypedCycleProcessorBuilderLoaded<I, W>() {
                     private BiConsumer<I, W> windowWriter = (i, w) ->
                     {
                     };

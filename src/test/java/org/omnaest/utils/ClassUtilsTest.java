@@ -27,7 +27,7 @@ import org.junit.Test;
 public class ClassUtilsTest
 {
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
     public void testLoadResource() throws Exception
     {

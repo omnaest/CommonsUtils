@@ -145,8 +145,8 @@ public class CacheUtilsTest
     {
         UnaryCache<byte[]> byteArrayCache = this.cacheSupplier.get()
                                                               .asUnaryCache(byte[].class);
-        byteArrayCache.put("key1", new byte[] { 0, 1, 127 });
-        assertEquals(Arrays.asList(ArrayUtils.toObject(new byte[] { 0, 1, 127 })), Arrays.asList(ArrayUtils.toObject(byteArrayCache.get("key1"))));
+        byteArrayCache.put("key1", new byte[] {0, 1, 127});
+        assertEquals(Arrays.asList(ArrayUtils.toObject(new byte[] {0, 1, 127})), Arrays.asList(ArrayUtils.toObject(byteArrayCache.get("key1"))));
         assertEquals(1, byteArrayCache.size());
         assertFalse(byteArrayCache.isEmpty());
     }

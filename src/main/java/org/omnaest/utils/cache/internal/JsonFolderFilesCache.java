@@ -56,15 +56,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class JsonFolderFilesCache extends AbstractCache implements CacheWithNativeTypeSupport
 {
-    private static final String UTF_8 = "utf-8";
-    private static final Logger LOG   = LoggerFactory.getLogger(JsonFolderFilesCache.class);
+    private static final String       UTF_8                  = "utf-8";
+    private static final Logger       LOG                    = LoggerFactory.getLogger(JsonFolderFilesCache.class);
 
-    private File cacheDirectory;
+    private File                      cacheDirectory;
 
-    private AtomicReference<DataRoot> root = new AtomicReference<>();
+    private AtomicReference<DataRoot> root                   = new AtomicReference<>();
 
-    private boolean nativeByteArrayStorage = false;
-    private boolean nativeStringStorage    = false;
+    private boolean                   nativeByteArrayStorage = false;
+    private boolean                   nativeStringStorage    = false;
 
     @Override
     public JsonFolderFilesCache withNativeByteArrayStorage(boolean active)
@@ -83,10 +83,10 @@ public class JsonFolderFilesCache extends AbstractCache implements CacheWithNati
     protected static class DataRoot
     {
         @JsonProperty
-        private AtomicLong index = new AtomicLong();
+        private AtomicLong                      index = new AtomicLong();
 
         @JsonProperty
-        private ConcurrentMap<String, Long> data = new ConcurrentHashMap<>();
+        private ConcurrentMap<String, Long>     data  = new ConcurrentHashMap<>();
 
         @JsonProperty
         private ConcurrentMap<String, Class<?>> types = new ConcurrentHashMap<>();
@@ -396,7 +396,7 @@ public class JsonFolderFilesCache extends AbstractCache implements CacheWithNati
             org.omnaest.utils.FileUtils.toWriterSupplierUTF8(this.determineRootCacheFile(commitIndex))
                                        .toConsumerWith(JSONHelper.writerSerializer(DataRoot.class))
                                        .accept(this.root.get());
-            FileUtils.writeByteArrayToFile(this.determineRootCommitFile(), new byte[] { commitIndex });
+            FileUtils.writeByteArrayToFile(this.determineRootCommitFile(), new byte[] {commitIndex});
         }
         catch (Exception e)
         {

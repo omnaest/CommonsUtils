@@ -24,6 +24,8 @@ import java.util.stream.Stream;
 
 import org.apache.commons.io.IOUtils;
 
+import com.google.common.primitives.Primitives;
+
 public class ClassUtils
 {
 
@@ -93,8 +95,7 @@ public class ClassUtils
                                return null;
                            }
                        })
-                       .map(data -> new Resource()
-                       {
+                       .map(data -> new Resource() {
                            @Override
                            public String asString()
                            {
@@ -117,8 +118,7 @@ public class ClassUtils
                            @Override
                            public JSONResource asJson()
                            {
-                               return new JSONResource()
-                               {
+                               return new JSONResource() {
                                    @Override
                                    public <R, T extends R> R as(Class<T> type)
                                    {
@@ -155,5 +155,29 @@ public class ClassUtils
                                return null;
                            }
                        });
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> Optional<Class<T>> findClassByName(String canonicalName)
+    {
+        return Primitives.allPrimitiveTypes()
+                         .stream()
+                         .filter(primitiveType -> org.apache.commons.lang3.StringUtils.equals(primitiveType.getCanonicalName(), canonicalName))
+                         .findFirst()
+                         .map(type -> (Class<T>) type)
+                         .or(() -> findNonPrimitiveClassByName(canonicalName));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> Optional<Class<T>> findNonPrimitiveClassByName(String canonicalName)
+    {
+        try
+        {
+            return Optional.of((Class<T>) Class.forName(canonicalName));
+        }
+        catch (ClassNotFoundException e)
+        {
+            return Optional.empty();
+        }
     }
 }

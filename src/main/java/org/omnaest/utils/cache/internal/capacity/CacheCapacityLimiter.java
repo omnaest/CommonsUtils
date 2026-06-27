@@ -22,10 +22,10 @@ import org.omnaest.utils.cache.CacheBase;
 
 public class CacheCapacityLimiter
 {
-    private int    capacity;
-    private double evictionRatio = 0.3;
+    private int                     capacity;
+    private double                  evictionRatio    = 0.3;
 
-    private CacheBase cache;
+    private CacheBase               cache;
 
     private AtomicLong              counter          = new AtomicLong();
     private EvictionStrategyHandler evictionStrategy = new RandomEvictionStrategy();
@@ -87,7 +87,7 @@ public class CacheCapacityLimiter
     public String toString()
     {
         return "CacheCapacityLimiter [capacity=" + this.capacity + ", evictionRatio=" + this.evictionRatio + ", counter=" + this.counter + ", evictionStrategy="
-                + this.evictionStrategy + "]";
+               + this.evictionStrategy + "]";
     }
 
 }

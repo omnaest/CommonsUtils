@@ -39,65 +39,65 @@ import org.omnaest.utils.events.EventHandler;
 
 public class ListenableElement<E>
 {
-	private E element;
+    private E element;
 
-	public static class Change<E>
-	{
-		private E	previous;
-		private E	next;
+    public static class Change<E>
+    {
+        private E previous;
+        private E next;
 
-		public Change(E previous, E next)
-		{
-			super();
-			this.previous = previous;
-			this.next = next;
-		}
+        public Change(E previous, E next)
+        {
+            super();
+            this.previous = previous;
+            this.next = next;
+        }
 
-		/**
-		 * Element that is currently still the element but is going to be overwritten by the {@link #getNext()} value
-		 * 
-		 * @see #getNext()
-		 * @return
-		 */
-		public E getPrevious()
-		{
-			return this.previous;
-		}
+        /**
+         * Element that is currently still the element but is going to be overwritten by the {@link #getNext()} value
+         * 
+         * @see #getNext()
+         * @return
+         */
+        public E getPrevious()
+        {
+            return this.previous;
+        }
 
-		/**
-		 * Element that is up to be set
-		 * 
-		 * @see #getPrevious()
-		 * @return
-		 */
-		public E getNext()
-		{
-			return this.next;
-		}
+        /**
+         * Element that is up to be set
+         * 
+         * @see #getPrevious()
+         * @return
+         */
+        public E getNext()
+        {
+            return this.next;
+        }
 
-	}
+    }
 
-	private DistributingEventHandlerManager<Change<E>> distributionEventHandler = new DistributingEventHandlerManager<>();
+    private DistributingEventHandlerManager<Change<E>> distributionEventHandler = new DistributingEventHandlerManager<>();
 
-	public E get()
-	{
-		return this.element;
-	}
+    public E get()
+    {
+        return this.element;
+    }
 
-	public ListenableElement<E> set(E element)
-	{
-		if (!ObjectUtils.equals(this.element, element))
-		{
-			this.distributionEventHandler.accept(new Change<E>(this.element, element));
-		}
-		this.element = element;
-		return this;
-	}
+    public ListenableElement<E> set(E element)
+    {
+        if (!ObjectUtils.equals(this.element, element))
+        {
+            this.distributionEventHandler.accept(new Change<E>(this.element, element));
+        }
+        this.element = element;
+        return this;
+    }
 
-	public ListenableElement<E> registerOnChange(EventHandler<Change<E>> eventHandler)
-	{
-		this.distributionEventHandler.register(eventHandler);
-		return this;
-	}
+    public ListenableElement<E> registerOnChange(EventHandler<Change<E>> eventHandler)
+    {
+        this.distributionEventHandler.register(eventHandler);
+        return this;
+    }
 
 }

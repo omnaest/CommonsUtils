@@ -47,62 +47,62 @@ import org.apache.commons.io.FileUtils;
  */
 public class JsonFileElementCache<T> implements Supplier<T>
 {
-	private static final String UTF_8 = "utf-8";
+    private static final String UTF_8 = "utf-8";
 
-	private Supplier<T>			supplier;
-	private Class<? super T>	type;
-	private File				cacheFile;
+    private Supplier<T>         supplier;
+    private Class<? super T>    type;
+    private File                cacheFile;
 
-	public JsonFileElementCache(File cacheFile, Supplier<T> supplier, Class<? super T> type)
-	{
-		super();
-		this.cacheFile = cacheFile;
-		this.supplier = supplier;
-		this.type = type;
-	}
+    public JsonFileElementCache(File cacheFile, Supplier<T> supplier, Class<? super T> type)
+    {
+        super();
+        this.cacheFile = cacheFile;
+        this.supplier = supplier;
+        this.type = type;
+    }
 
-	@Override
-	public T get()
-	{
-		T element = null;
+    @Override
+    public T get()
+    {
+        T element = null;
 
-		if (this.cacheFile.exists() && this.cacheFile.isFile())
-		{
-			element = this.loadElementFromCache();
-		}
+        if (this.cacheFile.exists() && this.cacheFile.isFile())
+        {
+            element = this.loadElementFromCache();
+        }
 
-		if (element == null)
-		{
-			element = this.supplier.get();
-			this.writeElementToCache(element);
-		}
-		return element;
-	}
+        if (element == null)
+        {
+            element = this.supplier.get();
+            this.writeElementToCache(element);
+        }
+        return element;
+    }
 
-	@SuppressWarnings("unchecked")
-	private T loadElementFromCache()
-	{
-		T element = null;
-		try
-		{
-			element = (T) JSONHelper.readFromString(FileUtils.readFileToString(this.cacheFile, UTF_8), this.type);
-		}
-		catch (IOException e)
-		{
-		}
-		return element;
-	}
+    @SuppressWarnings("unchecked")
+    private T loadElementFromCache()
+    {
+        T element = null;
+        try
+        {
+            element = (T) JSONHelper.readFromString(FileUtils.readFileToString(this.cacheFile, UTF_8), this.type);
+        }
+        catch (IOException e)
+        {
+        }
+        return element;
+    }
 
-	private void writeElementToCache(T element)
-	{
-		try
-		{
-			String data = JSONHelper.prettyPrint(element);
-			FileUtils.writeStringToFile(this.cacheFile, data, UTF_8);
-		}
-		catch (IOException e)
-		{
-		}
-	}
+    private void writeElementToCache(T element)
+    {
+        try
+        {
+            String data = JSONHelper.prettyPrint(element);
+            FileUtils.writeStringToFile(this.cacheFile, data, UTF_8);
+        }
+        catch (IOException e)
+        {
+        }
+    }
 
 }

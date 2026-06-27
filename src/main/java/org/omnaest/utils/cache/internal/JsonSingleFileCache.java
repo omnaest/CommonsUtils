@@ -64,9 +64,9 @@ import com.fasterxml.jackson.databind.JsonNode;
  */
 public class JsonSingleFileCache extends AbstractCache
 {
-    private static final Logger LOG = LoggerFactory.getLogger(JsonSingleFileCache.class);
+    private static final Logger       LOG  = LoggerFactory.getLogger(JsonSingleFileCache.class);
 
-    private File cacheFile;
+    private File                      cacheFile;
 
     private AtomicReference<DataRoot> root = new AtomicReference<>();
 
@@ -74,13 +74,13 @@ public class JsonSingleFileCache extends AbstractCache
     protected static class DataRoot
     {
         @JsonProperty
-        private LinkedHashMap<String, JsonNode> data = new LinkedHashMap<>();
+        private LinkedHashMap<String, JsonNode> data          = new LinkedHashMap<>();
 
         @JsonProperty
-        private LinkedHashMap<String, Class<?>> types = new LinkedHashMap<>();
+        private LinkedHashMap<String, Class<?>> types         = new LinkedHashMap<>();
 
         @JsonProperty
-        private LinkedHashMap<String, Long> creationDates = new LinkedHashMap<>();
+        private LinkedHashMap<String, Long>     creationDates = new LinkedHashMap<>();
 
         public DataRoot()
         {

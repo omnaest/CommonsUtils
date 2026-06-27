@@ -62,8 +62,7 @@ public class CyclicHashMap<K, V> extends MapDecorator<K, V>
     private CRUDMap<K, V> newCRUDMapInstance()
     {
 
-        return new CRUDMap<K, V>()
-        {
+        return new CRUDMap<K, V>() {
 
             @Override
             public int size()

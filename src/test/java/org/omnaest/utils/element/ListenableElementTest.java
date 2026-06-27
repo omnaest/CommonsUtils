@@ -48,30 +48,30 @@ import org.omnaest.utils.element.ListenableElement.Change;
  */
 public class ListenableElementTest
 {
-	private ListenableElement<String>	element	= new ListenableElement<>();
-	private List<Change<String>>		changes;
+    private ListenableElement<String> element = new ListenableElement<>();
+    private List<Change<String>>      changes;
 
-	@Before
-	public void setUp()
-	{
-		this.changes = new ArrayList<>();
-		this.element.registerOnChange(change ->
-		{
-			this.changes.add(change);
-		});
-	}
+    @Before
+    public void setUp()
+    {
+        this.changes = new ArrayList<>();
+        this.element.registerOnChange(change ->
+        {
+            this.changes.add(change);
+        });
+    }
 
-	@Test
-	public void testSet() throws Exception
-	{
-		this.element.set("abc");
-		assertEquals(1, this.changes.size());
+    @Test
+    public void testSet() throws Exception
+    {
+        this.element.set("abc");
+        assertEquals(1, this.changes.size());
 
-		this.element.set("bcd");
-		assertEquals(2, this.changes.size());
+        this.element.set("bcd");
+        assertEquals(2, this.changes.size());
 
-		this.element.set("bcd");
-		assertEquals(2, this.changes.size());
-	}
+        this.element.set("bcd");
+        assertEquals(2, this.changes.size());
+    }
 
 }

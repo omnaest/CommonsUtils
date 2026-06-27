@@ -48,30 +48,30 @@ import org.junit.Test;
  */
 public class FileMapUtilsTest
 {
-	@Test
-	public void testToJsonFileSynchronizedMap() throws Exception
-	{
-		File file = new File("C:/Temp/syncMapTest.json");
-		Map<String, String> map1 = FileMapUtils.toJsonFileSynchronizedMap(	MapUtils.builder()
-																					.put("key1", "value1")
-																					.build(),
-																			file);
+    @Test
+    public void testToJsonFileSynchronizedMap() throws Exception
+    {
+        File file = new File("C:/Temp/syncMapTest.json");
+        Map<String, String> map1 = FileMapUtils.toJsonFileSynchronizedMap(MapUtils.builder()
+                                                                                  .put("key1", "value1")
+                                                                                  .build(),
+                                                                          file);
 
-		assertTrue(map1.containsKey("key1"));
-		map1.put("key2", "value2");
+        assertTrue(map1.containsKey("key1"));
+        map1.put("key2", "value2");
 
-		map1.put("key3", "value3");
-		map1.remove("key3");
+        map1.put("key3", "value3");
+        map1.remove("key3");
 
-		assertEquals(2, map1.size());
-		assertEquals("value1", map1.get("key1"));
-		assertEquals("value2", map1.get("key2"));
+        assertEquals(2, map1.size());
+        assertEquals("value1", map1.get("key1"));
+        assertEquals("value2", map1.get("key2"));
 
-		Map<String, String> map2 = FileMapUtils.toJsonFileSynchronizedMap(new HashMap<>(), file);
+        Map<String, String> map2 = FileMapUtils.toJsonFileSynchronizedMap(new HashMap<>(), file);
 
-		assertEquals(2, map2.size());
-		assertEquals("value1", map2.get("key1"));
-		assertEquals("value2", map2.get("key2"));
-	}
+        assertEquals(2, map2.size());
+        assertEquals("value1", map2.get("key1"));
+        assertEquals("value2", map2.get("key2"));
+    }
 
 }

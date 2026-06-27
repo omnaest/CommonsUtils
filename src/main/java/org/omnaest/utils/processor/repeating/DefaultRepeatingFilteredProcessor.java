@@ -42,11 +42,11 @@ public class DefaultRepeatingFilteredProcessor<R> implements RepeatingFilteredPr
     private Function<Integer, UnaryCache<R>> cacheProvider;
     private OnCacheCloseHandler<R>           onCacheCloseHandler;
 
-    private int                       distributionFactor = 10;
-    private Function<String, Integer> idToCacheIdMapper  = id -> Optional.ofNullable(id)
-                                                                         .map(String::hashCode)
-                                                                         .orElse(Integer.MAX_VALUE)
-            % this.distributionFactor;
+    private int                              distributionFactor = 10;
+    private Function<String, Integer>        idToCacheIdMapper  = id -> Optional.ofNullable(id)
+                                                                                .map(String::hashCode)
+                                                                                .orElse(Integer.MAX_VALUE)
+                                                                        % this.distributionFactor;
 
     public DefaultRepeatingFilteredProcessor(Function<Integer, UnaryCache<R>> cacheProvider, OnCacheCloseHandler<R> onCacheCloseHandler)
     {
@@ -88,8 +88,7 @@ public class DefaultRepeatingFilteredProcessor<R> implements RepeatingFilteredPr
     @Override
     public <E> RepeatingFilteredProcessorWithStreamProvider<E, R> process(IntFunction<Stream<E>> elementStreamSupplier)
     {
-        return new RepeatingFilteredProcessorWithStreamProvider<E, R>()
-        {
+        return new RepeatingFilteredProcessorWithStreamProvider<E, R>() {
 
             @Override
             public Stream<ProcessedElement<E, R>> withOperation(Function<E, String> identityFunction, Function<E, R> mappingFunction)
@@ -99,8 +98,7 @@ public class DefaultRepeatingFilteredProcessor<R> implements RepeatingFilteredPr
             }
 
             @Override
-            public Stream<ProcessedElement<E, R>> withOperation(Function<E, String> identityFunction, Function<E, R> mappingFunction,
-                                                                UnaryBiFunction<R> mergeFunction)
+            public Stream<ProcessedElement<E, R>> withOperation(Function<E, String> identityFunction, Function<E, R> mappingFunction, UnaryBiFunction<R> mergeFunction)
             {
                 return this.withOperation(identityFunction, mappingFunction, mergeFunction, this.determineAllAvailableCacheIds()
                                                                                                 .mapToObj(cacheId -> BiElement.of(cacheId, null)));
@@ -111,8 +109,7 @@ public class DefaultRepeatingFilteredProcessor<R> implements RepeatingFilteredPr
                 return IntStream.range(0, DefaultRepeatingFilteredProcessor.this.distributionFactor);
             }
 
-            public Stream<ProcessedElement<E, R>> withOperation(Function<E, String> identityFunction, Function<E, R> mappingFunction,
-                                                                UnaryBiFunction<R> mergeFunction, Stream<BiElement<Integer, UnaryCache<R>>> cacheIdsAndCache)
+            public Stream<ProcessedElement<E, R>> withOperation(Function<E, String> identityFunction, Function<E, R> mappingFunction, UnaryBiFunction<R> mergeFunction, Stream<BiElement<Integer, UnaryCache<R>>> cacheIdsAndCache)
             {
                 return this.processInBatchesPerDistributionKey(elementStreamSupplier, identityFunction,
                                                                (filteredStream, cache, cacheId) -> filteredStream.map(element ->
@@ -126,19 +123,14 @@ public class DefaultRepeatingFilteredProcessor<R> implements RepeatingFilteredPr
                                                                }), cacheIdsAndCache);
             }
 
-            private <PE extends AggregatedElement<R>> Stream<PE> processInBatchesPerDistributionKey(IntFunction<Stream<E>> elementStreamSupplier,
-                                                                                                    Function<E, String> identityFunction,
-                                                                                                    TriFunction<Stream<E>, UnaryCache<R>, Integer, Stream<PE>> filteredStreamProcessor)
+            private <PE extends AggregatedElement<R>> Stream<PE> processInBatchesPerDistributionKey(IntFunction<Stream<E>> elementStreamSupplier, Function<E, String> identityFunction, TriFunction<Stream<E>, UnaryCache<R>, Integer, Stream<PE>> filteredStreamProcessor)
             {
                 return this.processInBatchesPerDistributionKey(elementStreamSupplier, identityFunction, filteredStreamProcessor,
                                                                this.determineAllAvailableCacheIds()
                                                                    .mapToObj(cacheId -> BiElement.of(cacheId, null)));
             }
 
-            private <PE extends AggregatedElement<R>> Stream<PE> processInBatchesPerDistributionKey(IntFunction<Stream<E>> elementStreamSupplier,
-                                                                                                    Function<E, String> identityFunction,
-                                                                                                    TriFunction<Stream<E>, UnaryCache<R>, Integer, Stream<PE>> filteredStreamProcessor,
-                                                                                                    Stream<BiElement<Integer, UnaryCache<R>>> cacheIdsAndCache)
+            private <PE extends AggregatedElement<R>> Stream<PE> processInBatchesPerDistributionKey(IntFunction<Stream<E>> elementStreamSupplier, Function<E, String> identityFunction, TriFunction<Stream<E>, UnaryCache<R>, Integer, Stream<PE>> filteredStreamProcessor, Stream<BiElement<Integer, UnaryCache<R>>> cacheIdsAndCache)
             {
                 return cacheIdsAndCache.flatMap(cacheIdAndCache ->
                 {
@@ -160,8 +152,7 @@ public class DefaultRepeatingFilteredProcessor<R> implements RepeatingFilteredPr
             }
 
             @Override
-            public Stream<AggregatedElement<R>> withAggregatingOperation(Function<E, String> identityFunction, Function<E, R> mappingFunction,
-                                                                         UnaryBiFunction<R> mergeFunction)
+            public Stream<AggregatedElement<R>> withAggregatingOperation(Function<E, String> identityFunction, Function<E, R> mappingFunction, UnaryBiFunction<R> mergeFunction)
             {
                 return this.processInBatchesPerDistributionKey(elementStreamSupplier, identityFunction, (filteredStream, cache, cacheId) ->
                 {

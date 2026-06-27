@@ -52,8 +52,7 @@ public class ProcessorUtils
         }
     }
 
-    public static <R> RepeatingFilteredProcessor<R> newRepeatingFilteredProcessorWithInMemoryCacheAndContentRepository(MapElementRepository<Integer, CacheContent> repository,
-                                                                                                                       Class<R> type)
+    public static <R> RepeatingFilteredProcessor<R> newRepeatingFilteredProcessorWithInMemoryCacheAndContentRepository(MapElementRepository<Integer, CacheContent> repository, Class<R> type)
     {
         @SuppressWarnings("unchecked")
         Function<Integer, UnaryCache<R>> cacheProvider = cacheId ->
@@ -71,8 +70,7 @@ public class ProcessorUtils
         });
     }
 
-    public static <R> RepeatingFilteredProcessor<R> newRepeatingFilteredProcessorWithInMemoryCacheAndRepository(MapElementRepository<String, R> repository,
-                                                                                                                Class<R> type)
+    public static <R> RepeatingFilteredProcessor<R> newRepeatingFilteredProcessorWithInMemoryCacheAndRepository(MapElementRepository<String, R> repository, Class<R> type)
     {
         return RepeatingFilteredProcessor.of(cacheId -> CacheUtils.newConcurrentInMemoryCache()
                                                                   .asUnaryCache(type),

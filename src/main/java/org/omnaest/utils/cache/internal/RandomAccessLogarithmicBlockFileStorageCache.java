@@ -116,23 +116,40 @@ public class RandomAccessLogarithmicBlockFileStorageCache extends AbstractCache
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <V> V get(String key, Class<V> type)
     {
         return this.findContent(key)
-                   .map(content ->
-                   {
-                       try
-                       {
-                           Class<?> storedType = ClassUtils.getClass(content.getType());
-                           return (V) JSONHelper.toObjectWithType(content.getElement(), storedType);
-                       }
-                       catch (ClassNotFoundException e)
-                       {
-                           throw new IllegalStateException("Unable to deseralize data due to missing class type: " + content.getType(), e);
-                       }
-                   })
+                   .map(content -> this.toValidatedValue(content, type, key))
                    .orElse(null);
+    }
+
+    /**
+     * Resolves the stored type of the given {@link Content}, validates it against the requested {@code type} (if any),
+     * deserializes the element and casts it to {@code V}.
+     *
+     * @param content
+     * @param type    the requested type, or null to skip validation
+     * @param key     used only for diagnostics in the failure message
+     * @throws ClassCastException if {@code type} is not assignable from the actually stored type
+     */
+    @SuppressWarnings("unchecked")
+    private <V> V toValidatedValue(Content content, Class<V> type, String key)
+    {
+        try
+        {
+            Class<?> storedType = ClassUtils.getClass(content.getType());
+            if (type != null && !type.isAssignableFrom(storedType))
+            {
+                throw new ClassCastException("Requested cache value type [" + type.getName() + "] is not assignable from the actually stored type ["
+                                             + storedType.getName() + "] for key [" + key + "]");
+            }
+            return type != null ? type.cast(JSONHelper.toObjectWithType(content.getElement(), storedType))
+                    : (V) JSONHelper.toObjectWithType(content.getElement(), storedType);
+        }
+        catch (ClassNotFoundException e)
+        {
+            throw new IllegalStateException("Unable to deseralize data due to missing class type: " + content.getType(), e);
+        }
     }
 
     private Optional<Content> findContent(String key)
@@ -212,25 +229,8 @@ public class RandomAccessLogarithmicBlockFileStorageCache extends AbstractCache
                                                                                   .getCanonicalName(),
                                                                       Date.from(Instant.now())));
         }))
-                       .map(this.<V>createContentToValueMapper())
+                       .map(content -> this.toValidatedValue(content, type, key))
                        .orElse(null);
-    }
-
-    @SuppressWarnings("unchecked")
-    private <V> Function<Content, V> createContentToValueMapper()
-    {
-        return content ->
-        {
-            try
-            {
-                Class<?> storedType = ClassUtils.getClass(content.getType());
-                return (V) JSONHelper.toObjectWithType(content.getElement(), storedType);
-            }
-            catch (ClassNotFoundException e)
-            {
-                throw new IllegalStateException("Unable to deseralize data due to missing class type: " + content.getType(), e);
-            }
-        };
     }
 
     @Override

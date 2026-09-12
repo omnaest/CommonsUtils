@@ -37,6 +37,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.apache.commons.lang.StringUtils;
 import org.omnaest.utils.JSONHelper;
+import org.omnaest.utils.cache.AbstractCache;
 import org.omnaest.utils.cache.Cache;
 import org.omnaest.utils.cache.CacheWithNativeTypeSupport;
 import org.omnaest.utils.duration.TimeDuration;

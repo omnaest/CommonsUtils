@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import org.omnaest.utils.cache.AbstractCache;
 import org.omnaest.utils.cache.Cache;
 import org.omnaest.utils.duration.TimeDuration;
 

@@ -31,15 +31,13 @@
 
 
 */
-package org.omnaest.utils.cache.internal;
+package org.omnaest.utils.cache;
 
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
-
-import org.omnaest.utils.cache.Cache;
 
 /**
  * @see Cache

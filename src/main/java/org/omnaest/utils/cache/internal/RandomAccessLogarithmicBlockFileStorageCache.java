@@ -16,6 +16,7 @@ import java.util.stream.IntStream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.omnaest.utils.JSONHelper;
+import org.omnaest.utils.cache.AbstractCache;
 import org.omnaest.utils.cache.internal.RandomAccessLogarithmicBlockFileStorageCache.DataMap.Content;
 import org.omnaest.utils.duration.TimeDuration;
 import org.omnaest.utils.file.storage.RandomAccessLogarithmicBlockFileStorage;

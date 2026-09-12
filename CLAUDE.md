@@ -30,7 +30,7 @@ Follows the same `*Utils` static-facade pattern as `CommonsLangAndIO`:
 | Package | What lives here |
 |---|---|
 | `org.omnaest.utils` | `CacheUtils`, `ClassUtils`, `FileMapUtils`, `JsonFileUtils`, `ProcessorUtils`, `ProxyRecorderUtils` facades |
-| `cache` | `Cache`, `UnaryCache`, `Cacheable`, `CacheDecorator` interfaces + `CacheUtils` |
+| `cache` | `Cache`, `UnaryCache`, `Cacheable`, `CacheDecorator` interfaces + `CacheUtils`; `AbstractCache` — public abstract base (7 primitives / 8 derived methods) that `cache.internal` subclasses extend |
 | `cache.internal` | `ConcurrentHashMapCache`, `JsonFileElementCache`, `JsonFolderFilesCache`, `DurationLimitedCache`, etc. |
 | `cache.internal.capacity` | `CapacityLimitedCache/UnaryCache`, `RandomEvictionStrategy`, `EvictionStrategyHandler` |
 | `element` | `ListenableElement` |

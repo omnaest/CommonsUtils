@@ -40,6 +40,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
+import org.omnaest.utils.cache.AbstractCache;
 import org.omnaest.utils.duration.TimeDuration;
 
 @SuppressWarnings("unchecked")

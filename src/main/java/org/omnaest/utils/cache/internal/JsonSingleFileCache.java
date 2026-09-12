@@ -46,6 +46,7 @@ import java.util.function.UnaryOperator;
 import org.omnaest.utils.FileUtils;
 import org.omnaest.utils.JSONHelper;
 import org.omnaest.utils.RetryUtils;
+import org.omnaest.utils.cache.AbstractCache;
 import org.omnaest.utils.cache.Cache;
 import org.omnaest.utils.duration.TimeDuration;
 import org.slf4j.Logger;

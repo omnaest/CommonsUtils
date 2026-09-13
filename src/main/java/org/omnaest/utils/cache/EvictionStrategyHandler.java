@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package org.omnaest.utils.cache.internal.capacity;
+package org.omnaest.utils.cache;
 
 import java.util.Set;
 

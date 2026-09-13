@@ -19,6 +19,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.omnaest.utils.AssertionUtils;
 import org.omnaest.utils.cache.CacheBase;
+import org.omnaest.utils.cache.EvictionStrategyHandler;
 
 public class CacheCapacityLimiter
 {

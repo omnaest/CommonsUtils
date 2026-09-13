@@ -46,7 +46,6 @@ import org.omnaest.utils.CacheUtils;
 import org.omnaest.utils.CollectorUtils;
 import org.omnaest.utils.MapUtils;
 import org.omnaest.utils.cache.internal.DurationLimitedCache;
-import org.omnaest.utils.cache.internal.capacity.EvictionStrategyHandler;
 import org.omnaest.utils.cache.internal.capacity.RandomEvictionStrategy;
 import org.omnaest.utils.duration.TimeDuration;
 import org.omnaest.utils.element.bi.BiElement;

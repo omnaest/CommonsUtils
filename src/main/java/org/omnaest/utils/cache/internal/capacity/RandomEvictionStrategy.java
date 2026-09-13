@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.omnaest.utils.ListUtils;
+import org.omnaest.utils.cache.EvictionStrategyHandler;
 
 public class RandomEvictionStrategy implements EvictionStrategyHandler
 {

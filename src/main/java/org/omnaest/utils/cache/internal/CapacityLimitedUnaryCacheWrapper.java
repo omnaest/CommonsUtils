@@ -19,9 +19,9 @@ import java.util.function.Supplier;
 
 import org.omnaest.utils.cache.Cache.EvictionStrategyProvider;
 import org.omnaest.utils.cache.CapacityLimitedUnaryCache;
+import org.omnaest.utils.cache.EvictionStrategyHandler;
 import org.omnaest.utils.cache.UnaryCache;
 import org.omnaest.utils.cache.internal.capacity.CacheCapacityLimiter;
-import org.omnaest.utils.cache.internal.capacity.EvictionStrategyHandler;
 
 public class CapacityLimitedUnaryCacheWrapper<V> extends UnaryCacheDecorator<V> implements CapacityLimitedUnaryCache<V>
 {

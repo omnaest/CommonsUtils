@@ -22,12 +22,14 @@ import java.util.function.Function;
 import org.omnaest.utils.cache.UnaryCache;
 import org.omnaest.utils.processor.repeating.RepeatingFilteredProcessor;
 import org.omnaest.utils.repository.MapElementRepository;
+import org.omnaest.utils.style.declaration.ContextRoot;
 
 /**
  * Helper around processor implementations
- * 
+ *
  * @author omnaest
  */
+@ContextRoot("processors")
 public class ProcessorUtils
 {
     /**

@@ -46,11 +46,13 @@ import org.omnaest.utils.cache.CapacityLimitedCache;
 import org.omnaest.utils.cache.CapacityLimitedUnaryCache;
 import org.omnaest.utils.cache.UnaryCache;
 import org.omnaest.utils.element.cached.CachedElement;
+import org.omnaest.utils.style.declaration.ContextRoot;
 
 /**
  * @see Cache
  * @author Omnaest
  */
+@ContextRoot("caching")
 public class CacheUtils
 {
     public static final String DEFAULT_CACHE_FOLDER = "cache";

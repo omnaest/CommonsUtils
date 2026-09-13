@@ -71,6 +71,25 @@
 			<artifactId>CommonsRepository</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+		<!-- plan-208 Cliff B: CommonsStyleAnnotations is a PRIVATE, UNPUBLISHED module (see its own pom.xml -
+			maven.deploy.skip/skipPublishing/central.skipPublishing all true, plus a plugin-level override). This
+			module (CommonsUtils) IS published to the Central Portal snapshot repository (see the properties
+			above). `provided` scope is not transitive, so no consumer of CommonsUtils ever resolves this
+			dependency transitively - but the published CommonsUtils POM will nonetheless contain a reference to
+			an artifact that does not exist on any public repository. This is a fact for the user to see before
+			deciding whether to push/publish this change, not a defect to fix here. -->
+		<dependency>
+			<groupId>org.omnaest.utils</groupId>
+			<artifactId>CommonsStyleAnnotations</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.omnaest.utils</groupId>
+			<artifactId>CommonsStyleSupport</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 </project>

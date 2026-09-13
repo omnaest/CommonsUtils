@@ -18,12 +18,14 @@ package org.omnaest.utils;
 import java.io.File;
 
 import org.omnaest.utils.functional.Accessor;
+import org.omnaest.utils.style.declaration.ContextRoot;
 
 /**
  * Helper combining {@link FileUtils} and {@link JSONHelper} functionality
- * 
+ *
  * @author omnaest
  */
+@ContextRoot("JSON file access")
 public class JsonFileUtils
 {
     private JsonFileUtils()

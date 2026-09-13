@@ -38,12 +38,14 @@ import java.util.Map;
 
 import org.omnaest.utils.map.JSONDirectorySynchronizedValuesMap;
 import org.omnaest.utils.map.JSONFileSynchronizedMap;
+import org.omnaest.utils.style.declaration.ContextRoot;
 
 /**
  * Extension of {@link MapUtils} for {@link Map}s with underlying {@link File} operations
- * 
+ *
  * @author omnaest
  */
+@ContextRoot("file-backed maps")
 public class FileMapUtils
 {
     public static <K, V> Map<K, V> toJsonFileSynchronizedMap(Map<K, V> map, File file)

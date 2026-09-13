@@ -23,9 +23,11 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.IOUtils;
+import org.omnaest.utils.style.declaration.ContextRoot;
 
 import com.google.common.primitives.Primitives;
 
+@ContextRoot("reflection and classpath resources")
 public class ClassUtils
 {
 

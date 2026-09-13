@@ -44,7 +44,6 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.omnaest.utils.CacheUtils;
 import org.omnaest.utils.MapUtils;
 import org.omnaest.utils.cache.Cache.EvictionStrategyProvider;
 import org.omnaest.utils.cache.UnaryCache.Entry;
@@ -128,8 +127,8 @@ public interface UnaryCache<V> extends CacheBase, Iterable<Entry<V>>, Function<S
      */
     public default CapacityLimitedUnaryCache<V> withCapacityLimit(int capacity, EvictionStrategyProvider evictionStrategy)
     {
-        return CacheUtils.toCapacityLimitedUnaryCache(this, evictionStrategy)
-                         .withCapacityLimit(capacity);
+        return CacheFactory.toCapacityLimitedUnaryCache(this, evictionStrategy)
+                           .withCapacityLimit(capacity);
     }
 
     /**

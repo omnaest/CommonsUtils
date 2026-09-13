@@ -40,18 +40,11 @@ import java.util.function.Supplier;
 import org.apache.commons.io.FileUtils;
 import org.omnaest.utils.cache.Cache;
 import org.omnaest.utils.cache.Cache.EvictionStrategyProvider;
+import org.omnaest.utils.cache.CacheFactory;
 import org.omnaest.utils.cache.CacheWithNativeTypeSupport;
 import org.omnaest.utils.cache.CapacityLimitedCache;
 import org.omnaest.utils.cache.CapacityLimitedUnaryCache;
 import org.omnaest.utils.cache.UnaryCache;
-import org.omnaest.utils.cache.internal.CacheToUnaryCacheAdapter;
-import org.omnaest.utils.cache.internal.CapacityLimitedCacheWrapper;
-import org.omnaest.utils.cache.internal.CapacityLimitedUnaryCacheWrapper;
-import org.omnaest.utils.cache.internal.ConcurrentHashMapCache;
-import org.omnaest.utils.cache.internal.JsonFolderFilesCache;
-import org.omnaest.utils.cache.internal.JsonSingleFileCache;
-import org.omnaest.utils.cache.internal.NoOperationCache;
-import org.omnaest.utils.cache.internal.RandomAccessLogarithmicBlockFileStorageCache;
 import org.omnaest.utils.element.cached.CachedElement;
 
 /**
@@ -81,41 +74,41 @@ public class CacheUtils
 
     public static Cache newConcurrentInMemoryCache()
     {
-        return new ConcurrentHashMapCache();
+        return CacheFactory.newConcurrentInMemoryCache();
     }
 
     public static <V> Cache newJsonFileCache(File cacheFile)
     {
-        return new JsonSingleFileCache(cacheFile);
+        return CacheFactory.newJsonFileCache(cacheFile);
     }
 
     public static <V> Cache newRandomAccessLogarithmicBlockFileStorageCache(File cacheDirectory, int hashCapacity)
     {
-        return new RandomAccessLogarithmicBlockFileStorageCache(cacheDirectory, hashCapacity);
+        return CacheFactory.newRandomAccessLogarithmicBlockFileStorageCache(cacheDirectory, hashCapacity);
     }
 
     public static <V> Cache newRandomAccessLogarithmicBlockFileStorageCache(File cacheDirectory, int hashCapacity, int initialBlockSize)
     {
-        return new RandomAccessLogarithmicBlockFileStorageCache(cacheDirectory, hashCapacity, initialBlockSize);
+        return CacheFactory.newRandomAccessLogarithmicBlockFileStorageCache(cacheDirectory, hashCapacity, initialBlockSize);
     }
 
     public static <V> CacheWithNativeTypeSupport newJsonFolderCache(File cacheDirectory)
     {
-        return new JsonFolderFilesCache(cacheDirectory);
+        return CacheFactory.newJsonFolderCache(cacheDirectory);
     }
 
     public static CapacityLimitedCache toCapacityLimitedCache(Cache cache, EvictionStrategyProvider evictionStrategy)
     {
-        return new CapacityLimitedCacheWrapper(cache, evictionStrategy);
+        return CacheFactory.toCapacityLimitedCache(cache, evictionStrategy);
     }
 
     public static <V> CapacityLimitedUnaryCache<V> toCapacityLimitedUnaryCache(UnaryCache<V> cache, EvictionStrategyProvider evictionStrategy)
     {
-        return new CapacityLimitedUnaryCacheWrapper<>(cache, evictionStrategy);
+        return CacheFactory.toCapacityLimitedUnaryCache(cache, evictionStrategy);
     }
 
     /**
-     * Returns a new {@link JsonFolderFilesCache} for the local {@value #DEFAULT_CACHE_FOLDER} folder.
+     * Returns a new folder based {@link CacheWithNativeTypeSupport} for the local {@value #DEFAULT_CACHE_FOLDER} folder.
      * 
      * @param name
      * @return
@@ -183,16 +176,16 @@ public class CacheUtils
      */
     public static <V> UnaryCache<V> toUnaryCache(Cache cache, Class<V> type)
     {
-        return new CacheToUnaryCacheAdapter<>(cache, type);
+        return CacheFactory.toUnaryCache(cache, type);
     }
 
     /**
-     * Returns a new {@link NoOperationCache} instance
+     * Returns a new no-operation {@link Cache} instance
      * 
      * @return
      */
     public static Cache newNoOperationCache()
     {
-        return new NoOperationCache();
+        return CacheFactory.newNoOperationCache();
     }
 }

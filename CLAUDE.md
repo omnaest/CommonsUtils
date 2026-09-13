@@ -30,9 +30,9 @@ Follows the same `*Utils` static-facade pattern as `CommonsLangAndIO`:
 | Package | What lives here |
 |---|---|
 | `org.omnaest.utils` | `CacheUtils`, `ClassUtils`, `FileMapUtils`, `JsonFileUtils`, `ProcessorUtils`, `ProxyRecorderUtils` facades |
-| `cache` | `Cache`, `UnaryCache`, `Cacheable`, `CacheDecorator` interfaces + `CacheUtils`; `AbstractCache` — public abstract base (7 primitives / 8 derived methods) that `cache.internal` subclasses extend |
+| `cache` | `Cache`, `UnaryCache`, `Cacheable`, `CacheDecorator` interfaces; `CacheFactory` — the door onto `cache.internal`, the only place that names those implementation types; `AbstractCache` — public abstract base (7 primitives / 8 derived methods) that `cache.internal` subclasses extend; `EvictionStrategyHandler` — the extension point a custom eviction strategy implements |
 | `cache.internal` | `ConcurrentHashMapCache`, `JsonFileElementCache`, `JsonFolderFilesCache`, `DurationLimitedCache`, etc. |
-| `cache.internal.capacity` | `CapacityLimitedCache/UnaryCache`, `RandomEvictionStrategy`, `EvictionStrategyHandler` |
+| `cache.internal.capacity` | `CacheCapacityLimiter`, `RandomEvictionStrategy` |
 | `element` | `ListenableElement` |
 | `map` | `CyclicHashMap`, `FileSynchronizedMap` |
 | `processor.cyclic` | `CycleProcessor`, `DefaultCycleProcessor` |
@@ -41,7 +41,7 @@ Follows the same `*Utils` static-facade pattern as `CommonsLangAndIO`:
 
 ## Key classes
 
-- **`CacheUtils`** — main entry point; creates in-memory, file-backed, duration-limited, capacity-limited caches
+- **`CacheUtils`** — main entry point; creates in-memory, file-backed, duration-limited, capacity-limited caches. Delegates every construction to `cache.CacheFactory` so the root facade never reaches into `cache.internal`
 - **`JsonFileUtils`** / **`JSONFileSynchronizedMap`** — file-backed JSON map persistence
 - **`RandomAccessLogarithmicBlockFileStorageCache`** — binary file-backed cache for large datasets
 - **`ProxyRecorderUtils`** — records method invocations on a proxy for later replay

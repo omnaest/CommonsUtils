@@ -103,6 +103,6 @@ public interface Cacheable<T>
      */
     public default T withDirectoryCache(File folder)
     {
-        return this.withCache(CacheUtils.newJsonFolderCache(folder));
+        return this.withCache(CacheFactory.newJsonFolderCache(folder));
     }
 }

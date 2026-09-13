@@ -121,8 +121,8 @@ public interface Cache extends CacheBase
      */
     public default CapacityLimitedCache withCapacityLimit(int capacity, EvictionStrategyProvider evictionStrategy)
     {
-        return CacheUtils.toCapacityLimitedCache(this, evictionStrategy)
-                         .withCapacityLimit(capacity);
+        return CacheFactory.toCapacityLimitedCache(this, evictionStrategy)
+                           .withCapacityLimit(capacity);
     }
 
     /**
@@ -134,7 +134,7 @@ public interface Cache extends CacheBase
     @SuppressWarnings("unchecked")
     public default <V> UnaryCache<V> asUnaryCache(Class<? super V> type)
     {
-        return (UnaryCache<V>) CacheUtils.toUnaryCache(this, type);
+        return (UnaryCache<V>) CacheFactory.toUnaryCache(this, type);
     }
 
     /**

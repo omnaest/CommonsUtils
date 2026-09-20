@@ -8,6 +8,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.omnaest.utils.style.StyleProfile;
 import org.omnaest.utils.style.sourcetext.SourceGuard;
+import org.omnaest.utils.style.surface.CheckSurfaceGuard;
 
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
@@ -31,6 +32,17 @@ import com.tngtech.archunit.lang.EvaluationResult;
  * "helpfully" switch this back to {@code PROFILE.mainClasses()} - that reintroduces the split-package
  * contamination this comment exists to name. Resolving the split-package limitation in {@code StyleProfile}
  * itself is out of scope for this adoption.
+ *
+ * <p>
+ * <b>{@link #everyEnforcedCheckIsCalled()} (plan-225 Slice 7) is a coverage ratchet on this class itself.</b> It
+ * uses {@link CheckSurfaceGuard} to prove, by ArchUnit bytecode analysis of this very test class, that every one
+ * of {@code StyleProfile}'s and {@code SourceGuard}'s enforced (non-{@code @MeasurementOnly}) checks is actually
+ * invoked and evaluated from a live {@code @Test} method here - not merely named in a comment or a javadoc block.
+ * If {@code StyleProfile} gains a seventeenth enforced check, or a test method above is deleted, this test reds
+ * and names the missing check, closing the drift plan-216 found and plan-225 mechanises. The
+ * {@link #entryPointIsInterfaceOrUtilsFactory()} pin above counts as coverage because it still calls
+ * {@code .evaluate(..)} from a live {@code @Test} method - the guard accepts both {@code ArchRule} terminal
+ * forms.
  */
 class PackageStructureTest
 {
@@ -175,6 +187,13 @@ class PackageStructureTest
         SourceGuard.of()
                    .testsMirrorTheirSubjectPackage()
                    .verify();
+    }
+
+    @Test
+    void everyEnforcedCheckIsCalled()
+    {
+        CheckSurfaceGuard.of(PackageStructureTest.class)
+                         .verify();
     }
 
 }
